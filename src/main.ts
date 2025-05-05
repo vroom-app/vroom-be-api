@@ -9,15 +9,15 @@ async function bootstrap() {
   
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true,
     }),
   );
   
   app.enableCors();
   
-  const port = configService.get<number>('port') || 3000;
+  const port = configService.get<number>('port') || 3005;
   await app.listen(port);
   console.log(`Application is running on port ${port}`);
 }

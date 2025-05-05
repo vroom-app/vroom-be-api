@@ -14,17 +14,17 @@ import { User } from './users/entities/user.entity';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('database.host'),
-        port: configService.get('database.port'),
+        port: configService.get<number>('database.port'),
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
         entities: [User],
-        synchronize: true, // TODO only for development, set to false in production
+        synchronize: process.env.NODE_ENV !== 'production',
       }),
-      inject: [ConfigService],
     }),
     AuthModule,
     UsersModule,
