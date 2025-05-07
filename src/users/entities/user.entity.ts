@@ -1,4 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Booking } from 'src/booking/entities/booking.entity';
+import { Business } from 'src/business/entities/business.entity';
+import { Review } from 'src/review/entities/review.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
 export enum UserRole {
   USER = 'user',
@@ -38,6 +41,15 @@ export class User {
     array: true
   })
   roles: UserRole[];
+
+  @OneToMany(() => Business, business => business.owner)
+  ownedBusinesses: Business[];
+
+  @OneToMany(() => Booking, booking => booking.user)
+  bookings: Booking[];
+
+  @OneToMany(() => Review, review => review.user)
+  reviews: Review[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
