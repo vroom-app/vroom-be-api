@@ -17,6 +17,8 @@ import { Business } from './business/entities/business.entity';
 import { Review } from './review/entities/review.entity';
 import { ServiceOffering } from './service-offering/entities/service-offering.entity';
 import { Slot } from './slot/entities/slot.entity';
+import { BusinessOpeningHours } from './business/entities/business-opening-hours.entity';
+import { BusinessSpecialization } from './business/entities/business-specialization.entity';
 
 @Module({
   imports: [
@@ -34,7 +36,7 @@ import { Slot } from './slot/entities/slot.entity';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        entities: [Booking, Business, Review, ServiceOffering, Slot, Specialization, User],
+        entities: [Booking, BusinessOpeningHours, BusinessSpecialization, Business, Review, ServiceOffering, Slot, Specialization, User],
         synchronize: process.env.NODE_ENV !== 'production',
       }),
     }),

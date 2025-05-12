@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ServiceOfferingController } from "./service-offering.controller";
 import { ServiceOfferingService } from "./service-offering.service";
 import { ServiceOffering } from "./entities/service-offering.entity";
 
@@ -8,7 +7,7 @@ import { ServiceOffering } from "./entities/service-offering.entity";
     imports: [
         TypeOrmModule.forFeature([ServiceOffering])
     ],
-    controllers: [ServiceOfferingController],
+    controllers: [],
     providers: [ServiceOfferingService],
     exports: [ServiceOfferingService]
 })

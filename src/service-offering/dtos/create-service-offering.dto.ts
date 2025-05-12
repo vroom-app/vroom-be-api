@@ -2,10 +2,6 @@ import { IsEnum, IsNumber, IsOptional, IsPositive, IsString, IsArray, IsDecimal,
 import { DurationUnit, PriceType } from '../entities/service-offering.entity';
 
 export class CreateServiceOfferingDto {
-    @IsNumber()
-    @IsPositive()
-    businessId: number;
-
     @IsString()
     @MaxLength(255)
     name: string;
