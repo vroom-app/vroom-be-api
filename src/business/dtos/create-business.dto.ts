@@ -34,14 +34,14 @@ export class CreateBusinessDto {
     @IsString()
     @IsOptional()
     @MaxLength(1000)
-    description?: string;
+    description: string;
 
     @IsString()
     googlePlaceId: string;
 
     @IsString()
     @IsOptional()
-    googleCategory?: string;
+    googleCategory: string;
 
     @IsArray()
     @IsString({ each: true })

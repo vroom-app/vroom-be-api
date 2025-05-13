@@ -9,7 +9,7 @@ export class CreateServiceOfferingDto {
     @IsString()
     @IsOptional()
     @MaxLength(500)
-    description?: string;
+    description: string;
 
     @IsString()
     @IsOptional()
@@ -31,7 +31,7 @@ export class CreateServiceOfferingDto {
 
     @IsEnum(PriceType)
     @IsOptional()
-    priceType?: PriceType = PriceType.FIXED;
+    priceType: PriceType = PriceType.FIXED;
 
     @IsNumber()
     @Min(1)
@@ -39,7 +39,7 @@ export class CreateServiceOfferingDto {
 
     @IsEnum(DurationUnit)
     @IsOptional()
-    durationUnit?: DurationUnit = DurationUnit.MINUTES;
+    durationUnit: DurationUnit = DurationUnit.MINUTES;
 
     @IsString()
     @IsOptional()

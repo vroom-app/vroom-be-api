@@ -22,7 +22,7 @@ export class Business {
   name: string;
 
   @Column({ nullable: true })
-  description: string;
+  description: string;;
 
   @Column({ unique: true })
   googlePlaceId: string;
@@ -31,13 +31,13 @@ export class Business {
   googleCategory: string;
 
   @Column('simple-array', { nullable: true })
-  additionalPhotos: string[];
+  additionalPhotos: string[] | null;
 
   @Column({ default: false })
   isVerified: boolean;
 
-  @Column({ nullable: true })
-  website: string;
+  @Column({ type: 'text', nullable: true })
+  website: string | null;
 
   @Column()
   address: string;
@@ -45,8 +45,8 @@ export class Business {
   @Column()
   city: string;
 
-  @Column('point')
-  coordinates: Point;
+  @Column({type: 'point'})
+  coordinates: any;
 
   @Column()
   phone: string;
