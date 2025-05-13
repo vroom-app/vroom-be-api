@@ -17,8 +17,16 @@ import { BusinessSpecialization } from "./entities/business-specialization.entit
       ]),
       UsersModule
     ],
-    controllers: [BusinessController],
-    providers: [BusinessService, BusinessOpeningHoursService],
-    exports: [BusinessService, BusinessOpeningHoursService]
+    controllers: [
+      BusinessController
+    ],
+    providers: [
+      BusinessService, 
+      BusinessOpeningHoursService
+    ],
+    exports: [
+      BusinessService, 
+      BusinessOpeningHoursService
+    ]
 })
 export class BusinessModule {}

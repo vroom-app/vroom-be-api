@@ -8,12 +8,15 @@ import { Business } from "src/business/entities/business.entity";
 import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
 import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from "./dtos/business-offerings-update.dto";
 import { UpdateBusinessDetailsDto } from "./dtos/business-details-update.dto";
+import { BusinessOpeningHoursService } from "src/business/services/business-opening-hours.service";
+import { BusinessOpeningHours } from "src/business/entities/business-opening-hours.entity";
 
 @Injectable()
 export class BusinessManagementService {
     constructor(
         private readonly businessService: BusinessService,
         private readonly serviceOfferingService: ServiceOfferingService,
+        private readonly openingHoursService: BusinessOpeningHoursService,
     ) {}
 
     /**
@@ -41,7 +44,18 @@ export class BusinessManagementService {
         userId: number,
         createBusinessDto: CreateBusinessDto,
     ): Promise<Business> {
-        return await this.businessService.createBusiness(userId, createBusinessDto);
+        const { openingHours, ...businessData } = createBusinessDto;
+        
+        const savedBusiness = await this.businessService.createBusiness(userId, createBusinessDto);
+        
+        if (openingHours && openingHours.length > 0) {
+            savedBusiness.openingHours = await this.openingHoursService.createForBusiness(
+                savedBusiness.id,
+                openingHours
+            );
+        }
+        
+        return savedBusiness;
     }
 
     /**
@@ -86,10 +100,21 @@ export class BusinessManagementService {
         updateBusinessDetailsDto: UpdateBusinessDetailsDto
     ): Promise<Business> {
         if (await this.businessService.isOwnedByUser(userId, businessId)) {
-            return await this.businessService.updateBusiness(
+            const { openingHours, ...businessData } = updateBusinessDetailsDto;
+            
+            const updatedBusiness = await this.businessService.updateBusiness(
                 businessId, 
-                updateBusinessDetailsDto
+                businessData
             );
+            
+            if (openingHours && openingHours.length > 0) {
+                updatedBusiness.openingHours = await this.openingHoursService.updateForBusiness(
+                    businessId, 
+                    openingHours
+                );
+            }
+            
+            return updatedBusiness;
         }
 
         throw new ForbiddenException("You are not the owner of this business");
@@ -118,6 +143,28 @@ export class BusinessManagementService {
             );
             return updatedServices;
         }
+        throw new ForbiddenException("You are not the owner of this business");
+    }
+
+    /**
+     * Update opening hours for a business
+     * 
+     * @param userId The ID of the user updating the hours
+     * @param businessId The ID of the business 
+     * @param openingHours The new opening hours data
+     * @returns The updated opening hours
+     * @throws NotFoundException if business doesn't exist
+     * @throws ForbiddenException if user is not the owner
+     */
+    async updateBusinessOpeningHours(
+        userId: number,
+        businessId: number,
+        openingHours: Array<{ dayOfWeek: number; opensAt: string; closesAt: string }>
+    ): Promise<BusinessOpeningHours[]> {
+        if (await this.businessService.isOwnedByUser(userId, businessId)) {
+            return await this.openingHoursService.updateForBusiness(businessId, openingHours);
+        }
+        
         throw new ForbiddenException("You are not the owner of this business");
     }
 

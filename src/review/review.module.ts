@@ -7,11 +7,19 @@ import { ReviewService } from "./review.service";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Review]),
+        TypeOrmModule.forFeature([
+            Review
+        ]),
         UsersModule,
     ],
-    controllers: [ReviewController],
-    providers: [ReviewService],
-    exports: [ReviewService]
+    controllers: [
+        ReviewController
+    ],
+    providers: [
+        ReviewService
+    ],
+    exports: [
+        ReviewService
+    ]
 })
 export class ReviewModule {}

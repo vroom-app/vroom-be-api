@@ -23,21 +23,23 @@ import { Review } from 'src/review/entities/review.entity';
 import { BusinessModule } from 'src/business/business.module';
 import { ServiceOfferingModule } from 'src/service-offering/service-offering.module';
 import { BusinessManagementModule } from './business-manager.module';
+import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 
 describe('BusinessManagementService Integration Tests', () => {
     let moduleRef: TestingModule;
     let businessManagementService: BusinessManagementService;
     let businessService: BusinessService;
+    let businessOpeningHoursService: BusinessOpeningHoursService
     let serviceOfferingService: ServiceOfferingService;
     let userRepository: Repository<User>;
     let businessRepository: Repository<Business>;
     let serviceOfferingRepository: Repository<ServiceOffering>;
+    let businessOpeningHoursRepository: Repository<BusinessOpeningHours>;
     let businessOwner: User;
     let regularUser: User;
     let testBusiness: Business;
 
     beforeAll(async () => {
-        // Create test module with in-memory database
         moduleRef = await Test.createTestingModule({
             imports: [
                 TypeOrmModule.forRoot({
@@ -62,8 +64,8 @@ describe('BusinessManagementService Integration Tests', () => {
                     dropSchema: true,
                 }),
                 BusinessModule,
-                BusinessManagementModule,
                 ServiceOfferingModule,
+                BusinessManagementModule,
                 TypeOrmModule.forFeature([
                     User, 
                     Business, 
@@ -76,22 +78,17 @@ describe('BusinessManagementService Integration Tests', () => {
                     Review
                 ]),
             ],
-            providers: [
-                BusinessManagementService,
-                BusinessService,
-                ServiceOfferingService,
-            ],
         }).compile();
 
         // Get services and repositories
         businessManagementService = moduleRef.get<BusinessManagementService>(BusinessManagementService);
         businessService = moduleRef.get<BusinessService>(BusinessService);
+        businessOpeningHoursService = moduleRef.get<BusinessOpeningHoursService>(BusinessOpeningHoursService);
         serviceOfferingService = moduleRef.get<ServiceOfferingService>(ServiceOfferingService);
         userRepository = moduleRef.get<Repository<User>>(getRepositoryToken(User));
         businessRepository = moduleRef.get<Repository<Business>>(getRepositoryToken(Business));
         serviceOfferingRepository = moduleRef.get<Repository<ServiceOffering>>(getRepositoryToken(ServiceOffering));
-
-        // Setup test data
+        businessOpeningHoursRepository = moduleRef.get<Repository<BusinessOpeningHours>>(getRepositoryToken(BusinessOpeningHours));
         await setupTestData();
     });
 
@@ -100,7 +97,7 @@ describe('BusinessManagementService Integration Tests', () => {
     });
 
     async function setupTestData() {
-        // Create business owner
+        // business owner
         const ownerPasswordHash = await bcrypt.hash('password123', 10);
         businessOwner = userRepository.create({
             email: 'owner@test.com',
@@ -113,7 +110,7 @@ describe('BusinessManagementService Integration Tests', () => {
         });
         await userRepository.save(businessOwner);
 
-        // Create regular user
+        // regular user
         const userPasswordHash = await bcrypt.hash('password123', 10);
             regularUser = userRepository.create({
             email: 'user@test.com',
@@ -153,22 +150,17 @@ describe('BusinessManagementService Integration Tests', () => {
                 ],
             };
 
-            // Create business
             const createdBusiness = await businessManagementService.createBusiness(
                 businessOwner.id,
                 createBusinessDto,
             );
-
-            // Save reference for later tests
             testBusiness = createdBusiness;
 
-            // Verify created business
+            // Verify
             expect(createdBusiness).toBeDefined();
             expect(createdBusiness.name).toBe(createBusinessDto.name);
             expect(createdBusiness.description).toBe(createBusinessDto.description);
             expect(createdBusiness.address).toBe(createBusinessDto.address);
-
-            // Verify opening hours were created
             const businessFromDb = await businessRepository.findOne({
                 where: { id: createdBusiness.id },
                 relations: ['openingHours'],
@@ -178,13 +170,12 @@ describe('BusinessManagementService Integration Tests', () => {
         });
 
         it('should retrieve business profile', async () => {
-            // Get business profile
             const businessProfile = await businessManagementService.getBusinessProfile(
                 testBusiness.id,
                 businessOwner.id,
             );
 
-            // Verify business profile
+            // Verify
             expect(businessProfile).toBeDefined();
             expect(businessProfile.id).toBe(testBusiness.id);
             expect(businessProfile.name).toBe(testBusiness.name);
@@ -198,14 +189,13 @@ describe('BusinessManagementService Integration Tests', () => {
                 website: 'https://updated-business.com',
             };
 
-            // Update business details
             const updatedBusiness = await businessManagementService.updateBusinessDetails(
                 businessOwner.id,
                 testBusiness.id,
                 updateDto,
             );
 
-            // Verify updated business
+            // Verify
             expect(updatedBusiness).toBeDefined();
             expect(updatedBusiness.name).toBe(updateDto.name);
             expect(updatedBusiness.description).toBe(updateDto.description);
@@ -217,7 +207,6 @@ describe('BusinessManagementService Integration Tests', () => {
                 name: 'Unauthorized Update',
             };
 
-            // Attempt to update business as regular user
             await expect(
                 businessManagementService.updateBusinessDetails(
                     regularUser.id,
@@ -225,6 +214,39 @@ describe('BusinessManagementService Integration Tests', () => {
                     updateDto,
                 )
             ).rejects.toThrow(ForbiddenException);
+        });
+        
+        it('should allow business owner to update opening hours', async () => {
+            const updatedOpeningHours = [
+                {
+                    dayOfWeek: 1,
+                    opensAt: '10:00',
+                    closesAt: '19:00',
+                },
+                {
+                    dayOfWeek: 2,
+                    opensAt: '10:00',
+                    closesAt: '19:00',
+                },
+                {
+                    dayOfWeek: 3,
+                    opensAt: '10:00',
+                    closesAt: '19:00',
+                },
+            ];
+            
+            const result = await businessManagementService.updateBusinessOpeningHours(
+                businessOwner.id,
+                testBusiness.id,
+                updatedOpeningHours
+            );
+            
+            // Verify
+            expect(result).toBeDefined();
+            expect(result.length).toBe(3);
+            const updatedHours = await businessOpeningHoursService.findByBusinessId(testBusiness.id);
+            expect(updatedHours.length).toBe(3);
+            expect(updatedHours.some(h => h.dayOfWeek === 3)).toBe(true);  // New day was added
         });
     });
 
@@ -234,31 +256,30 @@ describe('BusinessManagementService Integration Tests', () => {
         it('should allow business owner to add service offerings', async () => {
             const createServiceOfferingDto: CreateServiceOfferingDto[] = [
                 {
-                name: 'Service 1',
-                description: 'First service description',
-                price: 100,
-                priceType: PriceType.FIXED,
-                durationUnit: DurationUnit.MINUTES,
-                durationMinutes: 60,
+                    name: 'Service 1',
+                    description: 'First service description',
+                    price: 100,
+                    priceType: PriceType.FIXED,
+                    durationUnit: DurationUnit.MINUTES,
+                    durationMinutes: 60,
                 },
                 {
-                name: 'Service 2',
-                description: 'Second service description',
-                price: 150,
-                priceType: PriceType.FIXED,
-                durationUnit: DurationUnit.MINUTES,
-                durationMinutes: 120,
+                    name: 'Service 2',
+                    description: 'Second service description',
+                    price: 150,
+                    priceType: PriceType.FIXED,
+                    durationUnit: DurationUnit.MINUTES,
+                    durationMinutes: 120,
                 },
             ];
 
-            // Add service offerings
             serviceOfferings = await businessManagementService.addBusinessServiceOfferings(
                 businessOwner.id,
                 testBusiness.id,
                 createServiceOfferingDto,
             );
 
-            // Verify service offerings
+            // Verify
             expect(serviceOfferings).toBeDefined();
             expect(serviceOfferings.length).toBe(2);
             expect(serviceOfferings[0].name).toBe(createServiceOfferingDto[0].name);
@@ -268,21 +289,20 @@ describe('BusinessManagementService Integration Tests', () => {
         it('should not allow regular user to add service offerings', async () => {
             const createServiceOfferingDto: CreateServiceOfferingDto[] = [
                 {
-                name: 'Unauthorized Service',
-                description: 'Unauthorized service description',
-                price: 50,
-                priceType: PriceType.FIXED,
-                durationUnit: DurationUnit.MINUTES,
-                durationMinutes: 30,
+                    name: 'Unauthorized Service',
+                    description: 'Unauthorized service description',
+                    price: 50,
+                    priceType: PriceType.FIXED,
+                    durationUnit: DurationUnit.MINUTES,
+                    durationMinutes: 30,
                 },
             ];
 
-            // Attempt to add service offerings as regular user
             await expect(
-                businessManagementService.addBusinessServiceOfferings(
-                regularUser.id,
-                testBusiness.id,
-                createServiceOfferingDto,
+                    businessManagementService.addBusinessServiceOfferings(
+                    regularUser.id,
+                    testBusiness.id,
+                    createServiceOfferingDto,
                 )
             ).rejects.toThrow(ForbiddenException);
         });
@@ -290,22 +310,21 @@ describe('BusinessManagementService Integration Tests', () => {
         it('should allow business owner to update service offerings', async () => {
             const updateBusinessServicesDto: UpdateBusinessServicesDto = {
                 services: [
-                {
-                    id: serviceOfferings[0].id,
-                    name: 'Updated Service 1',
-                    price: 120,
-                },
+                    {
+                        id: serviceOfferings[0].id,
+                        name: 'Updated Service 1',
+                        price: 120,
+                    },
                 ],
             };
 
-            // Update service offerings
             const updatedServices = await businessManagementService.updateBusinessServices(
                 businessOwner.id,
                 testBusiness.id,
                 updateBusinessServicesDto,
             );
 
-            // Verify updated service offerings
+            // Verify
             expect(updatedServices).toBeDefined();
             expect(updatedServices.length).toBe(1);
             expect(updatedServices[0].name).toBe(updateBusinessServicesDto.services[0].name);
@@ -315,19 +334,18 @@ describe('BusinessManagementService Integration Tests', () => {
         it('should not allow regular user to update service offerings', async () => {
             const updateBusinessServicesDto: UpdateBusinessServicesDto = {
                 services: [
-                {
-                    id: serviceOfferings[0].id,
-                    name: 'Unauthorized Update',
-                },
+                    {
+                        id: serviceOfferings[0].id,
+                        name: 'Unauthorized Update',
+                    },
                 ],
             };
 
-            // Attempt to update service offerings as regular user
             await expect(
                 businessManagementService.updateBusinessServices(
-                regularUser.id,
-                testBusiness.id,
-                updateBusinessServicesDto,
+                    regularUser.id,
+                    testBusiness.id,
+                    updateBusinessServicesDto,
                 )
             ).rejects.toThrow(ForbiddenException);
         });
@@ -340,10 +358,8 @@ describe('BusinessManagementService Integration Tests', () => {
                 serviceOfferings[1].id,
             );
 
-            // Verify deletion
+            // Verify
             expect(result).toBe(true);
-
-            // Verify service offering no longer exists
             const serviceOffering = await serviceOfferingRepository.findOne({
                 where: { id: serviceOfferings[1].id },
             });
@@ -351,12 +367,11 @@ describe('BusinessManagementService Integration Tests', () => {
         });
 
         it('should not allow regular user to delete service offering', async () => {
-            // Attempt to delete service offering as regular user
             await expect(
                 businessManagementService.deleteServiceOffering(
-                regularUser.id,
-                testBusiness.id,
-                serviceOfferings[0].id,
+                    regularUser.id,
+                    testBusiness.id,
+                    serviceOfferings[0].id,
                 )
             ).rejects.toThrow(ForbiddenException);
         });
@@ -364,22 +379,17 @@ describe('BusinessManagementService Integration Tests', () => {
 
     describe('Business Deletion', () => {
         it('should delete business and its services', async () => {
-            // Delete business
             const result = await businessManagementService.deleteBusinessAndServices(
                 testBusiness.id,
                 businessOwner.id,
             );
 
-            // Verify deletion
+            // Verify
             expect(result).toBe(true);
-
-            // Verify business no longer exists
             const business = await businessRepository.findOne({
                 where: { id: testBusiness.id },
             });
             expect(business).toBeNull();
-
-            // Verify service offerings are also deleted
             const serviceOfferings = await serviceOfferingRepository.find({
                 where: { business: { id: testBusiness.id } },
             });

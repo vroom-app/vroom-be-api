@@ -13,11 +13,13 @@ import { Slot } from 'src/slot/entities/slot.entity';
 import { Business } from 'src/business/entities/business.entity';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
+import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 
 describe('BusinessManagementService', () => {
     let service: BusinessManagementService;
     let mockBusinessService: jest.Mocked<BusinessService>;
     let mockServiceOfferingService: jest.Mocked<ServiceOfferingService>;
+    let mockBusinessOpeningHoursService: jest.Mocked<BusinessOpeningHoursService>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -41,12 +43,19 @@ describe('BusinessManagementService', () => {
                         deleteServiceOfferingByIdAndBusinessId: jest.fn(),
                     },
                 },
+                {
+                    provide: BusinessOpeningHoursService,
+                    useValue: {
+                        createForBusiness: jest.fn(),
+                    },
+                },
             ],
         }).compile();
 
         service = module.get<BusinessManagementService>(BusinessManagementService);
         mockBusinessService = module.get(BusinessService);
         mockServiceOfferingService = module.get(ServiceOfferingService);
+        mockBusinessOpeningHoursService = module.get(BusinessOpeningHoursService);
     });
 
     describe('getBusinessProfile', () => {

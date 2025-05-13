@@ -5,10 +5,16 @@ import { ServiceOffering } from "./entities/service-offering.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([ServiceOffering])
+        TypeOrmModule.forFeature([
+            ServiceOffering
+        ])
     ],
     controllers: [],
-    providers: [ServiceOfferingService],
-    exports: [ServiceOfferingService]
+    providers: [
+        ServiceOfferingService
+    ],
+    exports: [
+        ServiceOfferingService
+    ]
 })
 export class ServiceOfferingModule {}

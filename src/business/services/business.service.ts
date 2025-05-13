@@ -1,9 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { Point, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { CreateBusinessDto } from "../dtos/create-business.dto";
 import { Business } from "../entities/business.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BusinessOpeningHoursService } from "./business-opening-hours.service";
 import { BusinessProfileDto } from "src/business-management/dtos/business-profile.dto";
 import { UpdateBusinessDetailsDto } from "src/business-management/dtos/business-details-update.dto";
 
@@ -11,8 +10,7 @@ import { UpdateBusinessDetailsDto } from "src/business-management/dtos/business-
 export class BusinessService {
     constructor(
         @InjectRepository(Business)
-        private businessRepository: Repository<Business>,
-        private openingHoursService: BusinessOpeningHoursService
+        private businessRepository: Repository<Business>
     ) {}
 
     /**
@@ -22,7 +20,9 @@ export class BusinessService {
      */
     async getAllUserBusinesses(userId: number): Promise<Business[]> {
         return this.businessRepository.find({
-            where: { ownerId: userId },
+            where: { 
+                ownerId: userId 
+            },
             order: {
                 createdAt: 'DESC',
             },
@@ -131,16 +131,7 @@ export class BusinessService {
             coordinates: this.createPointFromCoordinates(createBusinessDto.latitude, createBusinessDto.longitude)
         });
         
-        const savedBusiness = await this.businessRepository.save(business);
-        
-        if (openingHours && openingHours.length > 0) {
-            savedBusiness.openingHours = await this.openingHoursService.createForBusiness(
-                savedBusiness.id,
-                openingHours
-            );
-        }
-        
-        return savedBusiness;
+        return await this.businessRepository.save(business);
     }
 
     /**
@@ -155,16 +146,12 @@ export class BusinessService {
         id: number, 
         updateBusinessDto: UpdateBusinessDetailsDto
     ): Promise<Business> {
-        const { openingHours,  ...businessData } = updateBusinessDto;
+        const { openingHours, ...businessData } = updateBusinessDto;
 
         const result = await this.businessRepository.update(id, businessData);
 
         if (result.affected === 0) {
             throw new NotFoundException(`Business with ID ${id} not found`);
-        }
-
-        if (openingHours && openingHours.length > 0) {
-            await this.openingHoursService.updateForBusiness(id, openingHours);
         }
 
         const updatedBusiness = await this.businessRepository.findOne({
@@ -215,7 +202,7 @@ export class BusinessService {
      * @returns The found business
      * @throws NotFoundException if business doesn't exist
      */
-    private async findById(id: number): Promise<Business> {
+    async findById(id: number): Promise<Business> {
         const business = await this.businessRepository.findOne({
             where: { id },
         });
