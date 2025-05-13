@@ -67,7 +67,7 @@ export class BusinessService {
             address: business.address,
             city: business.city,
             phone: business.phone,
-            website: business.website,
+            website: business.website || undefined,
             isVerified: business.isVerified,
             
             openingHours: business.openingHours.map(hour => ({
@@ -88,7 +88,7 @@ export class BusinessService {
                 price: service.price,
                 priceType: service.priceType,
                 durationMinutes: service.durationMinutes,
-                category: service.category
+                category: service.category || undefined
             }))
         };
     }
@@ -205,11 +205,8 @@ export class BusinessService {
      * @param longitude The longitude coordinate
      * @returns GeoJSON Point object uses [longitude, latitude] order
      */
-    private createPointFromCoordinates(latitude: number, longitude: number): Point {
-        return {
-            type: 'Point',
-            coordinates: [longitude, latitude]
-        };
+    private createPointFromCoordinates(latitude: number, longitude: number) {
+        return `(${longitude},${latitude})`;
     }
 
     /**

@@ -63,14 +63,14 @@ export class ServiceOffering {
     })
     durationUnit: DurationUnit;
   
-    @Column({ nullable: true })
-    durationNote: string;
+    @Column({ type: 'text', nullable: true })
+    durationNote: string | null;
   
-    @Column({ nullable: true })
-    warranty: string;
+    @Column({ type: 'text', nullable: true })
+    warranty: string | null;
   
-    @Column({ nullable: true })
-    category: string;
+    @Column({ type: 'text', nullable: true })
+    category: string | null;
   
     @CreateDateColumn()
     createdAt: Date;

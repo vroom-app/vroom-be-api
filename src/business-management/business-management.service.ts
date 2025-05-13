@@ -40,7 +40,7 @@ export class BusinessManagementService {
     async createBusiness(
         userId: number,
         createBusinessDto: CreateBusinessDto,
-    ) {
+    ): Promise<Business> {
         return await this.businessService.createBusiness(userId, createBusinessDto);
     }
 

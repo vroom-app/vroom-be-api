@@ -19,6 +19,7 @@ import { ServiceOffering } from './service-offering/entities/service-offering.en
 import { Slot } from './slot/entities/slot.entity';
 import { BusinessOpeningHours } from './business/entities/business-opening-hours.entity';
 import { BusinessSpecialization } from './business/entities/business-specialization.entity';
+import { BusinessManagementModule } from './business-management/business-manager.module';
 
 @Module({
   imports: [
@@ -43,12 +44,12 @@ import { BusinessSpecialization } from './business/entities/business-specializat
     AuthModule,
     BookingModule,
     BusinessModule,
+    BusinessManagementModule,
     ReviewModule,
     ServiceOfferingModule,
     SlotModule,
     SpecializationModule,
     UsersModule,
-
   ],
   controllers: [],
   providers: [],

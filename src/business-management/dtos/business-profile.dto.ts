@@ -1,7 +1,3 @@
-import { BusinessSpecializationDto } from "src/business/dtos/business-specialization.dto";
-import { Business } from "src/business/entities/business.entity";
-import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
-
 export interface BusinessProfileDto {
     id: number;
     name: string;
