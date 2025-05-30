@@ -16,8 +16,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalInterceptors(new ResponseInterceptor());
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalInterceptors(new ResponseInterceptor());
+  // app.useGlobalFilters(new AllExceptionsFilter());
   
   app.enableCors();
   

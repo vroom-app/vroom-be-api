@@ -45,14 +45,13 @@ export class BusinessManagementService {
         createBusinessDto: CreateBusinessDto,
     ): Promise<Business> {
         const { openingHours, ...businessData } = createBusinessDto;
-        
         const savedBusiness = await this.businessService.createBusiness(userId, createBusinessDto);
-        
         if (openingHours && openingHours.length > 0) {
             savedBusiness.openingHours = await this.openingHoursService.createForBusiness(
                 savedBusiness.id,
                 openingHours
             );
+            console.log("Saved opening hours", savedBusiness.openingHours);
         }
         
         return savedBusiness;

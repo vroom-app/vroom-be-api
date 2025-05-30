@@ -25,6 +25,23 @@ export class BusinessOpeningHoursService {
     }
 
     /**
+     * Get all opening hours for a business
+     * @param businessId The ID of the business
+     * @returns Array of opening hours
+     */
+    async findBusinessWorktimeForWeekday(
+        businessId: number,
+        dayOfWeek: number
+    ): Promise<BusinessOpeningHours | null> {
+        return this.openingHoursRepository.findOne({
+            where: { 
+                businessId: businessId, 
+                dayOfWeek: dayOfWeek
+            }
+        });
+    }
+
+    /**
      * Create opening hours for a business
      * @param businessId The ID of the business
      * @param openingHours Array of opening hours data
@@ -40,7 +57,7 @@ export class BusinessOpeningHoursService {
                 businessId
             })
         );
-        
+        console.log("Creating opening hours", openingHoursEntities);
         return this.openingHoursRepository.save(openingHoursEntities);
     }
 

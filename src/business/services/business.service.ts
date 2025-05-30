@@ -124,12 +124,13 @@ export class BusinessService {
      */
     async createBusiness(userId: number, createBusinessDto: CreateBusinessDto): Promise<Business> {
         const { openingHours, ...businessData } = createBusinessDto;
-        
+        console.log("User ID:", userId);
         const business = this.businessRepository.create({
             ...businessData,
             ownerId: userId,
             coordinates: this.createPointFromCoordinates(createBusinessDto.latitude, createBusinessDto.longitude)
         });
+        console.log("Creating business with data:", business);
         
         return await this.businessRepository.save(business);
     }
