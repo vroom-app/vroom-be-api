@@ -1,14 +1,17 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Put, Request, UseGuards } from "@nestjs/common";
 import { BusinessManagementService } from "./business-management.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { BusinessProfileDto } from "./dtos/business-profile.dto";
-import { CreateServiceOfferingDto } from "src/service-offering/dtos/create-service-offering.dto";
+import { BusinessProfileDto } from "./dto/business-profile.dto";
+import { CreateServiceOfferingDto } from "src/service-offering/dto/create-service-offering.dto";
 import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
-import { UpdateBusinessServicesDto } from "./dtos/business-offerings-update.dto";
-import { UpdateBusinessDetailsDto } from "./dtos/business-details-update.dto";
-import { CreateBusinessDto } from "src/business/dtos/create-business.dto";
+import { UpdateBusinessServicesDto } from "./dto/business-offerings-update.dto";
+import { UpdateBusinessDetailsDto } from "./dto/business-details-update.dto";
+import { CreateBusinessDto } from "src/business/dto/create-business.dto";
 import { Business } from "src/business/entities/business.entity";
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { FullServiceOfferingDto } from "src/service-offering/dto/full-service-offering.dto";
 
+@ApiTags('Business Management')
 @Controller('businesses')
 export class BusinessManagementController {
   constructor(
@@ -17,6 +20,9 @@ export class BusinessManagementController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':businessId')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a business profile by ID (if owned)' })
+  @ApiResponse({ status: 200, description: 'Business profile returned' })
   async getMyBusinesses(
     @Param('businessId', ParseIntPipe) businessId: number,
     @Request() req
@@ -27,32 +33,41 @@ export class BusinessManagementController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new business. TODO remove this when integration with google is done' })
+  @ApiResponse({ status: 201, description: 'Business created successfully' })
   async CreateBusiness(
     @Body() createBusinessDto: CreateBusinessDto,
     @Request() req
-  ): Promise<Business> { // TODO remove this when integration with google is done
+  ): Promise<BusinessProfileDto> { // TODO remove this when integration with google is done
     console.log('Creating business for user ID:', req.user.userId);
     return this.businessManagementService.createBusiness(req.user.userId, createBusinessDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':businessId')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add service offerings to a business' })
+  @ApiResponse({ status: 201, description: 'Service offerings added successfully' })
   async addServices(
     @Param('businessId', ParseIntPipe) businessId: number,
     @Body() createServiceOfferingDto: CreateServiceOfferingDto[],
     @Request() req
-  ): Promise<ServiceOffering[]> {
+  ): Promise<FullServiceOfferingDto[]> {
     console.log('Adding service offerings for business ID:', businessId);
     return this.businessManagementService.addBusinessServiceOfferings(req.user.userId, businessId, createServiceOfferingDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':businessId/details')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update business details' })
+  @ApiResponse({ status: 200, description: 'Business details updated successfully' })
   async updateBusinessDetails(
     @Param('businessId') businessId: number,
     @Body() updateBusinessDetailsDto: UpdateBusinessDetailsDto,
     @Request() req
-  ) {
+  ): Promise<BusinessProfileDto> {
     console.log('Updating business details for business ID:', businessId);
     return this.businessManagementService.updateBusinessDetails(
         req.user.userId, 
@@ -63,11 +78,14 @@ export class BusinessManagementController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':businessId/services')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update service offerings for a business' })
+  @ApiResponse({ status: 200, description: 'Services updated successfully' })
   async updateBusinessServices(
     @Param('businessId') businessId: number,
     @Body() updateBusinessServicesDto: UpdateBusinessServicesDto,
     @Request() req
-  ) {
+  ): Promise<FullServiceOfferingDto[]> {
     console.log('Updating business services for business ID:', businessId);
     return this.businessManagementService.updateBusinessServices(
       req.user.userId, 
@@ -79,6 +97,9 @@ export class BusinessManagementController {
   @UseGuards(JwtAuthGuard)
   @Delete(':businessId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a business and its services' })
+  @ApiResponse({ status: 204, description: 'Business deleted successfully' })
   async deleteBusiness(
     @Param('businessId', ParseIntPipe) businessId: number,
     @Request() req
@@ -93,10 +114,13 @@ export class BusinessManagementController {
   @UseGuards(JwtAuthGuard)
   @Delete(':businessId/:serviceId')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a specific service offering from a business' })
+  @ApiResponse({ status: 204, description: 'Service offering deleted successfully' })
   async deleteService(
-      @Param('businessId', ParseIntPipe) businessId: number,
-      @Param('serviceId', ParseIntPipe) serviceId: number,
-      @Request() req
+    @Param('businessId', ParseIntPipe) businessId: number,
+    @Param('serviceId', ParseIntPipe) serviceId: number,
+    @Request() req
   ): Promise<void> {
     console.log('Deleting service with ID:', serviceId);
     await this.businessManagementService.deleteServiceOffering(businessId, serviceId, req.user.userId);

@@ -37,7 +37,7 @@ export class Business {
   isVerified: boolean;
 
   @Column({ type: 'text', nullable: true })
-  website: string | null;
+  website: string;
 
   @Column()
   address: string;

@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BusinessManagementService } from './business-management.service';
 
 import { ForbiddenException } from '@nestjs/common';
-import { CreateBusinessDto } from 'src/business/dtos/create-business.dto';
-import { CreateServiceOfferingDto } from 'src/service-offering/dtos/create-service-offering.dto';
+import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { DurationUnit, PriceType } from 'src/service-offering/entities/service-offering.entity';
-import { UpdateBusinessDetailsDto } from './dtos/business-details-update.dto';
-import { UpdateBusinessServicesDto } from './dtos/business-offerings-update.dto';
+import { UpdateBusinessDetailsDto } from './dto/business-details-update.dto';
+import { UpdateBusinessServicesDto } from './dto/business-offerings-update.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Point } from 'typeorm';
 import { Slot } from 'src/slot/entities/slot.entity';
@@ -157,6 +157,7 @@ describe('BusinessManagementService', () => {
                     durationNote: null,
                     warranty: null,
                     category: null,
+                    capacity: 2,
                     ...createServiceOfferingDto[0],
                 },
             ];
@@ -280,6 +281,7 @@ describe('BusinessManagementService', () => {
                     durationNote: null,
                     warranty: null,
                     category: null,
+                    capacity: 2,
                 },
             ];
 

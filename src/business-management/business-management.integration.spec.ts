@@ -13,10 +13,10 @@ import { DurationUnit, PriceType, ServiceOffering } from 'src/service-offering/e
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 import { BusinessSpecialization } from 'src/business/entities/business-specialization.entity';
 import { Specialization } from 'src/specialization/entities/specialization.entity';
-import { CreateBusinessDto } from 'src/business/dtos/create-business.dto';
-import { UpdateBusinessDetailsDto } from './dtos/business-details-update.dto';
-import { CreateServiceOfferingDto } from 'src/service-offering/dtos/create-service-offering.dto';
-import { UpdateBusinessServicesDto } from './dtos/business-offerings-update.dto';
+import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { UpdateBusinessDetailsDto } from './dto/business-details-update.dto';
+import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
+import { UpdateBusinessServicesDto } from './dto/business-offerings-update.dto';
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Slot } from 'src/slot/entities/slot.entity';
 import { Review } from 'src/review/entities/review.entity';
