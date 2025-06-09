@@ -24,6 +24,7 @@ import { BusinessManagementModule } from './business-management/business-manager
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV || 'dev'}`,
       isGlobal: true,
       load: [configuration],
     }),

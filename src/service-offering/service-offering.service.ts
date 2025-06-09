@@ -88,7 +88,7 @@ export class ServiceOfferingService {
      * @returns The found service offering
      * @throws NotFoundException if service offering doesn't exist
      */
-    private async findById(id: number): Promise<ServiceOffering> {
+    async findById(id: number): Promise<ServiceOffering> {
         const serviceOffering = await this.serviceOfferingRepository.findOne({
             where: { id },
         });

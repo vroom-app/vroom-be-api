@@ -29,7 +29,6 @@ export class UpdateServiceOfferingDto {
     benefits?: string[];
 
     @IsOptional()
-    @IsDecimal()
     price?: number;
 
     @IsOptional()
