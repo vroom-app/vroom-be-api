@@ -59,6 +59,7 @@ export class SlotService {
                 businessId,
                 serviceOfferingId,
                 format(date, 'yyyy-MM-dd'),
+                serviceOffering.capacity,
             );
 
             // Subtract blocked intervals from free slots
@@ -76,10 +77,10 @@ export class SlotService {
 
             if (availableSlots.length > 0) {
                 results.push({
-                date: format(date, 'yyyy-MM-dd'),
-                business_id: businessId,
-                service_offering_id: serviceOfferingId,
-                available_slots: availableSlots,
+                    date: format(date, 'yyyy-MM-dd'),
+                    business_id: businessId,
+                    service_offering_id: serviceOfferingId,
+                    available_slots: availableSlots,
                 });
             }
         }
@@ -92,12 +93,14 @@ export class SlotService {
      * @param businessId - ID of the business
      * @param serviceOfferingId - ID of the service offering
      * @param date - Date to check for blocked slots
+     * @param serviceCapacity - Capacity of the service offering
      * @returns Array of blocked intervals
      */
     private async getBlockedSlotsForDay(
         businessId: number,
         serviceOfferingId: number,
         date: string,
+        serviceCapacity: number,
     ): Promise<Interval[]> {
         // Implement DB query to find slots where isBlocked=true or bookingsCount >= capacity
         const slots = await this.slotRepository.find({
@@ -115,7 +118,7 @@ export class SlotService {
 
         return slots
             .filter(
-                (slot) => slot.isBlocked || slot.bookingsCount >= slot.capacity,
+                (slot) => slot.isBlocked || slot.bookingsCount >= serviceCapacity,
             )
             .map((slot) => ({
                 start: parseTime(slot.startTime),

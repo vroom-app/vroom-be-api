@@ -31,9 +31,6 @@ export class Slot {
   @Column('time')
   endTime: string;
 
-  @Column('integer', { default: 1 })
-  capacity: number;
-
   @Column('integer', { default: 0 })
   bookingsCount: number;
 

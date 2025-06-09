@@ -1,15 +1,17 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { BusinessProfileDto } from "./dtos/business-profile.dto";
+import { BusinessProfileDto } from "./dto/business-profile.dto";
 import { BusinessService } from "src/business/services/business.service";
 import { ServiceOfferingService } from "src/service-offering/service-offering.service";
-import { CreateBusinessDto } from "src/business/dtos/create-business.dto";
-import { CreateServiceOfferingDto } from "src/service-offering/dtos/create-service-offering.dto";
+import { CreateBusinessDto } from "src/business/dto/create-business.dto";
+import { CreateServiceOfferingDto } from "src/service-offering/dto/create-service-offering.dto";
 import { Business } from "src/business/entities/business.entity";
 import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
-import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from "./dtos/business-offerings-update.dto";
-import { UpdateBusinessDetailsDto } from "./dtos/business-details-update.dto";
+import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from "./dto/business-offerings-update.dto";
+import { UpdateBusinessDetailsDto } from "./dto/business-details-update.dto";
 import { BusinessOpeningHoursService } from "src/business/services/business-opening-hours.service";
 import { BusinessOpeningHours } from "src/business/entities/business-opening-hours.entity";
+import { BusinessMapper } from "./business.mapper";
+import { FullServiceOfferingDto } from "src/service-offering/dto/full-service-offering.dto";
 
 @Injectable()
 export class BusinessManagementService {
@@ -43,7 +45,7 @@ export class BusinessManagementService {
     async createBusiness(
         userId: number,
         createBusinessDto: CreateBusinessDto,
-    ): Promise<Business> {
+    ): Promise<BusinessProfileDto> {
         const { openingHours, ...businessData } = createBusinessDto;
         const savedBusiness = await this.businessService.createBusiness(userId, createBusinessDto);
         if (openingHours && openingHours.length > 0) {
@@ -54,7 +56,7 @@ export class BusinessManagementService {
             console.log("Saved opening hours", savedBusiness.openingHours);
         }
         
-        return savedBusiness;
+        return BusinessMapper.toBusinessProfileDto(savedBusiness);
     }
 
     /**
@@ -71,16 +73,18 @@ export class BusinessManagementService {
         userId: number,
         businessId: number,
         createServiceOfferingDto: CreateServiceOfferingDto[]
-    ) {
-        if (await this.businessService.isOwnedByUser(userId, businessId)) {
+    ): Promise<FullServiceOfferingDto[]> {
+        try {
+            await this.businessService.isOwnedByUser(userId, businessId);
+            
             const serviceOfferings = await this.serviceOfferingService.createMultiple(
                 businessId,
                 createServiceOfferingDto
             );
-            return serviceOfferings;
+            return serviceOfferings.map(BusinessMapper.toFullServiceOfferingDto);
+        } catch (error) {
+            throw new ForbiddenException(`You are not allowed to modify this business. ${error.message}`);
         }
-
-        throw new ForbiddenException("You are not the owner of this business");
     }
 
     /**
@@ -97,8 +101,9 @@ export class BusinessManagementService {
         userId: number,
         businessId: number,
         updateBusinessDetailsDto: UpdateBusinessDetailsDto
-    ): Promise<Business> {
-        if (await this.businessService.isOwnedByUser(userId, businessId)) {
+    ): Promise<BusinessProfileDto> {
+        try {
+            await this.businessService.isOwnedByUser(userId, businessId);
             const { openingHours, ...businessData } = updateBusinessDetailsDto;
             
             const updatedBusiness = await this.businessService.updateBusiness(
@@ -113,10 +118,10 @@ export class BusinessManagementService {
                 );
             }
             
-            return updatedBusiness;
+            return BusinessMapper.toBusinessProfileDto(updatedBusiness);
+        } catch (error) {
+            throw new ForbiddenException(`You are not allowed to modify this business. ${error.message}`);
         }
-
-        throw new ForbiddenException("You are not the owner of this business");
     }
 
     /**
@@ -133,16 +138,18 @@ export class BusinessManagementService {
         userId: number,
         businessId: number,
         updateBusinessServicesDto: UpdateBusinessServicesDto
-    ): Promise<ServiceOffering[]> {
-        if (await this.businessService.isOwnedByUser(userId, businessId)) {
+    ): Promise<FullServiceOfferingDto[]> {
+        try {
+            await this.businessService.isOwnedByUser(userId, businessId);
             const updatedServices = await Promise.all(
                 updateBusinessServicesDto.services.map((serviceDto: UpdateServiceOfferingDto) => 
                     this.serviceOfferingService.update(serviceDto.id, serviceDto)
                 )
             );
-            return updatedServices;
+            return updatedServices.map(BusinessMapper.toFullServiceOfferingDto);
+        } catch (error) {
+            throw new ForbiddenException(`You are not allowed to modify this business. ${error.message}`);
         }
-        throw new ForbiddenException("You are not the owner of this business");
     }
 
     /**
@@ -160,11 +167,12 @@ export class BusinessManagementService {
         businessId: number,
         openingHours: Array<{ dayOfWeek: number; opensAt: string; closesAt: string }>
     ): Promise<BusinessOpeningHours[]> {
-        if (await this.businessService.isOwnedByUser(userId, businessId)) {
+        try {
+            await this.businessService.isOwnedByUser(userId, businessId);
             return await this.openingHoursService.updateForBusiness(businessId, openingHours);
+        } catch (error) {
+            throw new ForbiddenException(`You are not allowed to modify this business. ${error.message}`);
         }
-        
-        throw new ForbiddenException("You are not the owner of this business");
     }
 
     /**
@@ -182,13 +190,15 @@ export class BusinessManagementService {
         businessId: number,
         serviceOfferingId: number
     ): Promise<boolean> {  
-        if (await this.businessService.isOwnedByUser(userId, businessId)) {
+        try {
+            await this.businessService.isOwnedByUser(userId, businessId);
             return await this.serviceOfferingService.deleteServiceOfferingByIdAndBusinessId(
                 serviceOfferingId,
                 businessId
             );
+        } catch (error) {
+            throw new ForbiddenException(`You are not allowed to modify this business. ${error.message}`);
         }
-        throw new ForbiddenException("You are not the owner of this business");
     }
 
     /**

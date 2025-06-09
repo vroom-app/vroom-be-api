@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BusinessOpeningHours } from '../entities/business-opening-hours.entity';
 
 @Injectable()
 export class BusinessOpeningHoursService {
+    private readonly logger = new Logger(BusinessOpeningHoursService.name);
+
     constructor(
         @InjectRepository(BusinessOpeningHours)
         private openingHoursRepository: Repository<BusinessOpeningHours>
@@ -57,7 +59,7 @@ export class BusinessOpeningHoursService {
                 businessId
             })
         );
-        console.log("Creating opening hours", openingHoursEntities);
+        this.logger.log(`Creating opening hours for business ${businessId}.`);
         return this.openingHoursRepository.save(openingHoursEntities);
     }
 
@@ -75,6 +77,7 @@ export class BusinessOpeningHoursService {
         const existingHours = await this.findByBusinessId(businessId);
 
         if (existingHours.length > 0) {
+            this.logger.log(`Removing existing opening hours for business ${businessId}.`);
             await this.openingHoursRepository.remove(existingHours);
         }
         

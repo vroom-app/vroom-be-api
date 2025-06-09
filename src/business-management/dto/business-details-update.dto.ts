@@ -1,16 +1,6 @@
 import { IsString, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-
-export class BusinessOpeningHourDto {
-    @IsNumber()
-    dayOfWeek: number;
-
-    @IsString()
-    opensAt: string;
-
-    @IsString()
-    closesAt: string;
-}
+import { BusinessOpeningHourDto } from './business-profile.dto';
 
 export class UpdateBusinessDetailsDto {
     @IsOptional()

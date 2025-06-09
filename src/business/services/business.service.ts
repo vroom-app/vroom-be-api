@@ -1,13 +1,16 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
-import { CreateBusinessDto } from "../dtos/create-business.dto";
+import { CreateBusinessDto } from "../dto/create-business.dto";
 import { Business } from "../entities/business.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BusinessProfileDto } from "src/business-management/dtos/business-profile.dto";
-import { UpdateBusinessDetailsDto } from "src/business-management/dtos/business-details-update.dto";
+import { BusinessProfileDto } from "src/business-management/dto/business-profile.dto";
+import { UpdateBusinessDetailsDto } from "src/business-management/dto/business-details-update.dto";
+import { BusinessMapper } from "src/business-management/business.mapper";
 
 @Injectable()
 export class BusinessService {
+    private readonly logger = new Logger(BusinessService.name);
+
     constructor(
         @InjectRepository(Business)
         private businessRepository: Repository<Business>
@@ -60,45 +63,16 @@ export class BusinessService {
             throw new NotFoundException(`Business with ID ${businessId} not found`);
         }
 
-        return {
-            id: business.id,
-            name: business.name,
-            description: business.description,
-            address: business.address,
-            city: business.city,
-            phone: business.phone,
-            website: business.website || undefined,
-            isVerified: business.isVerified,
-            
-            openingHours: business.openingHours.map(hour => ({
-                dayOfWeek: hour.dayOfWeek,
-                opensAt: hour.opensAt,
-                closesAt: hour.closesAt
-            })),
-            
-            specializations: business.specializations.map(bs => ({
-                id: bs.specialization.id,
-                name: bs.specialization.name
-            })),
-            
-            services: business.serviceOfferings.map(service => ({
-                id: service.id,
-                name: service.name,
-                description: service.description,
-                price: service.price,
-                priceType: service.priceType,
-                durationMinutes: service.durationMinutes,
-                category: service.category || undefined
-            }))
-        };
+        return BusinessMapper.toBusinessProfileDto(business);
     }
     
     /**
      * Validates if an user is the owner of a business
      * @param userId The ID of the user
      * @param businessId The ID of the business
-     * @returns If business is found and owned by the user
+     * @returns True is found and owned by the user
      * @throws NotFoundException if business doesn't exist
+     * @throws ForbiddenException if user is not the owner
      */
     async isOwnedByUser(
         userId: number,
@@ -110,10 +84,16 @@ export class BusinessService {
         });
 
         if (!business) {
+            this.logger.warn(`Business with ID ${businessId} not found for user ${userId}`);
             throw new NotFoundException(`Business with ID ${businessId} not found`);
         }
 
-        return business.ownerId === userId;
+        if (business.ownerId !== userId) {
+            this.logger.warn(`User with ID ${userId} attempted to access business ${businessId} they do not own.`);
+            throw new ForbiddenException("You are not the owner of this business");
+        }
+
+        return true;
     }
 
     /**

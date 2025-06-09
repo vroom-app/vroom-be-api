@@ -3,8 +3,9 @@ import { SlotService } from "./slot.service";
 import { AvailableSlotsResponse } from "./dtos/available-slots.dto";
 import { GetAvailableSlotsQueryDto } from "./dtos/get-available-slots-quety.dto";
 import { getDefaultStartDateAndDays } from "src/common/helpers/time.utils";
-import { ApiOperation, ApiParam } from "@nestjs/swagger";
+import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Slots')
 @Controller('slots')
 export class SlotController {
     constructor(
