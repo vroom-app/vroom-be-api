@@ -5,12 +5,14 @@ import { UsersModule } from "src/users/users.module";
 import { SlotService } from "./slot.service";
 import { SlotController } from "./slot.controller";
 import { BusinessModule } from "src/business/business.module";
+import { ServiceOfferingModule } from "src/service-offering/service-offering.module";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Slot]),
         UsersModule,
-        BusinessModule
+        BusinessModule,
+        ServiceOfferingModule
     ],
     controllers: [
         SlotController

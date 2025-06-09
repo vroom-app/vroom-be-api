@@ -107,16 +107,16 @@ describe('Time Utils', () => {
 
     describe('getDatesBetween', () => {
         it('should return 3 dates starting from 2023-01-01', () => {
-        const result = getDatesBetween('2023-01-01', 3);
-        expect(result.map(d => d.toISOString().slice(0, 10))).toEqual([
-            '2023-01-01',
-            '2023-01-02',
-            '2023-01-03',
-        ]);
+            const result = getDatesBetween('2023-01-01', 3);
+            expect(result.map(d => d.toISOString().slice(0, 10))).toEqual([
+                '2023-01-01',
+                '2023-01-02',
+                '2023-01-03',
+            ]);
         });
 
         it('should return an empty array when days = 0', () => {
-        expect(getDatesBetween('2023-01-01', 0)).toEqual([]);
+            expect(getDatesBetween('2023-01-01', 0)).toEqual([]);
         });
     });
 });

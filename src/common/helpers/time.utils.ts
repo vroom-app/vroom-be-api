@@ -1,3 +1,5 @@
+import { addDays, format, getDay } from 'date-fns';
+
 export interface Interval {
     start: number;
     end: number;
@@ -50,4 +52,14 @@ export function getDatesBetween(startDate: string, days: number): Date[] {
         dates.push(date);
     }
     return dates;
+}
+
+export function getDefaultStartDateAndDays(): { startDateStr: string; days: number } {
+    const tomorrow = addDays(new Date(), 1);
+    const startDateStr = format(tomorrow, 'yyyy-MM-dd');
+
+    const dayOfWeek = getDay(tomorrow); // 0 (Sunday) to 6 (Saturday)
+    const days = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
+
+    return { startDateStr, days };
 }

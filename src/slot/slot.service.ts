@@ -101,21 +101,26 @@ export class SlotService {
     ): Promise<Interval[]> {
         // Implement DB query to find slots where isBlocked=true or bookingsCount >= capacity
         const slots = await this.slotRepository.find({
-        where: {
-            businessId,
-            offeringId: serviceOfferingId,
-            date,
-        },
+            where: {
+                businessId,
+                offeringId: serviceOfferingId,
+                date,
+            },
         });
 
+        if (!slots || slots.length === 0) {
+            this.logger.debug(`No blocked slots found for business ${businessId} on ${date}`);
+            return [];
+        }
+
         return slots
-        .filter(
-            (slot) => slot.isBlocked || slot.bookingsCount >= slot.capacity,
-        )
-        .map((slot) => ({
-            start: parseTime(slot.startTime),
-            end: parseTime(slot.endTime),
-        }));
+            .filter(
+                (slot) => slot.isBlocked || slot.bookingsCount >= slot.capacity,
+            )
+            .map((slot) => ({
+                start: parseTime(slot.startTime),
+                end: parseTime(slot.endTime),
+            }));
     }
 
     /**
@@ -128,10 +133,9 @@ export class SlotService {
         freeIntervals: Interval[],
         blocked: Interval[],
     ): Interval[] {
-        // TODO: Loop through each blocked interval and subtract
         let result = [...freeIntervals];
         for (const block of blocked) {
-        result = subtractInterval(result, block);
+            result = subtractInterval(result, block);
         }
         return result;
     }
@@ -149,15 +153,15 @@ export class SlotService {
         const slots: { start_time: string; end_time: string }[] = [];
 
         for (const interval of intervals) {
-        let currentStart = interval.start;
-        while (currentStart + duration <= interval.end) {
-            const endTime = currentStart + duration;
-            slots.push({
-            start_time: formatMinutes(currentStart),
-            end_time: formatMinutes(endTime),
-            });
-            currentStart += duration;
-        }
+            let currentStart = interval.start;
+            while (currentStart + duration <= interval.end) {
+                const endTime = currentStart + duration;
+                slots.push({
+                    start_time: formatMinutes(currentStart),
+                    end_time: formatMinutes(endTime),
+                });
+                currentStart += duration;
+            }
         }
 
         return slots;
