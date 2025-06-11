@@ -88,6 +88,15 @@ export class SlotService {
         return results;
     }
 
+    public async checkAvailabilityAndBook(
+        startDateTime: string, 
+        serviceOfferingId: number, 
+        duration: number
+    ): Promise<Slot> {
+        // TODO: Implement logic to check availability and book a slot
+        throw new Error("Method not implemented.");
+    }
+
     /**
      * Get blocked slots for a specific day.
      * @param businessId - ID of the business
