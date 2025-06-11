@@ -1,9 +1,10 @@
 import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
 import { Slot } from "src/slot/entities/slot.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export enum BookingStatus {
+    CREATED = 'created',
     PENDING = 'pending',
     CONFIRMED = 'confirmed',
     COMPLETED = 'completed',
@@ -11,16 +12,17 @@ export enum BookingStatus {
 }
   
 @Entity('bookings')
+@Index(['guestEmail'])
 export class Booking {
     @PrimaryGeneratedColumn()
     id: number;
   
-    @Column()
-    userId: number;
+    @Column({ nullable: true })
+    userId?: number;
   
-    @ManyToOne(() => User, user => user.bookings)
+    @ManyToOne(() => User, user => user.bookings, { nullable: true })
     @JoinColumn({ name: 'userId' })
-    user: User;
+    user?: User;
   
     @Column()
     slotId: number;
@@ -39,13 +41,25 @@ export class Booking {
     @Column({
       type: 'enum',
       enum: BookingStatus,
-      default: BookingStatus.PENDING
+      default: BookingStatus.CREATED
     })
     status: BookingStatus;
   
-    @Column({ nullable: true })
-    specialRequests: string;
+    @Column({ nullable: true, length: 500 })
+    specialRequests?: string;
+
+    @Column({ nullable: true, length: 100 })
+    guestName?: string;
+
+    @Column({ nullable: true, length: 255 })
+    guestEmail?: string;
+
+    @Column({ nullable: true, length: 20 })
+    guestPhone?: string;
   
     @CreateDateColumn()
     createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
