@@ -14,17 +14,17 @@ import { BusinessOpeningHours } from 'src/business/entities/business-opening-hou
 import { BusinessSpecialization } from 'src/business/entities/business-specialization.entity';
 import { Specialization } from 'src/specialization/entities/specialization.entity';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
-import { UpdateBusinessDetailsDto } from './dto/business-details-update.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
-import { UpdateBusinessServicesDto } from './dto/business-offerings-update.dto';
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Slot } from 'src/slot/entities/slot.entity';
 import { Review } from 'src/review/entities/review.entity';
 import { BusinessModule } from 'src/business/business.module';
 import { ServiceOfferingModule } from 'src/service-offering/service-offering.module';
-import { BusinessManagementModule } from './business-manager.module';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { BusinessManagementModule } from '../business-manager.module';
+import { UpdateBusinessDetailsDto } from '../dto/business-details-update.dto';
+import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
 
 describe('BusinessManagementService Integration Tests', () => {
     let moduleRef: TestingModule;

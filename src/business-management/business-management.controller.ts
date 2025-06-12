@@ -1,15 +1,13 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Put, Request, UseGuards } from "@nestjs/common";
-import { BusinessManagementService } from "./business-management.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { BusinessProfileDto } from "./dto/business-profile.dto";
 import { CreateServiceOfferingDto } from "src/service-offering/dto/create-service-offering.dto";
-import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
 import { UpdateBusinessServicesDto } from "./dto/business-offerings-update.dto";
 import { UpdateBusinessDetailsDto } from "./dto/business-details-update.dto";
 import { CreateBusinessDto } from "src/business/dto/create-business.dto";
-import { Business } from "src/business/entities/business.entity";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FullServiceOfferingDto } from "src/service-offering/dto/full-service-offering.dto";
+import { BusinessManagementService } from "./service/business-management.service";
 
 @ApiTags('Business Management')
 @Controller('businesses')
@@ -29,6 +27,16 @@ export class BusinessManagementController {
   ): Promise<BusinessProfileDto> {
     console.log('Fetching business profile for business ID:', businessId);
     return this.businessManagementService.getBusinessProfile(businessId, req.user.userId);
+  }
+
+  @Get('google/:googleId')
+  @ApiOperation({ summary: 'Get a business profile by google id' })
+  @ApiResponse({ status: 200, description: 'Business profile returned' })
+  async getMyBusinessesByGoogleId(
+    @Param('businessId') googleId: string
+  ): Promise<BusinessProfileDto> {
+    console.log('Fetching business profile for google ID:', googleId);
+    return this.businessManagementService.getBusinessProfileByGoogleId(googleId);
   }
 
   @UseGuards(JwtAuthGuard)

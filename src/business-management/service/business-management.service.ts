@@ -1,17 +1,17 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
-import { BusinessProfileDto } from "./dto/business-profile.dto";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { BusinessService } from "src/business/services/business.service";
 import { ServiceOfferingService } from "src/service-offering/service-offering.service";
 import { CreateBusinessDto } from "src/business/dto/create-business.dto";
 import { CreateServiceOfferingDto } from "src/service-offering/dto/create-service-offering.dto";
 import { Business } from "src/business/entities/business.entity";
 import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
-import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from "./dto/business-offerings-update.dto";
-import { UpdateBusinessDetailsDto } from "./dto/business-details-update.dto";
 import { BusinessOpeningHoursService } from "src/business/services/business-opening-hours.service";
 import { BusinessOpeningHours } from "src/business/entities/business-opening-hours.entity";
-import { BusinessMapper } from "./business.mapper";
 import { FullServiceOfferingDto } from "src/service-offering/dto/full-service-offering.dto";
+import { BusinessProfileDto } from "../dto/business-profile.dto";
+import { BusinessMapper } from "../business.mapper";
+import { UpdateBusinessDetailsDto } from "../dto/business-details-update.dto";
+import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from "../dto/business-offerings-update.dto";
 
 @Injectable()
 export class BusinessManagementService {
@@ -25,6 +25,7 @@ export class BusinessManagementService {
      * Get a business profile by ID
      * 
      * @param businessId The ID of the business
+     * @param userId The ID of the user requesting the business profile
      * @returns The business profile including services
      * @throws NotFoundException if business doesn't exist
      */
@@ -33,6 +34,24 @@ export class BusinessManagementService {
         userId: number
     ): Promise<BusinessProfileDto> {
         return await this.businessService.getBusinessProfile(businessId, userId);
+    }
+
+    /**
+     * Get a business profile by Google ID
+     * 
+     * @param googlePlaceId The Google Place ID of the business
+     * @returns The business profile including services
+     * @throws NotFoundException if business doesn't exist
+     */
+    async getBusinessProfileByGoogleId(
+        googlePlaceId: string,
+    ): Promise<BusinessProfileDto> {
+        try {
+            return await this.businessService.getBusinessProfileByGoogleId(googlePlaceId);
+        } catch (error) {
+            // fetch from google api if not found
+            return Promise.reject(new NotFoundException(`Business with Google ID ${googlePlaceId} not found.`));
+        }
     }
 
     /**

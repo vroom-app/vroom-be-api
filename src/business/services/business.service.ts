@@ -65,6 +65,29 @@ export class BusinessService {
 
         return BusinessMapper.toBusinessProfileDto(business);
     }
+
+    async getBusinessProfileByGoogleId(
+        googleId: string,
+    ): Promise<BusinessProfileDto> {
+        const business = await this.businessRepository.findOne({
+            where: { 
+                googlePlaceId: googleId,
+            },
+            relations: {
+                openingHours: true,
+                specializations: {
+                    specialization: true
+                },
+                serviceOfferings: true
+            }
+        });
+
+        if (!business) {
+            throw new NotFoundException(`Business with ID ${googleId} not found`);
+        }
+
+        return BusinessMapper.toBusinessProfileDto(business);
+    }
     
     /**
      * Validates if an user is the owner of a business
