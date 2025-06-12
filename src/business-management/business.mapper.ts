@@ -3,7 +3,6 @@ import { BusinessOpeningHourDto, BusinessProfileDto } from "./dto/business-profi
 import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
 import { ServiceOfferingDto } from "src/service-offering/dto/service-offering.dto";
 import { Business } from "src/business/entities/business.entity";
-import { Specialization } from "src/specialization/entities/specialization.entity";
 import { BusinessOpeningHours } from "src/business/entities/business-opening-hours.entity";
 import { BusinessSpecialization } from "src/business/entities/business-specialization.entity";
 import { FullServiceOfferingDto } from "src/service-offering/dto/full-service-offering.dto";
@@ -46,6 +45,8 @@ export class BusinessMapper {
             phone: business.phone,
             website: business.website,
             isVerified: business.isVerified,
+            isSponsored: business.isSponsored,
+            acceptBookings: business.acceptBookings,
             googlePlaceId: business.googlePlaceId,
             googleCategory: business.googleCategory,
             additionalPhotos: business.additionalPhotos,
