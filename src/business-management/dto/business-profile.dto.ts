@@ -19,7 +19,19 @@ export class BusinessProfileDto {
     website?: string;
     @ApiProperty({ example: true })
     isVerified: boolean;
-
+    @ApiProperty({ example: 'google123' })
+    googlePlaceId: string;
+    @ApiProperty({ example: 'carwash', required: false })
+    googleCategory?: string;
+    @ApiProperty({
+        example: ['https://example.com/photo1.jpg', 'https://example.com/photo2.jpg'],
+        required: false,
+    })
+    additionalPhotos?: string[];
+    @ApiProperty({ example: '40.7128' })
+    latitude: number;
+    @ApiProperty({ example: '40.7128' })
+    longitude: number;
     @ApiProperty({
         type: () => [BusinessOpeningHourDto],
         description: 'List of opening hours per day of week',
@@ -37,12 +49,12 @@ export class BusinessProfileDto {
     services: ServiceOfferingDto[];
 }
 export class BusinessOpeningHourDto {
-  @ApiProperty({ example: 1, description: 'Day of week (0 = Sunday, 1 = Monday, ...)' })
-  dayOfWeek: number;
+    @ApiProperty({ example: 1, description: 'Day of week (0 = Sunday, 1 = Monday, ...)' })
+    dayOfWeek: number;
 
-  @ApiProperty({ example: '08:00' })
-  opensAt: string;
+    @ApiProperty({ example: '08:00' })
+    opensAt: string;
 
-  @ApiProperty({ example: '17:00' })
-  closesAt: string;
+    @ApiProperty({ example: '17:00' })
+    closesAt: string;
 }

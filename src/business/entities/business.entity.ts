@@ -31,7 +31,7 @@ export class Business {
   googleCategory: string;
 
   @Column('simple-array', { nullable: true })
-  additionalPhotos: string[] | null;
+  additionalPhotos: string[];
 
   @Column({ default: false })
   isVerified: boolean;

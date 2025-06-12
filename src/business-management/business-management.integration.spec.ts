@@ -24,6 +24,7 @@ import { BusinessModule } from 'src/business/business.module';
 import { ServiceOfferingModule } from 'src/service-offering/service-offering.module';
 import { BusinessManagementModule } from './business-manager.module';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
+import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
 
 describe('BusinessManagementService Integration Tests', () => {
     let moduleRef: TestingModule;
@@ -37,7 +38,7 @@ describe('BusinessManagementService Integration Tests', () => {
     let businessOpeningHoursRepository: Repository<BusinessOpeningHours>;
     let businessOwner: User;
     let regularUser: User;
-    let testBusiness: Business;
+    let testBusiness: any;
 
     beforeAll(async () => {
         moduleRef = await Test.createTestingModule({
@@ -251,7 +252,7 @@ describe('BusinessManagementService Integration Tests', () => {
     });
 
     describe('Service Offerings Management', () => {
-        let serviceOfferings: ServiceOffering[];
+        let serviceOfferings: FullServiceOfferingDto[];
 
         it('should allow business owner to add service offerings', async () => {
             const createServiceOfferingDto: CreateServiceOfferingDto[] = [

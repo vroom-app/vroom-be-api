@@ -46,6 +46,11 @@ export class BusinessMapper {
             phone: business.phone,
             website: business.website,
             isVerified: business.isVerified,
+            googlePlaceId: business.googlePlaceId,
+            googleCategory: business.googleCategory,
+            additionalPhotos: business.additionalPhotos,
+            latitude: business.coordinates?.x,
+            longitude: business.coordinates?.y,
 
             openingHours: business.openingHours?.map(this.toOpeningHourDto),
             specializations: business.specializations?.map(this.toSpecializationDto),
