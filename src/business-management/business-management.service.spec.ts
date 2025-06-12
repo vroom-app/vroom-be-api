@@ -69,6 +69,8 @@ describe('BusinessManagementService', () => {
                 phone: '1234567890',
                 website: 'https://testbusiness.com',
                 isVerified: true,
+                isSponsored: false,
+                acceptBookings: false,
                 googlePlaceId: 'google123',
                 googleCategory: 'carwash',
                 additionalPhotos: [],
@@ -117,6 +119,8 @@ describe('BusinessManagementService', () => {
                 reviews: [],
                 website: 'https://newbusiness.com',
                 isVerified: false,
+                isSponsored: false,
+                acceptBookings: false,
                 additionalPhotos: [],
                 ...createBusinessDto,
             };
@@ -222,6 +226,8 @@ describe('BusinessManagementService', () => {
                 reviews: [],
                 website: 'https://newbusiness.com',
                 isVerified: false,
+                isSponsored: false,
+                acceptBookings: false,
                 additionalPhotos: [],
                 ...updateBusinessDetailsDto,
             };
