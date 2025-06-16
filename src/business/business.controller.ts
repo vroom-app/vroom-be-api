@@ -1,15 +1,15 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Request, UseGuards } from "@nestjs/common";
+import { Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Request, UseGuards } from "@nestjs/common";
 import { BusinessService } from "./services/business.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { Business } from "./entities/business.entity";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('Businesses')
 @Controller('businesses')
 export class BusinessController {
     constructor(private readonly businessService: BusinessService) {}
 
-    @UseGuards(JwtAuthGuard)
     @Get('my')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get businesses owned by the authenticated user' })
@@ -20,7 +20,6 @@ export class BusinessController {
         return this.businessService.getAllUserBusinesses(req.user.id);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiBearerAuth()

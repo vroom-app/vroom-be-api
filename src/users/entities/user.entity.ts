@@ -1,5 +1,6 @@
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Business } from 'src/business/entities/business.entity';
+import { Car } from 'src/car/entities/car.entity';
 import { Review } from 'src/review/entities/review.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
@@ -50,6 +51,9 @@ export class User {
 
   @OneToMany(() => Review, review => review.user)
   reviews: Review[];
+
+  @OneToMany(() => Car, (car) => car.user)
+  cars: Car[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
