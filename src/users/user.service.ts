@@ -49,20 +49,20 @@ export class UserService {
 
   async addRole(userId: number, role: UserRole): Promise<User> {
     const user = await this.findOne(userId);
-    
+
     if (!user.roles.includes(role)) {
       user.roles.push(role);
       return this.usersRepository.save(user);
     }
-    
+
     return user;
   }
 
   async removeRole(userId: number, role: UserRole): Promise<User> {
     const user = await this.findOne(userId);
-    
-    user.roles = user.roles.filter(r => r !== role);
-    
+
+    user.roles = user.roles.filter((r) => r !== role);
+
     return this.usersRepository.save(user);
   }
 }

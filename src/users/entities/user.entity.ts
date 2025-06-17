@@ -2,7 +2,14 @@ import { Booking } from 'src/booking/entities/booking.entity';
 import { Business } from 'src/business/entities/business.entity';
 import { Car } from 'src/car/entities/car.entity';
 import { Review } from 'src/review/entities/review.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 
 export enum UserRole {
   USER = 'user',
@@ -39,17 +46,17 @@ export class User {
     enum: UserRole,
     enumName: 'user_role_enum',
     default: [UserRole.USER],
-    array: true
+    array: true,
   })
   roles: UserRole[];
 
-  @OneToMany(() => Business, business => business.owner)
+  @OneToMany(() => Business, (business) => business.owner)
   ownedBusinesses: Business[];
 
-  @OneToMany(() => Booking, booking => booking.user)
+  @OneToMany(() => Booking, (booking) => booking.user)
   bookings: Booking[];
 
-  @OneToMany(() => Review, review => review.user)
+  @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
 
   @OneToMany(() => Car, (car) => car.user)

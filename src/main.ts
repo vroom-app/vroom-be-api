@@ -9,7 +9,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -19,7 +19,7 @@ async function bootstrap() {
   );
   // app.useGlobalInterceptors(new ResponseInterceptor());
   // app.useGlobalFilters(new AllExceptionsFilter());
-  
+
   app.enableCors();
 
   const config = new DocumentBuilder()
@@ -29,8 +29,8 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); 
-  
+  SwaggerModule.setup('api', app, document);
+
   const port = configService.get<number>('port') || 3005;
   await app.listen(port);
   console.log(`Application is running on port ${port}`);

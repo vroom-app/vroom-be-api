@@ -1,20 +1,28 @@
-import { Booking } from "src/booking/entities/booking.entity";
-import { Business } from "src/business/entities/business.entity";
-import { Review } from "src/review/entities/review.entity";
-import { Slot } from "src/slot/entities/slot.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Booking } from 'src/booking/entities/booking.entity';
+import { Business } from 'src/business/entities/business.entity';
+import { Review } from 'src/review/entities/review.entity';
+import { Slot } from 'src/slot/entities/slot.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum PriceType {
   FIXED = 'fixed',
   VARIABLE = 'variable',
-  STARTING = 'starting'
+  STARTING = 'starting',
 }
-  
+
 export enum DurationUnit {
   MINUTES = 'minutes',
-  HOURS = 'hours'
+  HOURS = 'hours',
 }
-  
+
 @Entity('service_offerings')
 export class ServiceOffering {
   @PrimaryGeneratedColumn()
@@ -23,7 +31,9 @@ export class ServiceOffering {
   @Column()
   businessId: number;
 
-  @ManyToOne(() => Business, business => business.serviceOfferings, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Business, (business) => business.serviceOfferings, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'businessId' })
   business: Business;
 
@@ -48,7 +58,7 @@ export class ServiceOffering {
   @Column({
     type: 'enum',
     enum: PriceType,
-    default: PriceType.FIXED
+    default: PriceType.FIXED,
   })
   priceType: PriceType;
 
@@ -59,7 +69,7 @@ export class ServiceOffering {
     type: 'enum',
     enum: DurationUnit,
     default: DurationUnit.MINUTES,
-    nullable: true
+    nullable: true,
   })
   durationUnit: DurationUnit;
 
@@ -78,12 +88,12 @@ export class ServiceOffering {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Slot, slot => slot.serviceOffering)
+  @OneToMany(() => Slot, (slot) => slot.serviceOffering)
   slots: Slot[];
 
-  @OneToMany(() => Review, review => review.serviceOffering)
+  @OneToMany(() => Review, (review) => review.serviceOffering)
   reviews: Review[];
 
-  @OneToMany(() => Booking, booking => booking.serviceOffering)
+  @OneToMany(() => Booking, (booking) => booking.serviceOffering)
   bookings: Booking[];
 }
