@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/users/user.service';
@@ -15,30 +19,38 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    
+
     if (!user) {
       return null;
     }
-    
+
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    
+
     if (!isPasswordValid) {
       return null;
     }
-    
+
     const { passwordHash, ...result } = user;
     return result;
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const { email, password, firstName, lastName, country, phone } = registerDto;
+    const { email, password, firstName, lastName, country, phone } =
+      registerDto;
 
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
 
-    const user = await this.usersService.create(email, password, firstName, lastName, country, phone);
+    const user = await this.usersService.create(
+      email,
+      password,
+      firstName,
+      lastName,
+      country,
+      phone,
+    );
     const payload = { email: user.email, sub: user.id };
 
     return {
@@ -57,7 +69,7 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id };
-    
+
     return {
       accessToken: this.jwtService.sign(payload),
       user: {
@@ -74,11 +86,11 @@ export class AuthService {
 
   async getProfile(userId: number) {
     const user = await this.usersService.findOne(userId);
-    
+
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    
+
     const { passwordHash, ...result } = user;
     return result;
   }

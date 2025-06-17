@@ -1,6 +1,6 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
-import { Business } from "./business.entity";
-import { Specialization } from "src/specialization/entities/specialization.entity";
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Business } from './business.entity';
+import { Specialization } from 'src/specialization/entities/specialization.entity';
 
 @Entity('business_specialization')
 export class BusinessSpecialization {
@@ -10,11 +10,17 @@ export class BusinessSpecialization {
   @PrimaryColumn()
   specializationId: number;
 
-  @ManyToOne(() => Business, business => business.specializations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Business, (business) => business.specializations, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'businessId' })
   business: Business;
 
-  @ManyToOne(() => Specialization, specialization => specialization.businessSpecializations, { onDelete: 'CASCADE' })
+  @ManyToOne(
+    () => Specialization,
+    (specialization) => specialization.businessSpecializations,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn({ name: 'specializationId' })
   specialization: Specialization;
 }

@@ -1,83 +1,83 @@
-import { 
-    IsString, 
-    IsArray, 
-    IsOptional, 
-    IsBoolean, 
-    IsNumber, 
-    ValidateNested,
-    IsUrl,
-    Min,
-    Max,
-    IsPhoneNumber,
-    MaxLength,
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  ValidateNested,
+  IsUrl,
+  Min,
+  Max,
+  IsPhoneNumber,
+  MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OpeningHoursDto {
-    @IsNumber()
-    @Min(0)
-    @Max(6)
-    dayOfWeek: number;
+  @IsNumber()
+  @Min(0)
+  @Max(6)
+  dayOfWeek: number;
 
-    @IsString()
-    opensAt: string;
+  @IsString()
+  opensAt: string;
 
-    @IsString()
-    closesAt: string;
+  @IsString()
+  closesAt: string;
 }
 
 export class CreateBusinessDto {
-    @IsString()
-    @MaxLength(255)
-    name: string;
+  @IsString()
+  @MaxLength(255)
+  name: string;
 
-    @IsString()
-    @IsOptional()
-    @MaxLength(1000)
-    description: string;
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  description: string;
 
-    @IsString()
-    googlePlaceId: string;
+  @IsString()
+  googlePlaceId: string;
 
-    @IsString()
-    @IsOptional()
-    googleCategory: string;
+  @IsString()
+  @IsOptional()
+  googleCategory: string;
 
-    @IsArray()
-    @IsString({ each: true })
-    @IsOptional()
-    additionalPhotos?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  additionalPhotos?: string[];
 
-    @IsBoolean()
-    @IsOptional()
-    isVerified?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isVerified?: boolean;
 
-    @IsUrl()
-    @IsOptional()
-    website?: string;
+  @IsUrl()
+  @IsOptional()
+  website?: string;
 
-    @IsString()
-    address: string;
+  @IsString()
+  address: string;
 
-    @IsString()
-    city: string;
+  @IsString()
+  city: string;
 
-    @IsNumber()
-    @Min(-90)
-    @Max(90)
-    latitude: number;
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude: number;
 
-    @IsNumber()
-    @Min(-180)
-    @Max(180)
-    longitude: number;
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude: number;
 
-    @IsPhoneNumber()
-    phone: string;
+  @IsPhoneNumber()
+  phone: string;
 
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OpeningHoursDto)
-    @IsOptional()
-    openingHours?: OpeningHoursDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OpeningHoursDto)
+  @IsOptional()
+  openingHours?: OpeningHoursDto[];
 }

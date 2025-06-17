@@ -1,5 +1,5 @@
-import { BusinessSpecialization } from "src/business/entities/business-specialization.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BusinessSpecialization } from 'src/business/entities/business-specialization.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('specializations')
 export class Specialization {
@@ -9,6 +9,6 @@ export class Specialization {
   @Column({ unique: true })
   name: string;
 
-  @OneToMany(() => BusinessSpecialization, bs => bs.specialization)
+  @OneToMany(() => BusinessSpecialization, (bs) => bs.specialization)
   businessSpecializations: BusinessSpecialization[];
 }

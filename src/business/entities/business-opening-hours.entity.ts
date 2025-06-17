@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Business } from './business.entity';
 
 @Entity('business_opening_hours')
@@ -9,7 +15,9 @@ export class BusinessOpeningHours {
   @Column()
   businessId: number;
 
-  @ManyToOne(() => Business, business => business.openingHours, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Business, (business) => business.openingHours, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'businessId' })
   business: Business;
 

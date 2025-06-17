@@ -7,171 +7,181 @@ import { BookingStatus } from '../entities/booking.entity';
 import { BookingQueryOptions } from '../interfaces/booking-query-options.interface';
 
 describe('BookingQueryService', () => {
-    let service: BookingQueryService;
-    let repository: Repository<Booking>;
+  let service: BookingQueryService;
+  let repository: Repository<Booking>;
 
-    // Mocks for queryBuilder chain
-    const createQueryBuilderMock: Partial<SelectQueryBuilder<Booking>> = {
-        leftJoinAndSelect: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        andWhere: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        take: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn(),
+  // Mocks for queryBuilder chain
+  const createQueryBuilderMock: Partial<SelectQueryBuilder<Booking>> = {
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        BookingQueryService,
+        {
+          provide: getRepositoryToken(Booking),
+          useValue: {
+            createQueryBuilder: jest.fn(() => createQueryBuilderMock),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<BookingQueryService>(BookingQueryService);
+    repository = module.get<Repository<Booking>>(getRepositoryToken(Booking));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const mockBookings = [{ id: 1 }, { id: 2 }] as Booking[];
+  const mockTotal = 2;
+
+  const mockReturn = [mockBookings, mockTotal];
+
+  it('should return bookings using businessId context', async () => {
+    (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(
+      mockReturn,
+    );
+
+    const options: BookingQueryOptions = {
+      status: BookingStatus.CONFIRMED,
+      fromDate: new Date('2024-01-01'),
+      toDate: new Date('2024-12-31'),
+      sortBy: 'slotStartTime',
+      sortOrder: 'ASC',
+      page: 1,
+      limit: 10,
     };
 
-    beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                BookingQueryService,
-                {
-                provide: getRepositoryToken(Booking),
-                useValue: {
-                    createQueryBuilder: jest.fn(() => createQueryBuilderMock),
-                },
-                },
-            ],
-        }).compile();
+    const context: BookingQueryContext = {
+      businessId: 123,
+      isBusinessOwner: true,
+      canViewAllBookings: true,
+    };
 
-        service = module.get<BookingQueryService>(BookingQueryService);
-        repository = module.get<Repository<Booking>>(getRepositoryToken(Booking));
-    });
+    const result = await service.findBookingsWithPagination(options, context);
 
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+    expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
+    expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
+      'business.id = :businessId',
+      { businessId: 123 },
+    );
+  });
 
-    const mockBookings = [{ id: 1 }, { id: 2 }] as Booking[];
-    const mockTotal = 2;
+  it('should return bookings using userId context', async () => {
+    (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(
+      mockReturn,
+    );
 
-    const mockReturn = [mockBookings, mockTotal];
+    const options: BookingQueryOptions = {
+      status: BookingStatus.CANCELLED,
+      sortBy: 'status',
+      sortOrder: 'DESC',
+      page: 1,
+      limit: 10,
+    };
 
-    it('should return bookings using businessId context', async () => {
-        (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(mockReturn);
+    const context: BookingQueryContext = {
+      userId: 456,
+      isBusinessOwner: false,
+      canViewAllBookings: false,
+    };
 
-        const options: BookingQueryOptions = {
-            status: BookingStatus.CONFIRMED,
-            fromDate: new Date('2024-01-01'),
-            toDate: new Date('2024-12-31'),
-            sortBy: 'slotStartTime',
-            sortOrder: 'ASC',
-            page: 1,
-            limit: 10,
-        };
+    const result = await service.findBookingsWithPagination(options, context);
 
-        const context: BookingQueryContext = {
-            businessId: 123,
-            isBusinessOwner: true,
-            canViewAllBookings: true
-        };
+    expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
+    expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
+      'booking.userId = :userId',
+      { userId: 456 },
+    );
+    expect(createQueryBuilderMock.orderBy).toHaveBeenCalledWith(
+      'booking.status',
+      'DESC',
+    );
+  });
 
-        const result = await service.findBookingsWithPagination(options, context);
+  it('should default to booking.createdAt when sortBy is not provided', async () => {
+    (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(
+      mockReturn,
+    );
 
-        expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
-        expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
-            'business.id = :businessId',
-            { businessId: 123 },
-        );
-    });
+    const options: BookingQueryOptions = {
+      page: 1,
+      limit: 10,
+    };
 
-    it('should return bookings using userId context', async () => {
-        (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(mockReturn);
+    const context: BookingQueryContext = {
+      businessId: 1,
+      isBusinessOwner: true,
+      canViewAllBookings: true,
+    };
 
-        const options: BookingQueryOptions = {
-            status: BookingStatus.CANCELLED,
-            sortBy: 'status',
-            sortOrder: 'DESC',
-            page: 1,
-            limit: 10,
-        };
+    const result = await service.findBookingsWithPagination(options, context);
 
-        const context: BookingQueryContext = {
-            userId: 456,
-            isBusinessOwner: false,
-            canViewAllBookings: false
-        };
+    expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
+    expect(createQueryBuilderMock.orderBy).toHaveBeenCalledWith(
+      'booking.createdAt',
+      'DESC',
+    );
+  });
 
-        const result = await service.findBookingsWithPagination(options, context);
+  it('should support custom pagination: page 2, limit 5', async () => {
+    (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(
+      mockReturn,
+    );
 
-        expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
-        expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
-            'booking.userId = :userId',
-            { userId: 456 },
-        );
-        expect(createQueryBuilderMock.orderBy).toHaveBeenCalledWith(
-            'booking.status',
-            'DESC',
-        );
-    });
+    const options: BookingQueryOptions = {
+      page: 2,
+      limit: 5,
+      sortBy: 'status',
+      sortOrder: 'ASC',
+    };
 
-    it('should default to booking.createdAt when sortBy is not provided', async () => {
-        (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(mockReturn);
+    const context: BookingQueryContext = {
+      businessId: 1,
+      isBusinessOwner: true,
+      canViewAllBookings: true,
+    };
 
-        const options: BookingQueryOptions = {
-            page: 1,
-            limit: 10,
-        };
+    const result = await service.findBookingsWithPagination(options, context);
 
-        const context: BookingQueryContext = {
-            businessId: 1,
-            isBusinessOwner: true,
-            canViewAllBookings: true
-        };
+    expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
+    expect(createQueryBuilderMock.skip).toHaveBeenCalledWith(5); // (2 - 1) * 5
+    expect(createQueryBuilderMock.take).toHaveBeenCalledWith(5);
+  });
 
-        const result = await service.findBookingsWithPagination(options, context);
+  it('should handle missing filters gracefully', async () => {
+    (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(
+      mockReturn,
+    );
 
-        expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
-        expect(createQueryBuilderMock.orderBy).toHaveBeenCalledWith(
-            'booking.createdAt',
-            'DESC',
-        );
-    });
+    const options: BookingQueryOptions = {
+      page: 1,
+      limit: 10,
+    };
 
-    it('should support custom pagination: page 2, limit 5', async () => {
-        (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(mockReturn);
+    const context: BookingQueryContext = {
+      userId: 789,
+      isBusinessOwner: false,
+      canViewAllBookings: false,
+    };
 
-        const options: BookingQueryOptions = {
-            page: 2,
-            limit: 5,
-            sortBy: 'status',
-            sortOrder: 'ASC',
-        };
+    const result = await service.findBookingsWithPagination(options, context);
 
-        const context: BookingQueryContext = {
-            businessId: 1,
-            isBusinessOwner: true,
-            canViewAllBookings: true
-        };
-
-        const result = await service.findBookingsWithPagination(options, context);
-
-        expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
-        expect(createQueryBuilderMock.skip).toHaveBeenCalledWith(5); // (2 - 1) * 5
-        expect(createQueryBuilderMock.take).toHaveBeenCalledWith(5);
-    });
-
-    it('should handle missing filters gracefully', async () => {
-        (createQueryBuilderMock.getManyAndCount as jest.Mock).mockResolvedValue(mockReturn);
-
-        const options: BookingQueryOptions = {
-            page: 1,
-            limit: 10,
-        };
-
-        const context: BookingQueryContext = {
-            userId: 789,
-            isBusinessOwner: false,
-            canViewAllBookings: false
-        };
-
-        const result = await service.findBookingsWithPagination(options, context);
-
-        expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
-        expect(createQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
-            expect.stringContaining('booking.status'),
-            expect.any(Object),
-        );
-        expect(createQueryBuilderMock.orderBy).toHaveBeenCalled();
-    });
+    expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
+    expect(createQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
+      expect.stringContaining('booking.status'),
+      expect.any(Object),
+    );
+    expect(createQueryBuilderMock.orderBy).toHaveBeenCalled();
+  });
 });

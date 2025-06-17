@@ -7,16 +7,14 @@ import { UserRole } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
-    constructor(
-        private readonly usersService: UserService
-    ) {}
+  constructor(private readonly usersService: UserService) {}
 
-    @Get(':id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(UserRole.ADMIN)
-    async findOne(@Param('id') id: string) {
-        const user = await this.usersService.findOne(+id);
-        const { passwordHash, ...result } = user;
-        return { user: result };
-    }
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOne(+id);
+    const { passwordHash, ...result } = user;
+    return { user: result };
+  }
 }
