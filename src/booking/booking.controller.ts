@@ -1,7 +1,33 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpStatus, Logger, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { BookingService } from './service/booking.service';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiProduces, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiProduces,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  JwtAuthGuard,
+  OptionalJwtAuthGuard,
+} from 'src/auth/guards/jwt-auth.guard';
 import { BookingResponseDto } from './dto/booking-response.dto';
 import { QueryBookingDto } from './dto/query-booking.dto';
 import { PaginatedBookingResponseDto } from './dto/paginated-booking-response.dto';

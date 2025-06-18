@@ -1,4 +1,4 @@
-import { CarFuel } from "../entities/car-fuel";
+import { CarFuel } from '../entities/car-fuel';
 
 export class CarResponseDto {
   id: string;

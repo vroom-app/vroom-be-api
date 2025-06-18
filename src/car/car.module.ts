@@ -6,10 +6,7 @@ import { CarService } from './services/car.service';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Car]),
-    UsersModule
-  ],
+  imports: [TypeOrmModule.forFeature([Car]), UsersModule],
   providers: [CarService],
   controllers: [CarController],
 })

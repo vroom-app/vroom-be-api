@@ -39,13 +39,22 @@ export class CarController {
     @Body() createCarDto: CreateCarDto,
   ): Promise<CarResponseDto> {
     const userId = req.user.userId;
-    console.log('Creating car for user ID:', userId, 'with data:', createCarDto);
+    console.log(
+      'Creating car for user ID:',
+      userId,
+      'with data:',
+      createCarDto,
+    );
     return this.carService.create(createCarDto, userId);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all cars for the logged-in user' })
-  @ApiResponse({ status: 200, description: 'List of user cars', type: [CarResponseDto] })
+  @ApiResponse({
+    status: 200,
+    description: 'List of user cars',
+    type: [CarResponseDto],
+  })
   async findAllUserCars(@Request() req): Promise<CarResponseDto[]> {
     const userId = req.user.userId;
     return this.carService.findAllByUser(userId);
@@ -54,10 +63,7 @@ export class CarController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a car by ID for the logged-in user' })
   @ApiResponse({ status: 200, description: 'Car deleted successfully' })
-  async deleteById(
-    @Request() req,
-    @Param('id') carId: string,
-  ): Promise<void> {
+  async deleteById(@Request() req, @Param('id') carId: string): Promise<void> {
     const userId = req.user.userId;
     await this.carService.deleteById(carId, userId);
   }

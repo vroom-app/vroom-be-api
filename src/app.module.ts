@@ -64,7 +64,7 @@ import { CarModule } from './car/car.module';
     SlotModule,
     SpecializationModule,
     UsersModule,
-    CarModule
+    CarModule,
   ],
   controllers: [],
   providers: [],
