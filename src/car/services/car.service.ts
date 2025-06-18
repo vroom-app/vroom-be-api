@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Car } from '../entities/car.entity';
 import { Repository } from 'typeorm';
@@ -16,7 +20,10 @@ export class CarService {
     private readonly userService: UserService,
   ) {}
 
-  async create(createCarDto: CreateCarDto, userId: number): Promise<CarResponseDto> {
+  async create(
+    createCarDto: CreateCarDto,
+    userId: number,
+  ): Promise<CarResponseDto> {
     await this.userService.findOne(userId);
 
     const car = this.carRepository.create({
@@ -43,7 +50,9 @@ export class CarService {
     }
 
     if (car.userId !== userId) {
-      throw new ForbiddenException(`You do not have permission to delete this car`);
+      throw new ForbiddenException(
+        `You do not have permission to delete this car`,
+      );
     }
 
     await this.carRepository.delete(carId);

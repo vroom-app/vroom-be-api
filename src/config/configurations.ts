@@ -20,4 +20,8 @@ export default () => ({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     redirectUri: process.env.GOOGLE_REDIRECT_URI,
   },
+
+  frontend: {
+    url: process.env.FRONTEND_URL,
+  },
 });
