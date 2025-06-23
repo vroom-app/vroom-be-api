@@ -70,6 +70,9 @@ export class GooglePlacesService {
                 weekdayDescriptions: [],
             },
             photoRefs,
+            isVerified: false,
+            isSponsored: false,
+            acceptBookings: false,
             reviews: data.reviews?.map(review => ({
                 text: review.text,
                 rating: review.rating,
