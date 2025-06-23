@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { BusinessProfileDto } from './dto/business-profile.dto';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
@@ -15,13 +15,17 @@ import { BusinessOpeningHoursService } from 'src/business/services/business-open
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 import { BusinessMapper } from './business.mapper';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { GooglePlacesService } from '../google-places/service/google-places.service';
 
 @Injectable()
 export class BusinessManagementService {
+  private readonly logger = new Logger(BusinessManagementService.name);
+  
   constructor(
     private readonly businessService: BusinessService,
     private readonly serviceOfferingService: ServiceOfferingService,
     private readonly openingHoursService: BusinessOpeningHoursService,
+    private readonly googlePlacesService: GooglePlacesService
   ) {}
 
   /**
@@ -32,10 +36,36 @@ export class BusinessManagementService {
    * @throws NotFoundException if business doesn't exist
    */
   async getBusinessProfile(
-    businessId: number,
+    businessId: string,
     userId: number,
   ): Promise<BusinessProfileDto> {
     return await this.businessService.getBusinessProfile(businessId, userId);
+  }
+
+  /**
+   * Get a business details
+   *
+   * @param businessId The ID of the business
+   * @returns The business profile including services
+   * @throws NotFoundException if business doesn't exist
+   */
+  async getBusinessDetails(
+    businessId: string,
+  ): Promise<BusinessProfileDto> {
+    try {
+      return await this.businessService.getBusinessDetails(businessId);
+    }
+    catch (error) {
+      if (error.name === 'NotFoundException') {
+        this.logger.log(`Business with ID ${businessId} not found. Attempting to fetch from Google Places...`);
+        return this.googlePlacesService.getGooglePlaceDetails(businessId);
+      }
+      else {
+        throw new NotFoundException(
+          `Business with ID ${businessId} not found. ${error.message}`,
+        );
+      }
+    }
   }
 
   /**
@@ -78,7 +108,7 @@ export class BusinessManagementService {
    */
   async addBusinessServiceOfferings(
     userId: number,
-    businessId: number,
+    businessId: string,
     createServiceOfferingDto: CreateServiceOfferingDto[],
   ): Promise<FullServiceOfferingDto[]> {
     try {
@@ -108,7 +138,7 @@ export class BusinessManagementService {
    */
   async updateBusinessDetails(
     userId: number,
-    businessId: number,
+    businessId: string,
     updateBusinessDetailsDto: UpdateBusinessDetailsDto,
   ): Promise<BusinessProfileDto> {
     try {
@@ -148,7 +178,7 @@ export class BusinessManagementService {
    */
   async updateBusinessServices(
     userId: number,
-    businessId: number,
+    businessId: string,
     updateBusinessServicesDto: UpdateBusinessServicesDto,
   ): Promise<FullServiceOfferingDto[]> {
     try {
@@ -179,7 +209,7 @@ export class BusinessManagementService {
    */
   async updateBusinessOpeningHours(
     userId: number,
-    businessId: number,
+    businessId: string,
     openingHours: Array<{
       dayOfWeek: number;
       opensAt: string;
@@ -211,7 +241,7 @@ export class BusinessManagementService {
    */
   async deleteServiceOffering(
     userId: number,
-    businessId: number,
+    businessId: string,
     serviceOfferingId: number,
   ): Promise<boolean> {
     try {
@@ -237,7 +267,7 @@ export class BusinessManagementService {
    * @throws ForbiddenException if user is not the owner
    */
   async deleteBusinessAndServices(
-    businessId: number,
+    businessId: string,
     userId: number,
   ): Promise<boolean> {
     return await this.businessService.deleteBusinessByIdAndUserId(

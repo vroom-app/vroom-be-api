@@ -89,7 +89,7 @@ export class BookingService {
 
   public async findBusinessBookings(
     query: QueryBookingDto,
-    businessId: number,
+    businessId: string,
     userId: number,
   ): Promise<PaginatedBookingResponseDto> {
     this.logger.log(
@@ -158,7 +158,7 @@ export class BookingService {
 
   private createBusinessBookingContext(
     userId: number,
-    businessId: number,
+    businessId: string,
   ): BookingQueryContext {
     return {
       userId,

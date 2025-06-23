@@ -17,7 +17,7 @@ export class BusinessOpeningHoursService {
    * @param businessId The ID of the business
    * @returns Array of opening hours
    */
-  async findByBusinessId(businessId: number): Promise<BusinessOpeningHours[]> {
+  async findByBusinessId(businessId: string): Promise<BusinessOpeningHours[]> {
     return this.openingHoursRepository.find({
       where: { businessId },
       order: { dayOfWeek: 'ASC' },
@@ -30,7 +30,7 @@ export class BusinessOpeningHoursService {
    * @returns Array of opening hours
    */
   async findBusinessWorktimeForWeekday(
-    businessId: number,
+    businessId: string,
     dayOfWeek: number,
   ): Promise<BusinessOpeningHours | null> {
     return this.openingHoursRepository.findOne({
@@ -48,7 +48,7 @@ export class BusinessOpeningHoursService {
    * @returns Created opening hours
    */
   async createForBusiness(
-    businessId: number,
+    businessId: string,
     openingHours: Array<{
       dayOfWeek: number;
       opensAt: string;
@@ -73,7 +73,7 @@ export class BusinessOpeningHoursService {
    * @returns Updated opening hours
    */
   async updateForBusiness(
-    businessId: number,
+    businessId: string,
     openingHours: Array<{
       dayOfWeek: number;
       opensAt: string;

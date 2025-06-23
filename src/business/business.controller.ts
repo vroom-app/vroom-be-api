@@ -44,7 +44,7 @@ export class BusinessController {
   })
   @ApiResponse({ status: 204, description: 'Business deleted successfully' })
   async remove(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Request() req,
   ): Promise<void> {
     await this.businessService.deleteBusinessByIdAndUserId(id, req.user.id);

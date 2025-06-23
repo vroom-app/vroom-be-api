@@ -1,6 +1,6 @@
 interface BookingQueryContext {
   userId?: number;
-  businessId?: number;
+  businessId?: string;
   isBusinessOwner: boolean;
   canViewAllBookings: boolean;
 }

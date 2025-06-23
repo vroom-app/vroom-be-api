@@ -47,13 +47,44 @@ export class BusinessService {
    * @throws NotFoundException if business doesn't exist
    */
   async getBusinessProfile(
-    businessId: number,
+    businessId: string,
     userId: number,
   ): Promise<BusinessProfileDto> {
     const business = await this.businessRepository.findOne({
       where: {
         id: businessId,
         ownerId: userId,
+      },
+      relations: {
+        openingHours: true,
+        specializations: {
+          specialization: true,
+        },
+        serviceOfferings: true,
+      },
+    });
+
+    if (!business) {
+      throw new NotFoundException(`Business with ID ${businessId} not found`);
+    }
+
+    return BusinessMapper.toBusinessProfileDto(business);
+  }
+
+    /**
+   * Get a business profile by ID
+   *
+   * @param businessId The ID of the business
+   * @param userId The ID of the user requesting the profile
+   * @returns The business profile including services, specializations, and opening hours
+   * @throws NotFoundException if business doesn't exist
+   */
+  async getBusinessDetails(
+    businessId: string,
+  ): Promise<BusinessProfileDto> {
+    const business = await this.businessRepository.findOne({
+      where: {
+        googlePlaceId: businessId,
       },
       relations: {
         openingHours: true,
@@ -79,7 +110,7 @@ export class BusinessService {
    * @throws NotFoundException if business doesn't exist
    * @throws ForbiddenException if user is not the owner
    */
-  async isOwnedByUser(userId: number, businessId: number): Promise<boolean> {
+  async isOwnedByUser(userId: number, businessId: string): Promise<boolean> {
     const business = await this.businessRepository.findOne({
       where: { id: businessId },
       select: ['id', 'ownerId'],
@@ -136,7 +167,7 @@ export class BusinessService {
    * @throws ForbiddenException if user is not the owner
    */
   async updateBusiness(
-    id: number,
+    id: string,
     updateBusinessDto: UpdateBusinessDetailsDto,
   ): Promise<Business> {
     const { openingHours, ...businessData } = updateBusinessDto;
@@ -169,7 +200,7 @@ export class BusinessService {
    * @throws ForbiddenException if user is not the owner
    */
   async deleteBusinessByIdAndUserId(
-    id: number,
+    id: string,
     userId: number,
   ): Promise<boolean> {
     const business = await this.findById(id);
@@ -200,7 +231,7 @@ export class BusinessService {
    * @returns The found business
    * @throws NotFoundException if business doesn't exist
    */
-  async findById(id: number): Promise<Business> {
+  async findById(id: string): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { id },
     });

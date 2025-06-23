@@ -37,19 +37,31 @@ export class BusinessManagementController {
     private readonly businessManagementService: BusinessManagementService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  // @Get(':businessId')
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Get a business profile by ID (if owned)' })
+  // @ApiResponse({ status: 200, description: 'Business profile returned' })
+  // async getBusinesses(
+  //   @Param('businessId', ParseIntPipe) businessId: string,
+  //   @Request() req,
+  // ): Promise<BusinessProfileDto> { //TODO return list of businesses if user is admin
+  //   console.log('Fetching business profile for business ID:', businessId);
+  //   return this.businessManagementService.getBusinessProfile(
+  //     businessId,
+  //     req.user.userId,
+  //   );
+  // }
+
+
   @Get(':businessId')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a business profile by ID (if owned)' })
+  @ApiOperation({ summary: 'Get a business profile by ID' })
   @ApiResponse({ status: 200, description: 'Business profile returned' })
-  async getMyBusinesses(
-    @Param('businessId', ParseIntPipe) businessId: number,
-    @Request() req,
+  async getBusinessDetails(
+    @Param('businessId') businessId: string,
   ): Promise<BusinessProfileDto> {
-    console.log('Fetching business profile for business ID:', businessId);
-    return this.businessManagementService.getBusinessProfile(
+    return this.businessManagementService.getBusinessDetails(
       businessId,
-      req.user.userId,
     );
   }
 
@@ -82,7 +94,7 @@ export class BusinessManagementController {
     description: 'Service offerings added successfully',
   })
   async addServices(
-    @Param('businessId', ParseIntPipe) businessId: number,
+    @Param('businessId') businessId: string,
     @Body() createServiceOfferingDto: CreateServiceOfferingDto[],
     @Request() req,
   ): Promise<FullServiceOfferingDto[]> {
@@ -103,7 +115,7 @@ export class BusinessManagementController {
     description: 'Business details updated successfully',
   })
   async updateBusinessDetails(
-    @Param('businessId') businessId: number,
+    @Param('businessId') businessId: string,
     @Body() updateBusinessDetailsDto: UpdateBusinessDetailsDto,
     @Request() req,
   ): Promise<BusinessProfileDto> {
@@ -121,7 +133,7 @@ export class BusinessManagementController {
   @ApiOperation({ summary: 'Update service offerings for a business' })
   @ApiResponse({ status: 200, description: 'Services updated successfully' })
   async updateBusinessServices(
-    @Param('businessId') businessId: number,
+    @Param('businessId') businessId: string,
     @Body() updateBusinessServicesDto: UpdateBusinessServicesDto,
     @Request() req,
   ): Promise<FullServiceOfferingDto[]> {
@@ -140,7 +152,7 @@ export class BusinessManagementController {
   @ApiOperation({ summary: 'Delete a business and its services' })
   @ApiResponse({ status: 204, description: 'Business deleted successfully' })
   async deleteBusiness(
-    @Param('businessId', ParseIntPipe) businessId: number,
+    @Param('businessId') businessId: string,
     @Request() req,
   ): Promise<void> {
     console.log('Deleting business with ID:', businessId);
@@ -162,15 +174,15 @@ export class BusinessManagementController {
     description: 'Service offering deleted successfully',
   })
   async deleteService(
-    @Param('businessId', ParseIntPipe) businessId: number,
+    @Param('businessId') businessId: string,
     @Param('serviceId', ParseIntPipe) serviceId: number,
     @Request() req,
   ): Promise<void> {
     console.log('Deleting service with ID:', serviceId);
     await this.businessManagementService.deleteServiceOffering(
+      req.user.userId,
       businessId,
       serviceId,
-      req.user.userId,
     );
   }
 }
