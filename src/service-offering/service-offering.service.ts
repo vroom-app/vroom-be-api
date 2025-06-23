@@ -20,7 +20,7 @@ export class ServiceOfferingService {
    * @returns Array of created service offerings
    */
   async createMultiple(
-    businessId: number,
+    businessId: string,
     createServiceOfferingDtos: CreateServiceOfferingDto[],
   ): Promise<ServiceOffering[]> {
     const serviceOfferings = createServiceOfferingDtos.map((dto) =>
@@ -70,7 +70,7 @@ export class ServiceOfferingService {
    */
   async deleteServiceOfferingByIdAndBusinessId(
     serviceOfferingId: number,
-    businessId: number,
+    businessId: string,
   ): Promise<boolean> {
     const result = await this.serviceOfferingRepository.delete({
       id: serviceOfferingId,

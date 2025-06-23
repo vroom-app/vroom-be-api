@@ -16,7 +16,7 @@ export class Slot {
   id: number;
 
   @Column()
-  businessId: number;
+  businessId: string;
 
   @ManyToOne(() => Business, (business) => business.slots, {
     onDelete: 'CASCADE',

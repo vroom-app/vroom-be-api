@@ -29,7 +29,7 @@ export class ServiceOffering {
   id: number;
 
   @Column()
-  businessId: number;
+  businessId: string;
 
   @ManyToOne(() => Business, (business) => business.serviceOfferings, {
     onDelete: 'CASCADE',

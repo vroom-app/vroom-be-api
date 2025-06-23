@@ -1,63 +1,130 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ReviewDto } from 'src/review/dto/review.dto';
 import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { BusinessSpecializationDto } from 'src/specialization/dto/dto.business-specialization.dto';
+export class CurrentBusinessOpeningHourDto {
+  @ApiProperty({ example: true })
+  openNow: boolean;
+
+  @ApiProperty({
+    type: [Object],
+    description: 'List of opening and closing periods for each day',
+  })
+  periods: Array<{
+      open: { day: number; time: string };
+      close: { day: number; time: string };
+  }>;
+  @ApiProperty({
+    type: [String],
+    description: 'Descriptions of opening hours for each day of the week',
+  })
+  weekdayDescriptions: string[];
+}
 
 export class BusinessProfileDto {
   @ApiProperty({ example: 1 })
-  id: number;
-  @ApiProperty({ example: 'Mobile Cleaning Services' })
-  name: string;
+  id: string;
+
+  @ApiProperty({ example: 'google123' })
+  googlePlaceId: string;
+
+  @ApiProperty({
+    example: {
+      text: 'Awesome Cleaning Services',
+      languageCode: 'en',
+    },
+  })
+  displayName: {
+    text: string;
+    languageCode: string;
+  };
+
   @ApiProperty({
     example: 'We offer top-notch residential cleaning.',
     required: false,
   })
   description?: string;
+
   @ApiProperty({ example: '123 Main St, Springfield' })
-  address: string;
+  formattedAddress: string;
+
   @ApiProperty({ example: 'Springfield' })
-  city: string;
+  city?: string;
+
   @ApiProperty({ example: '+1234567890' })
-  phone: string;
+  nationalPhoneNumber?: string;
+
   @ApiProperty({ example: 'https://awesomecleaning.com', required: false })
-  website?: string;
+  websiteUri?: string;
+
   @ApiProperty({ example: true })
   isVerified: boolean;
+
   @ApiProperty({ example: true })
   isSponsored: boolean;
+
   @ApiProperty({ example: true })
   acceptBookings: boolean;
-  @ApiProperty({ example: 'google123' })
-  googlePlaceId: string;
+
   @ApiProperty({ example: 'carwash', required: false })
   googleCategory?: string;
-  @ApiProperty({
+
+  @ApiProperty({ 
     example: [
       'https://example.com/photo1.jpg',
       'https://example.com/photo2.jpg',
     ],
-    required: false,
+    type: [String], 
+    required: false 
   })
-  additionalPhotos?: string[];
-  @ApiProperty({ example: '40.7128' })
-  latitude: number;
-  @ApiProperty({ example: '40.7128' })
-  longitude: number;
+  photoUrls?: string[];
+
+  @ApiProperty()
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+
   @ApiProperty({
     type: () => [BusinessOpeningHourDto],
     description: 'List of opening hours per day of week',
   })
-  openingHours: BusinessOpeningHourDto[];
+  openingHours?: BusinessOpeningHourDto[];
+
+  @ApiProperty({
+    type: () => [CurrentBusinessOpeningHourDto],
+    description: 'Current opening hours status',
+  })
+  currentOpeningHours?: CurrentBusinessOpeningHourDto;
+
   @ApiProperty({
     type: () => [BusinessSpecializationDto],
     description: 'List of business specializations',
   })
-  specializations: BusinessSpecializationDto[];
+  specializations?: BusinessSpecializationDto[];
+
   @ApiProperty({
     type: () => [ServiceOfferingDto],
     description: 'List of service offerings provided by the business',
   })
-  services: ServiceOfferingDto[];
+  services?: ServiceOfferingDto[];
+
+  @ApiProperty({ required: false })
+  rating?: number;
+
+  @ApiProperty({ required: false })
+  userRatingCount?: number;
+
+  @ApiProperty({ type: [ReviewDto], required: false })
+  reviews?: ReviewDto[];
+
+  @ApiProperty({ type: [String], required: false })
+  types?: string[];
+
+  @ApiProperty({ type: [String], required: false })
+  photoRefs?: string[];
 }
+
 export class BusinessOpeningHourDto {
   @ApiProperty({
     example: 1,

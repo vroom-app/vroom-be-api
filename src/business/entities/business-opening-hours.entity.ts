@@ -13,7 +13,7 @@ export class BusinessOpeningHours {
   id: number;
 
   @Column()
-  businessId: number;
+  businessId: string;
 
   @ManyToOne(() => Business, (business) => business.openingHours, {
     onDelete: 'CASCADE',

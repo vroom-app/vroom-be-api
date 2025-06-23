@@ -97,7 +97,7 @@ export class BookingController {
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.BUSINESS_OWNER)
   async findBusinessBookings(
-    @Param('businessId', ParseIntPipe) businessId: number,
+    @Param('businessId') businessId: string,
     @Query() query: QueryBookingDto,
     @Req() req: any,
   ): Promise<PaginatedBookingResponseDto> {
@@ -233,8 +233,7 @@ export class BookingController {
     description: 'Booking cannot be confirmed in current status',
   })
   @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
-  // @Roles('business_owner', 'admin')
+  @UseGuards(JwtAuthGuard)
   async confirm(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: any,

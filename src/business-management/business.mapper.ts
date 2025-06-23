@@ -44,21 +44,25 @@ export class BusinessMapper {
   static toBusinessProfileDto(business: Business): BusinessProfileDto {
     return {
       id: business.id,
-      name: business.name,
+      displayName: { 
+        text: business.name, 
+        languageCode: 'BG' 
+      },
       description: business.description,
-      address: business.address,
+      formattedAddress: business.address,
       city: business.city,
-      phone: business.phone,
-      website: business.website,
+      nationalPhoneNumber: business.phone,
+      websiteUri: business.website,
       isVerified: business.isVerified,
       isSponsored: business.isSponsored,
       acceptBookings: business.acceptBookings,
       googlePlaceId: business.googlePlaceId,
       googleCategory: business.googleCategory,
-      additionalPhotos: business.additionalPhotos,
-      latitude: business.coordinates?.x,
-      longitude: business.coordinates?.y,
-
+      photoUrls: business.additionalPhotos,
+      location: {
+        latitude: business.coordinates?.x,
+        longitude: business.coordinates?.y,
+      },
       openingHours: business.openingHours?.map(this.toOpeningHourDto),
       specializations: business.specializations?.map(this.toSpecializationDto),
       services: business.serviceOfferings?.map(this.toServiceOfferingDto),
