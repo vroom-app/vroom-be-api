@@ -49,7 +49,7 @@ export class BusinessManagementController {
   //   console.log('Fetching business profile for business ID:', businessId);
   //   return this.businessManagementService.getBusinessProfile(
   //     businessId,
-  //     req.user.userId,
+  //     req.user.id,
   //   );
   // }
 
@@ -78,9 +78,9 @@ export class BusinessManagementController {
     @Request() req,
   ): Promise<BusinessProfileDto> {
     // TODO remove this when integration with google is done
-    console.log('Creating business for user ID:', req.user.userId);
+    console.log('Creating business for user ID:', req.user.id);
     return this.businessManagementService.createBusiness(
-      req.user.userId,
+      req.user.id,
       createBusinessDto,
     );
   }
@@ -100,7 +100,7 @@ export class BusinessManagementController {
   ): Promise<FullServiceOfferingDto[]> {
     console.log('Adding service offerings for business ID:', businessId);
     return this.businessManagementService.addBusinessServiceOfferings(
-      req.user.userId,
+      req.user.id,
       businessId,
       createServiceOfferingDto,
     );
@@ -121,7 +121,7 @@ export class BusinessManagementController {
   ): Promise<BusinessProfileDto> {
     console.log('Updating business details for business ID:', businessId);
     return this.businessManagementService.updateBusinessDetails(
-      req.user.userId,
+      req.user.id,
       businessId,
       updateBusinessDetailsDto,
     );
@@ -139,7 +139,7 @@ export class BusinessManagementController {
   ): Promise<FullServiceOfferingDto[]> {
     console.log('Updating business services for business ID:', businessId);
     return this.businessManagementService.updateBusinessServices(
-      req.user.userId,
+      req.user.id,
       businessId,
       updateBusinessServicesDto,
     );
@@ -158,7 +158,7 @@ export class BusinessManagementController {
     console.log('Deleting business with ID:', businessId);
     await this.businessManagementService.deleteBusinessAndServices(
       businessId,
-      req.user.userId,
+      req.user.id,
     );
   }
 
@@ -180,7 +180,7 @@ export class BusinessManagementController {
   ): Promise<void> {
     console.log('Deleting service with ID:', serviceId);
     await this.businessManagementService.deleteServiceOffering(
-      req.user.userId,
+      req.user.id,
       businessId,
       serviceId,
     );

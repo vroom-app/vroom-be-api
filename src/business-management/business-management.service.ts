@@ -53,16 +53,17 @@ export class BusinessManagementService {
     businessId: string,
   ): Promise<BusinessProfileDto> {
     try {
+      this.logger.log(`Attempting to fetch Business with ID ${businessId} from database.`);
       return await this.businessService.getBusinessDetails(businessId);
     }
     catch (error) {
       if (error.name === 'NotFoundException') {
-        this.logger.log(`Business with ID ${businessId} not found. Attempting to fetch from Google Places...`);
+        this.logger.log(`Business with ID ${businessId} not found in the database. Attempting to fetch from Google Places...`);
         return this.googlePlacesService.getGooglePlaceDetails(businessId);
       }
       else {
         throw new NotFoundException(
-          `Business with ID ${businessId} not found. ${error.message}`,
+          `Business with ID ${businessId} not found. ${error.name}`,
         );
       }
     }
