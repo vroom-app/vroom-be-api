@@ -32,7 +32,7 @@ describe('BookingDtoService', () => {
         name: 'Haircut',
         durationMinutes: 60,
         price: 100,
-        businessId: 1,
+        businessId: "1",
         business: {
           id: 1,
           name: 'Salon A',

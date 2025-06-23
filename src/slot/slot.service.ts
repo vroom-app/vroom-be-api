@@ -36,7 +36,7 @@ export class SlotService {
    * @returns Array of available slots
    */
   async getAvailableSlots(
-    businessId: number,
+    businessId: string,
     serviceOfferingId: number,
     startDate: string,
     days: number,
@@ -118,7 +118,7 @@ export class SlotService {
    * @returns Array of blocked intervals
    */
   private async getBlockedSlotsForDay(
-    businessId: number,
+    businessId: string,
     serviceOfferingId: number,
     date: string,
     serviceCapacity: number,

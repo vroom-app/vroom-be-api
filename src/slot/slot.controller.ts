@@ -23,7 +23,7 @@ export class SlotController {
     description: 'ID of the service offering',
   })
   async getAvailableSlots(
-    @Param('businessId') businessId: number,
+    @Param('businessId') businessId: string,
     @Param('serviceOfferingId') serviceOfferingId: number,
     @Query() query: GetAvailableSlotsQueryDto,
   ): Promise<AvailableSlotsResponse[]> {

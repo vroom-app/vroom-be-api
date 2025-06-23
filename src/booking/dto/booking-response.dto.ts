@@ -79,14 +79,14 @@ export class BookingResponseDto {
   @ApiPropertyOptional({
     type: 'object',
     properties: {
-      id: { type: 'number', example: 1 },
+      id: { type: 'string', example: '1' },
       name: { type: 'string', example: 'Downtown Salon' },
       address: { type: 'string', example: '123 Main St' },
     },
   })
   @Expose()
   business?: {
-    id: number;
+    id: string;
     name: string;
     address?: string;
   };

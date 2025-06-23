@@ -19,7 +19,7 @@ import { Review } from 'src/review/entities/review.entity';
 @Entity('businesses')
 export class Business {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column()
   ownerId: number;

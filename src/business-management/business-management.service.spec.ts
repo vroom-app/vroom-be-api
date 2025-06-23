@@ -64,7 +64,7 @@ describe('BusinessManagementService', () => {
   describe('getBusinessProfile', () => {
     it('should retrieve business profile for a given business and user', async () => {
       const mockBusinessProfile = {
-        id: 1,
+        id: "1",
         name: 'Test Business',
         description: 'Test Description',
         address: '123 Test St',
@@ -86,7 +86,7 @@ describe('BusinessManagementService', () => {
         mockBusinessProfile,
       );
 
-      const result = await service.getBusinessProfile(1, 1);
+      const result = await service.getBusinessProfile("1", 1);
 
       expect(mockBusinessService.getBusinessProfile).toHaveBeenCalledWith(1, 1);
       expect(result.id).toEqual(mockBusinessProfile.id);
@@ -109,7 +109,7 @@ describe('BusinessManagementService', () => {
       };
 
       const mockCreatedBusiness = {
-        id: 2,
+        id: "2",
         ownerId: userId,
         owner: {} as User,
         coordinates: {} as Point,
@@ -141,7 +141,7 @@ describe('BusinessManagementService', () => {
   describe('addBusinessServiceOfferings', () => {
     it('should add service offerings for a business owned by the user', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = "2";
       const createServiceOfferingDto: CreateServiceOfferingDto[] = [
         {
           name: 'Service 1',
@@ -158,7 +158,7 @@ describe('BusinessManagementService', () => {
       const mockServiceOfferings = [
         {
           id: 1,
-          businessId: 2,
+          businessId: "2",
           business: {} as Business,
           detailedDescription: 'Detailed description',
           slots: [] as Slot[],
@@ -199,7 +199,7 @@ describe('BusinessManagementService', () => {
 
     it('should throw ForbiddenException if user does not own the business', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = "2";
       const createServiceOfferingDto: CreateServiceOfferingDto[] = [];
 
       mockBusinessService.isOwnedByUser.mockResolvedValue(false);
@@ -217,7 +217,7 @@ describe('BusinessManagementService', () => {
   describe('updateBusinessDetails', () => {
     it('should update business details for a business owned by the user', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = '2';
       const updateBusinessDetailsDto: UpdateBusinessDetailsDto = {
         name: 'Updated Business Name',
         description: 'Updated description',
@@ -272,7 +272,7 @@ describe('BusinessManagementService', () => {
 
     it('should throw ForbiddenException if user does not own the business', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = "2";
       const updateBusinessDetailsDto: UpdateBusinessDetailsDto = {
         name: 'Updated Business Name',
       };
@@ -292,7 +292,7 @@ describe('BusinessManagementService', () => {
   describe('updateBusinessServices', () => {
     it('should update business services for a business owned by the user', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = "2";
       const updateBusinessServicesDto: UpdateBusinessServicesDto = {
         services: [
           {
@@ -306,7 +306,7 @@ describe('BusinessManagementService', () => {
       const mockUpdatedServices = [
         {
           id: 1,
-          businessId: 2,
+          businessId: "2",
           name: 'Updated Service',
           price: 150,
           description: 'First service',
@@ -352,7 +352,7 @@ describe('BusinessManagementService', () => {
 
     it('should throw ForbiddenException if user does not own the business', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = "2";
       const updateBusinessServicesDto: UpdateBusinessServicesDto = {
         services: [],
       };
@@ -374,7 +374,7 @@ describe('BusinessManagementService', () => {
   describe('deleteServiceOffering', () => {
     it('should delete service offering for a business owned by the user', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId = "2";
       const serviceOfferingId = 3;
 
       mockBusinessService.isOwnedByUser.mockResolvedValue(true);
@@ -400,7 +400,7 @@ describe('BusinessManagementService', () => {
 
     it('should throw ForbiddenException if user does not own the business', async () => {
       const userId = 1;
-      const businessId = 2;
+      const businessId ="2";
       const serviceOfferingId = 3;
 
       mockBusinessService.isOwnedByUser.mockImplementation(() => {
@@ -415,7 +415,7 @@ describe('BusinessManagementService', () => {
 
   describe('deleteBusinessAndServices', () => {
     it('should delete business and its services', async () => {
-      const businessId = 1;
+      const businessId = "1";
       const userId = 2;
 
       mockBusinessService.deleteBusinessByIdAndUserId.mockResolvedValue(true);
