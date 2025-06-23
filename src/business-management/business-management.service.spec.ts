@@ -17,6 +17,7 @@ import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { text } from 'stream/consumers';
 
 describe('BusinessManagementService', () => {
   let service: BusinessManagementService;
@@ -65,18 +66,19 @@ describe('BusinessManagementService', () => {
     it('should retrieve business profile for a given business and user', async () => {
       const mockBusinessProfile = {
         id: "1",
-        name: 'Test Business',
+        displayName: { text: 'Test Business', languageCode: 'en' },
         description: 'Test Description',
-        address: '123 Test St',
+        formattedAddress: '123 Test St',
         city: 'Test City',
         phone: '1234567890',
         website: 'https://testbusiness.com',
         isVerified: true,
+        isSponsored: false,
+        acceptBookings: true,
         googlePlaceId: 'google123',
         googleCategory: 'carwash',
         additionalPhotos: [],
-        latitude: 40.7128,
-        longitude: -74.006,
+        location: { latitude: 40.7128, longitude: -74.006 },
         openingHours: [],
         specializations: [],
         services: [],
@@ -122,6 +124,8 @@ describe('BusinessManagementService', () => {
         reviews: [],
         website: 'https://newbusiness.com',
         isVerified: false,
+        isSponsored: false,
+        acceptBookings: true,
         additionalPhotos: [],
         ...createBusinessDto,
       };
@@ -134,7 +138,7 @@ describe('BusinessManagementService', () => {
         userId,
         createBusinessDto,
       );
-      expect(result.name).toEqual(mockCreatedBusiness.name);
+      expect(result.displayName.text).toEqual(mockCreatedBusiness.name);
     });
   });
 
@@ -246,6 +250,8 @@ describe('BusinessManagementService', () => {
         reviews: [],
         website: 'https://newbusiness.com',
         isVerified: false,
+        isSponsored: false,
+        acceptBookings: true,
         additionalPhotos: [],
         ...updateBusinessDetailsDto,
       };

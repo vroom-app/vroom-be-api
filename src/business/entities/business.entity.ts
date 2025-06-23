@@ -46,6 +46,12 @@ export class Business {
   @Column({ default: false })
   isVerified: boolean;
 
+  @Column({ default: false })
+  isSponsored: boolean;
+
+  @Column({ default: false })
+  acceptBookings: boolean;
+
   @Column({ type: 'text', nullable: true })
   website: string;
 

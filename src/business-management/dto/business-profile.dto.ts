@@ -58,7 +58,13 @@ export class BusinessProfileDto {
   websiteUri?: string;
 
   @ApiProperty({ example: true })
-  isVerified?: boolean;
+  isVerified: boolean;
+
+  @ApiProperty({ example: true })
+  isSponsored: boolean;
+
+  @ApiProperty({ example: true })
+  acceptBookings: boolean;
 
   @ApiProperty({ example: 'carwash', required: false })
   googleCategory?: string;

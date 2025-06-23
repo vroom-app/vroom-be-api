@@ -12,7 +12,7 @@ describe('BookingMapper', () => {
     mockSlot.id = 10;
     mockSlot.startTime = '10:00';
     mockSlot.endTime = '11:00';
-    mockSlot.businessId = 100;
+    mockSlot.businessId = '100';
     mockSlot.date = '2025-06-11';
 
     const mockServiceOffering = new ServiceOffering();
@@ -20,7 +20,7 @@ describe('BookingMapper', () => {
     mockServiceOffering.name = 'Haircut';
     mockServiceOffering.durationMinutes = 60;
     mockServiceOffering.price = 30.5;
-    mockServiceOffering.businessId = 100;
+    mockServiceOffering.businessId = '100';
 
     const booking = new Booking();
     booking.id = 99;
