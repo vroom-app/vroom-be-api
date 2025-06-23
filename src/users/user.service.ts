@@ -1,8 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from './entities/user.entity';
+import { AuthProvider, User, UserRole } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+
+interface CreateOAuthUserData {
+  email: string;
+  firstName: string;
+  lastName: string;
+  provider: AuthProvider;
+  providerId: string;
+  avatarUrl?: string;
+  emailVerified: boolean;
+  country?: string;
+}
 
 @Injectable()
 export class UserService {
@@ -23,6 +34,15 @@ export class UserService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
+  async findByProviderId(provider: AuthProvider, providerId: string): Promise<User | null> {
+    return this.usersRepository.findOne({ 
+      where: { 
+        provider,
+        providerId 
+      } 
+    });
+  }
+
   async create(
     email: string,
     password: string,
@@ -31,7 +51,7 @@ export class UserService {
     country: string = 'BG',
     phone?: string,
   ): Promise<User> {
-    const saltRounds = 10;
+    const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     const user = this.usersRepository.create({
@@ -41,28 +61,30 @@ export class UserService {
       lastName,
       country,
       phone,
-      roles: [UserRole.USER],
+      provider: AuthProvider.LOCAL,
+      emailVerified: false,
     });
 
     return this.usersRepository.save(user);
   }
 
-  async addRole(userId: number, role: UserRole): Promise<User> {
-    const user = await this.findOne(userId);
-    
-    if (!user.roles.includes(role)) {
-      user.roles.push(role);
-      return this.usersRepository.save(user);
-    }
-    
-    return user;
+  async createOAuthUser(userData: CreateOAuthUserData): Promise<User> {
+    const user = this.usersRepository.create({
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      provider: userData.provider,
+      providerId: userData.providerId,
+      avatarUrl: userData.avatarUrl,
+      emailVerified: userData.emailVerified,
+      country: userData.country || 'BG',
+    });
+
+    return this.usersRepository.save(user);
   }
 
-  async removeRole(userId: number, role: UserRole): Promise<User> {
-    const user = await this.findOne(userId);
-    
-    user.roles = user.roles.filter(r => r !== role);
-    
-    return this.usersRepository.save(user);
+  async update(id: number, updateData: Partial<User>): Promise<User> {
+    await this.usersRepository.update(id, updateData);
+    return this.findOne(id);
   }
 }

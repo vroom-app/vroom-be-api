@@ -20,6 +20,8 @@ import { Slot } from './slot/entities/slot.entity';
 import { BusinessOpeningHours } from './business/entities/business-opening-hours.entity';
 import { BusinessSpecialization } from './business/entities/business-specialization.entity';
 import { BusinessManagementModule } from './business-management/business-manager.module';
+import { Car } from './car/entities/car.entity';
+import { CarModule } from './car/car.module';
 
 @Module({
   imports: [
@@ -38,7 +40,18 @@ import { BusinessManagementModule } from './business-management/business-manager
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        entities: [Booking, BusinessOpeningHours, BusinessSpecialization, Business, Review, ServiceOffering, Slot, Specialization, User],
+        entities: [
+          Booking,
+          BusinessOpeningHours,
+          BusinessSpecialization,
+          Business,
+          Review,
+          ServiceOffering,
+          Slot,
+          Specialization,
+          User,
+          Car,
+        ],
         synchronize: process.env.NODE_ENV !== 'production',
       }),
     }),
@@ -51,6 +64,7 @@ import { BusinessManagementModule } from './business-management/business-manager
     SlotModule,
     SpecializationModule,
     UsersModule,
+    CarModule,
   ],
   controllers: [],
   providers: [],

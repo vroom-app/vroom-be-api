@@ -1,5 +1,5 @@
 export class PaginationDto {
-    readonly page: number;
-    readonly limit: number;
-    readonly total: number;
+  readonly page: number;
+  readonly limit: number;
+  readonly total: number;
 }

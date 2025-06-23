@@ -1,10 +1,20 @@
-import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Point, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { BusinessOpeningHours } from "./business-opening-hours.entity";
-import { BusinessSpecialization } from "./business-specialization.entity";
-import { ServiceOffering } from "src/service-offering/entities/service-offering.entity";
-import { Slot } from "src/slot/entities/slot.entity";
-import { Review } from "src/review/entities/review.entity";
+import { User } from 'src/users/entities/user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Point,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { BusinessOpeningHours } from './business-opening-hours.entity';
+import { BusinessSpecialization } from './business-specialization.entity';
+import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
+import { Slot } from 'src/slot/entities/slot.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 @Entity('businesses')
 export class Business {
@@ -14,7 +24,7 @@ export class Business {
   @Column()
   ownerId: number;
 
-  @ManyToOne(() => User, user => user.ownedBusinesses)
+  @ManyToOne(() => User, (user) => user.ownedBusinesses)
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
@@ -22,7 +32,7 @@ export class Business {
   name: string;
 
   @Column({ nullable: true })
-  description: string;;
+  description: string;
 
   @Column({ unique: true })
   googlePlaceId: string;
@@ -51,7 +61,7 @@ export class Business {
   @Column()
   city: string;
 
-  @Column({type: 'point'})
+  @Column({ type: 'point' })
   coordinates: any;
 
   @Column()
@@ -63,18 +73,18 @@ export class Business {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => BusinessOpeningHours, hours => hours.business)
+  @OneToMany(() => BusinessOpeningHours, (hours) => hours.business)
   openingHours: BusinessOpeningHours[];
 
-  @OneToMany(() => BusinessSpecialization, bs => bs.business)
+  @OneToMany(() => BusinessSpecialization, (bs) => bs.business)
   specializations: BusinessSpecialization[];
 
-  @OneToMany(() => ServiceOffering, service => service.business)
+  @OneToMany(() => ServiceOffering, (service) => service.business)
   serviceOfferings: ServiceOffering[];
 
-  @OneToMany(() => Slot, slot => slot.business)
+  @OneToMany(() => Slot, (slot) => slot.business)
   slots: Slot[];
 
-  @OneToMany(() => Review, review => review.business)
+  @OneToMany(() => Review, (review) => review.business)
   reviews: Review[];
 }

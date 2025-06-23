@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from 'src/users/entities/user.entity';
+import { AuthProvider, UserRole } from 'src/users/entities/user.entity';
 
 export class AuthUserDto {
   @ApiProperty()
@@ -17,11 +17,20 @@ export class AuthUserDto {
   @ApiProperty()
   country: string;
 
-  @ApiProperty()
-  phone: string;
+  @ApiProperty({ required: false })
+  phone?: string;
 
   @ApiProperty({ type: [String], enum: UserRole })
   roles: UserRole[];
+
+  @ApiProperty({ enum: AuthProvider })
+  provider: AuthProvider;
+
+  @ApiProperty({ required: false })
+  avatarUrl?: string;
+
+  @ApiProperty()
+  emailVerified: boolean;
 }
 
 export class AuthResponseDto {
