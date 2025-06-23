@@ -96,7 +96,7 @@ export class BusinessService {
     });
 
     if (!business) {
-      throw new NotFoundException(`Business with ID ${businessId} not found`);
+      throw new NotFoundException(`Business with ID ${businessId} not found in the database.`);
     }
 
     return BusinessMapper.toBusinessProfileDto(business);
