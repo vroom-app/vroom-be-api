@@ -51,13 +51,16 @@ export class AuthService {
 
     if (user) {
       // User exists - check if it's the same provider
-      if (user.provider === AuthProvider.GOOGLE && user.providerId === oauthUser.providerId) {
+      if (
+        user.provider === AuthProvider.GOOGLE &&
+        user.providerId === oauthUser.providerId
+      ) {
         // Update user info in case it changed
         user.firstName = oauthUser.firstName;
         user.lastName = oauthUser.lastName;
         user.avatarUrl = oauthUser.avatarUrl ?? '';
         user.emailVerified = oauthUser.emailVerified;
-        
+
         return await this.usersService.update(user.id, user);
       } else if (user.provider === AuthProvider.LOCAL) {
         // User registered with email/password, link Google account
@@ -65,11 +68,13 @@ export class AuthService {
         user.providerId = oauthUser.providerId;
         user.avatarUrl = oauthUser.avatarUrl ?? '';
         user.emailVerified = oauthUser.emailVerified;
-        
+
         return await this.usersService.update(user.id, user);
       } else {
         // Different OAuth provider - for now, throw error
-        throw new ConflictException('Email already registered with different provider');
+        throw new ConflictException(
+          'Email already registered with different provider',
+        );
       }
     }
 
@@ -86,7 +91,8 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const { email, password, firstName, lastName, country, phone } = registerDto;
+    const { email, password, firstName, lastName, country, phone } =
+      registerDto;
 
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {

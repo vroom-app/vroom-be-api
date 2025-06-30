@@ -1,4 +1,10 @@
-import { ForbiddenException, Injectable, Logger, NotFoundException, NotImplementedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { BusinessProfileDto } from './dto/business-profile.dto';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
@@ -20,12 +26,12 @@ import { GooglePlacesService } from '../google-places/service/google-places.serv
 @Injectable()
 export class BusinessManagementService {
   private readonly logger = new Logger(BusinessManagementService.name);
-  
+
   constructor(
     private readonly businessService: BusinessService,
     private readonly serviceOfferingService: ServiceOfferingService,
     private readonly openingHoursService: BusinessOpeningHoursService,
-    private readonly googlePlacesService: GooglePlacesService
+    private readonly googlePlacesService: GooglePlacesService,
   ) {}
 
   /**
@@ -49,19 +55,19 @@ export class BusinessManagementService {
    * @returns The business profile including services
    * @throws NotFoundException if business doesn't exist
    */
-  async getBusinessDetails(
-    businessId: string,
-  ): Promise<BusinessProfileDto> {
+  async getBusinessDetails(businessId: string): Promise<BusinessProfileDto> {
     try {
-      this.logger.log(`Attempting to fetch Business with ID ${businessId} from database.`);
+      this.logger.log(
+        `Attempting to fetch Business with ID ${businessId} from database.`,
+      );
       return await this.businessService.getBusinessDetails(businessId);
-    }
-    catch (error) {
+    } catch (error) {
       if (error.name === 'NotFoundException') {
-        this.logger.log(`Business with ID ${businessId} not found in the database. Attempting to fetch from Google Places...`);
+        this.logger.log(
+          `Business with ID ${businessId} not found in the database. Attempting to fetch from Google Places...`,
+        );
         return this.googlePlacesService.getGooglePlaceDetails(businessId);
-      }
-      else {
+      } else {
         throw new NotFoundException(
           `Business with ID ${businessId} not found. ${error.name}`,
         );

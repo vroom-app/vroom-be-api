@@ -11,8 +11,8 @@ export class CurrentBusinessOpeningHourDto {
     description: 'List of opening and closing periods for each day',
   })
   periods: Array<{
-      open: { day: number; time: string };
-      close: { day: number; time: string };
+    open: { day: number; time: string };
+    close: { day: number; time: string };
   }>;
   @ApiProperty({
     type: [String],
@@ -69,13 +69,13 @@ export class BusinessProfileDto {
   @ApiProperty({ example: 'carwash', required: false })
   googleCategory?: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: [
       'https://example.com/photo1.jpg',
       'https://example.com/photo2.jpg',
     ],
-    type: [String], 
-    required: false 
+    type: [String],
+    required: false,
   })
   photoUrls?: string[];
 
