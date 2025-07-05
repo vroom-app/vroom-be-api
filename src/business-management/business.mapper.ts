@@ -1,4 +1,3 @@
-
 import { BusinessSpecializationDto } from 'src/specialization/dto/dto.business-specialization.dto';
 import {
   BusinessOpeningHourDto,
@@ -44,9 +43,9 @@ export class BusinessMapper {
   static toBusinessProfileDto(business: Business): BusinessProfileDto {
     return {
       id: business.id,
-      displayName: { 
-        text: business.name, 
-        languageCode: 'BG' 
+      displayName: {
+        text: business.name,
+        languageCode: 'BG',
       },
       description: business.description,
       formattedAddress: business.address,

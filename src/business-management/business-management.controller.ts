@@ -17,11 +17,9 @@ import { BusinessManagementService } from './business-management.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BusinessProfileDto } from './dto/business-profile.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { UpdateBusinessServicesDto } from './dto/business-offerings-update.dto';
 import { UpdateBusinessDetailsDto } from './dto/business-details-update.dto';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
-import { Business } from 'src/business/entities/business.entity';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -37,32 +35,13 @@ export class BusinessManagementController {
     private readonly businessManagementService: BusinessManagementService,
   ) {}
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get(':businessId')
-  // @ApiBearerAuth()
-  // @ApiOperation({ summary: 'Get a business profile by ID (if owned)' })
-  // @ApiResponse({ status: 200, description: 'Business profile returned' })
-  // async getBusinesses(
-  //   @Param('businessId', ParseIntPipe) businessId: string,
-  //   @Request() req,
-  // ): Promise<BusinessProfileDto> { //TODO return list of businesses if user is admin
-  //   console.log('Fetching business profile for business ID:', businessId);
-  //   return this.businessManagementService.getBusinessProfile(
-  //     businessId,
-  //     req.user.id,
-  //   );
-  // }
-
-
   @Get(':businessId')
   @ApiOperation({ summary: 'Get a business profile by ID' })
   @ApiResponse({ status: 200, description: 'Business profile returned' })
   async getBusinessDetails(
     @Param('businessId') businessId: string,
   ): Promise<BusinessProfileDto> {
-    return this.businessManagementService.getBusinessDetails(
-      businessId,
-    );
+    return this.businessManagementService.getBusinessDetails(businessId);
   }
 
   @UseGuards(JwtAuthGuard)

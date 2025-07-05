@@ -71,7 +71,7 @@ export class BusinessService {
     return BusinessMapper.toBusinessProfileDto(business);
   }
 
-    /**
+  /**
    * Get a business profile by ID
    *
    * @param businessId The ID of the business
@@ -79,9 +79,7 @@ export class BusinessService {
    * @returns The business profile including services, specializations, and opening hours
    * @throws NotFoundException if business doesn't exist
    */
-  async getBusinessDetails(
-    businessId: string,
-  ): Promise<BusinessProfileDto> {
+  async getBusinessDetails(businessId: string): Promise<BusinessProfileDto> {
     const business = await this.businessRepository.findOne({
       where: {
         googlePlaceId: businessId,
@@ -96,7 +94,9 @@ export class BusinessService {
     });
 
     if (!business) {
-      throw new NotFoundException(`Business with ID ${businessId} not found in the database.`);
+      throw new NotFoundException(
+        `Business with ID ${businessId} not found in the database.`,
+      );
     }
 
     return BusinessMapper.toBusinessProfileDto(business);

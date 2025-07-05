@@ -7,8 +7,8 @@ import {
   Request,
   HttpStatus,
   HttpCode,
-    Res,
-    Logger,
+  Res,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -73,17 +73,17 @@ export class AuthController {
     this.logger.log(`Google OAuth callback received for user ${req.user?.id}`);
     try {
       const authResult = await this.authService.googleLogin(req.user);
-      
+
       // Redirect to frontend with token
       const frontendUrl = this.configService.get<string>('frontend.url');
       const redirectUrl = `${frontendUrl}/auth/callback?token=${authResult.accessToken}`;
-      
+
       res.redirect(redirectUrl);
     } catch (error) {
       // Redirect to frontend with error
       const frontendUrl = this.configService.get<string>('frontend.url');
       const redirectUrl = `${frontendUrl}/auth/callback?error=oauth_failed`;
-      
+
       res.redirect(redirectUrl);
     }
   }

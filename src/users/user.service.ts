@@ -34,12 +34,15 @@ export class UserService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
-  async findByProviderId(provider: AuthProvider, providerId: string): Promise<User | null> {
-    return this.usersRepository.findOne({ 
-      where: { 
+  async findByProviderId(
+    provider: AuthProvider,
+    providerId: string,
+  ): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: {
         provider,
-        providerId 
-      } 
+        providerId,
+      },
     });
   }
 
