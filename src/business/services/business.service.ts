@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateBusinessDto } from '../dto/create-business.dto';
-import { Business } from '../entities/business.entity';
+import { Business, BusinessCategory } from '../entities/business.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
 import { UpdateBusinessDetailsDto } from 'src/business-management/dto/business-details-update.dto';
@@ -82,7 +82,7 @@ export class BusinessService {
   async getBusinessDetails(businessId: string): Promise<BusinessProfileDto> {
     const business = await this.businessRepository.findOne({
       where: {
-        googlePlaceId: businessId,
+        id: businessId,
       },
       relations: {
         openingHours: true,
@@ -135,27 +135,41 @@ export class BusinessService {
 
   /**
    * Create a new business for a user
+   * Only set the id if searchEngineId is provided, otherwise it should be automatically generated
    * @param userId The ID of the user creating the business
    * @param createBusinessDto DTO containing business data
    * @returns The created business
    */
   async createBusiness(
-    userId: number,
-    createBusinessDto: CreateBusinessDto,
+    ownerId: number,
+    dto: CreateBusinessDto,
   ): Promise<Business> {
-    const { openingHours, ...businessData } = createBusinessDto;
-    console.log('User ID:', userId);
-    const business = this.businessRepository.create({
-      ...businessData,
-      ownerId: userId,
-      coordinates: this.createPointFromCoordinates(
-        createBusinessDto.latitude,
-        createBusinessDto.longitude,
-      ),
-    });
-    console.log('Creating business with data:', business);
+    const businessData: Partial<Business> = {
+      ownerId,
+      name: dto.name,
+      description: dto.description,
+      address: dto.address,
+      city: dto.city,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      email: dto.email,
+      phone: dto.phone,
+      website: dto.website,
+      categories: dto.categories as BusinessCategory[],
+      additionalPhotos: [],
+      isVerified: false,
+      isSponsored: false,
+      acceptBookings: false,
+    };
 
-    return await this.businessRepository.save(business);
+    // Only add the id if searchEngineId is provided
+    if (dto.searchEngineId) {
+      businessData.id = dto.searchEngineId;
+    }
+
+    const business = this.businessRepository.create(businessData);
+    
+    return this.businessRepository.save(business);
   }
 
   /**

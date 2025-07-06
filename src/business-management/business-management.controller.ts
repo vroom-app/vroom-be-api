@@ -56,7 +56,6 @@ export class BusinessManagementController {
     @Body() createBusinessDto: CreateBusinessDto,
     @Request() req,
   ): Promise<BusinessProfileDto> {
-    // TODO remove this when integration with google is done
     console.log('Creating business for user ID:', req.user.id);
     return this.businessManagementService.createBusiness(
       req.user.id,
