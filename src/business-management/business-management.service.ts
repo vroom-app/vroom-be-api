@@ -3,7 +3,6 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  NotImplementedException,
 } from '@nestjs/common';
 import { BusinessProfileDto } from './dto/business-profile.dto';
 import { BusinessService } from 'src/business/services/business.service';
@@ -22,6 +21,7 @@ import { BusinessOpeningHours } from 'src/business/entities/business-opening-hou
 import { BusinessMapper } from './business.mapper';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
 import { GooglePlacesService } from '../google-places/service/google-places.service';
+import { SearchClientService } from 'src/search-client/search-client.service';
 
 @Injectable()
 export class BusinessManagementService {
@@ -32,6 +32,7 @@ export class BusinessManagementService {
     private readonly serviceOfferingService: ServiceOfferingService,
     private readonly openingHoursService: BusinessOpeningHoursService,
     private readonly googlePlacesService: GooglePlacesService,
+    private readonly searchClient: SearchClientService
   ) {}
 
   /**
@@ -77,28 +78,50 @@ export class BusinessManagementService {
 
   /**
    * Create a business and its associated services
-   *
+   * TODO the function does not provide consistency between the business and the search engine.
+   * - It should be refactored to ensure that if the business is created, it is also created in the search engine.
+   * - This is a temporary solution to allow the business to be created in the search engine.
+   * 
    * @param userId The ID of the user creating the business
-   * @param createBusinessDto The DTO containing business
+   * @param dto The DTO containing business
    * @returns The created business
    */
   async createBusiness(
     userId: number,
-    createBusinessDto: CreateBusinessDto,
+    dto: CreateBusinessDto,
   ): Promise<BusinessProfileDto> {
-    const { openingHours, ...businessData } = createBusinessDto;
     const savedBusiness = await this.businessService.createBusiness(
       userId,
-      createBusinessDto,
+      dto,
     );
+
+    const { openingHours } = dto;
     if (openingHours && openingHours.length > 0) {
       savedBusiness.openingHours =
         await this.openingHoursService.createForBusiness(
           savedBusiness.id,
           openingHours,
         );
-      console.log('Saved opening hours', savedBusiness.openingHours);
+      console.log(`created opening hours for business ${savedBusiness.id}`);
     }
+
+    const payload = {
+      id: dto.searchEngineId ?? savedBusiness.id,
+      name: dto.name,
+      name_en: dto.nameEn,
+      name_bg: dto.nameBg,
+      address: dto.address,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      email: dto.email,
+      phone: dto.phone,
+      website: dto.website,
+      categories: dto.categories ?? [],
+      tags: dto.tags ?? {},
+      city: dto.city,
+      is_registered: true,
+    };
+    await this.searchClient.upsertBusiness(payload);
 
     return BusinessMapper.toBusinessProfileDto(savedBusiness);
   }

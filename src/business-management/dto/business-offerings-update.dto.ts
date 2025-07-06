@@ -2,7 +2,6 @@ import {
   IsNumber,
   IsString,
   IsOptional,
-  IsDecimal,
   IsEnum,
   IsArray,
   ValidateNested,

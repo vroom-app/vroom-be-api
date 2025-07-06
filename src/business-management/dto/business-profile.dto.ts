@@ -25,9 +25,6 @@ export class BusinessProfileDto {
   @ApiProperty({ example: 1 })
   id: string;
 
-  @ApiProperty({ example: 'google123' })
-  googlePlaceId: string;
-
   @ApiProperty({
     example: {
       text: 'Awesome Cleaning Services',
@@ -81,8 +78,8 @@ export class BusinessProfileDto {
 
   @ApiProperty()
   location: {
-    latitude: number;
-    longitude: number;
+    latitude?: number;
+    longitude?: number;
   };
 
   @ApiProperty({

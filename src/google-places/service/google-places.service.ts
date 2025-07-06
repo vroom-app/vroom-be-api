@@ -42,7 +42,6 @@ export class GooglePlacesService {
 
       const businessDetails: BusinessProfileDto = {
         id: data.id,
-        googlePlaceId: data.id,
         displayName: {
           text: data.displayName?.text || '',
           languageCode: data.displayName?.languageCode || 'NONE',

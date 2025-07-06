@@ -6,7 +6,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  Point,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,11 +15,28 @@ import { ServiceOffering } from 'src/service-offering/entities/service-offering.
 import { Slot } from 'src/slot/entities/slot.entity';
 import { Review } from 'src/review/entities/review.entity';
 
+export enum BusinessCategory {
+  CarWash = 'CarWash',
+  CarRepair = 'CarRepair',
+  Parking = 'Parking',
+  GasStation = 'GasStation',
+  ElectricVehicleChargingStation = 'ElectricVehicleChargingStation',
+  CarDealer = 'CarDealer',
+  CarRental = 'CarRental',
+  DetailingStudio = 'DetailingStudio',
+  RimsShop = 'RimsShop',
+  Tuning = 'Tuning',
+  TireShop = 'TireShop',
+  CarInspectionStation = 'CarInspectionStation',
+}
+
 @Entity('businesses')
 export class Business {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // ── BASIC INFO ───────────────────────────────────────────────────────
+  
   @Column()
   ownerId: number;
 
@@ -30,30 +46,32 @@ export class Business {
 
   @Column()
   name: string;
+  
+  @Column({ nullable: true })
+  description?: string;
+
+  // ── CATEGORIES ──────────────────────────────────────────────────────
+
+  @Column({
+    type: 'enum',
+    enum: BusinessCategory,
+    array: true,
+    default: [],
+  })
+  categories: BusinessCategory[];
+
+  // ── CONTACT & WEB ───────────────────────────────────────────────────
 
   @Column({ nullable: true })
-  description: string;
-
-  @Column({ unique: true })
-  googlePlaceId: string;
-
-  @Column({ nullable: true })
-  googleCategory: string;
-
-  @Column('simple-array', { nullable: true })
-  additionalPhotos: string[];
-
-  @Column({ default: false })
-  isVerified: boolean;
-
-  @Column({ default: false })
-  isSponsored: boolean;
-
-  @Column({ default: false })
-  acceptBookings: boolean;
+  email?: string;
 
   @Column({ type: 'text', nullable: true })
   website: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  // ── LOCATION ────────────────────────────────────────────────────────
 
   @Column()
   address: string;
@@ -61,18 +79,39 @@ export class Business {
   @Column()
   city: string;
 
-  @Column({ type: 'point' })
-  coordinates: any;
+  @Column('double precision')
+  latitude: number;
 
-  @Column()
-  phone: string;
+  @Column('double precision')
+  longitude: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // ── MEDIUMS & VISUALS ───────────────────────────────────────────────
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column({ name: 'logo_url', nullable: true })
+  logoUrl?: string;
 
+  @Column({ name: 'logo_map_url', nullable: true })
+  logoMapUrl?: string;
+
+  @Column({ name: 'photo_url', nullable: true })
+  photoUrl?: string;
+
+  @Column('simple-array', { name: 'additional_photos', nullable: true })
+  additionalPhotos?: string[];
+
+  // ── FLAGS ────────────────────────────────────────────────────────────
+
+  @Column({ name: 'is_verified', default: false })
+  isVerified: boolean;
+
+  @Column({ name: 'is_sponsored', default: false })
+  isSponsored: boolean;
+
+  @Column({ name: 'accept_bookings', default: false })
+  acceptBookings: boolean;
+
+  // ── RELATIONS ───────────────────────────────────────────────────────
+  
   @OneToMany(() => BusinessOpeningHours, (hours) => hours.business)
   openingHours: BusinessOpeningHours[];
 
@@ -87,4 +126,11 @@ export class Business {
 
   @OneToMany(() => Review, (review) => review.business)
   reviews: Review[];
+
+  // ── AUDIT ────────────────────────────────────────────────────────────
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

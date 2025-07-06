@@ -102,10 +102,8 @@ describe('BusinessManagementService', () => {
         name: 'New Business',
         address: '456 New St',
         description: 'New Description',
-        googleCategory: 'carwash',
         city: 'New City',
         phone: '0987654321',
-        googlePlaceId: 'google123',
         latitude: 40.7128,
         longitude: -74.006,
       };
@@ -114,7 +112,6 @@ describe('BusinessManagementService', () => {
         id: '2',
         ownerId: userId,
         owner: {} as User,
-        coordinates: {} as Point,
         createdAt: new Date(),
         updatedAt: new Date(),
         openingHours: [] as any,
