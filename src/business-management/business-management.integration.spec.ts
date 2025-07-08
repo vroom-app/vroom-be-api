@@ -148,11 +148,10 @@ describe('BusinessManagementService Integration Tests', () => {
         description: 'Test business description',
         address: '123 Test Street',
         city: 'Test City',
-        googleCategory: 'Test Category',
-        googlePlaceId: 'test_place_id_123',
         latitude: 42.6977,
         longitude: 23.3219,
         phone: '+35987654321',
+        categories: [],
         openingHours: [
           {
             dayOfWeek: 1,
@@ -177,7 +176,7 @@ describe('BusinessManagementService Integration Tests', () => {
       expect(createdBusiness).toBeDefined();
       expect(createdBusiness.name).toBe(createBusinessDto.name);
       expect(createdBusiness.description).toBe(createBusinessDto.description);
-      expect(createdBusiness.address).toBe(createBusinessDto.address);
+      expect(createdBusiness.formattedAddress).toBe(createBusinessDto.address);
       const businessFromDb = await businessRepository.findOne({
         where: { id: createdBusiness.id },
         relations: ['openingHours'],
@@ -197,7 +196,7 @@ describe('BusinessManagementService Integration Tests', () => {
       expect(businessProfile).toBeDefined();
       expect(businessProfile.id).toBe(testBusiness.id);
       expect(businessProfile.name).toBe(testBusiness.name);
-      expect(businessProfile.address).toBe(testBusiness.address);
+      expect(businessProfile.formattedAddress).toBe(testBusiness.address);
     });
 
     it('should allow business owner to update business details', async () => {
@@ -218,7 +217,7 @@ describe('BusinessManagementService Integration Tests', () => {
       expect(updatedBusiness).toBeDefined();
       expect(updatedBusiness.name).toBe(updateDto.name);
       expect(updatedBusiness.description).toBe(updateDto.description);
-      expect(updatedBusiness.website).toBe(updateDto.website);
+      expect(updatedBusiness.websiteUri).toBe(updateDto.website);
     });
 
     it('should not allow regular user to update business details', async () => {

@@ -69,7 +69,7 @@ export class Business {
   website: string;
 
   @Column({ nullable: true })
-  phone: string;
+  phone?: string;
 
   // ── LOCATION ────────────────────────────────────────────────────────
 

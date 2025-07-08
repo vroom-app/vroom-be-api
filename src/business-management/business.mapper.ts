@@ -43,10 +43,7 @@ export class BusinessMapper {
   static toBusinessProfileDto(business: Business): BusinessProfileDto {
     return {
       id: business.id,
-      displayName: {
-        text: business.name,
-        languageCode: 'BG',
-      },
+      name: business.name,
       description: business.description,
       formattedAddress: business.address,
       city: business.city,

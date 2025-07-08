@@ -40,6 +40,9 @@ import { CarModule } from './car/car.module';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
         entities: [
           Booking,
           BusinessOpeningHours,
