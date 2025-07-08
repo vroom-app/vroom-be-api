@@ -66,7 +66,7 @@ describe('BusinessManagementService', () => {
     it('should retrieve business profile for a given business and user', async () => {
       const mockBusinessProfile = {
         id: '1',
-        displayName: { text: 'Test Business', languageCode: 'en' },
+        name: 'Test Business',
         description: 'Test Description',
         formattedAddress: '123 Test St',
         city: 'Test City',
@@ -75,8 +75,6 @@ describe('BusinessManagementService', () => {
         isVerified: true,
         isSponsored: false,
         acceptBookings: true,
-        googlePlaceId: 'google123',
-        googleCategory: 'carwash',
         additionalPhotos: [],
         location: { latitude: 40.7128, longitude: -74.006 },
         openingHours: [],
@@ -104,6 +102,7 @@ describe('BusinessManagementService', () => {
         description: 'New Description',
         city: 'New City',
         phone: '0987654321',
+        categories: [],
         latitude: 40.7128,
         longitude: -74.006,
       };
@@ -135,7 +134,7 @@ describe('BusinessManagementService', () => {
         userId,
         createBusinessDto,
       );
-      expect(result.displayName.text).toEqual(mockCreatedBusiness.name);
+      expect(result.name).toEqual(mockCreatedBusiness.name);
     });
   });
 
@@ -230,7 +229,6 @@ describe('BusinessManagementService', () => {
         name: 'New Business',
         address: '456 New St',
         description: 'New Description',
-        googleCategory: 'carwash',
         city: 'New City',
         phone: '0987654321',
         googlePlaceId: 'google123',
@@ -246,6 +244,7 @@ describe('BusinessManagementService', () => {
         slots: [],
         reviews: [],
         website: 'https://newbusiness.com',
+        categories: [],
         isVerified: false,
         isSponsored: false,
         acceptBookings: true,

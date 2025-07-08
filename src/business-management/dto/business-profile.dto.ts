@@ -25,16 +25,8 @@ export class BusinessProfileDto {
   @ApiProperty({ example: 1 })
   id: string;
 
-  @ApiProperty({
-    example: {
-      text: 'Awesome Cleaning Services',
-      languageCode: 'en',
-    },
-  })
-  displayName: {
-    text: string;
-    languageCode: string;
-  };
+  @ApiProperty({ example: 'Service Name' })
+  name: string;
 
   @ApiProperty({
     example: 'We offer top-notch residential cleaning.',
@@ -62,9 +54,6 @@ export class BusinessProfileDto {
 
   @ApiProperty({ example: true })
   acceptBookings: boolean;
-
-  @ApiProperty({ example: 'carwash', required: false })
-  googleCategory?: string;
 
   @ApiProperty({
     example: [

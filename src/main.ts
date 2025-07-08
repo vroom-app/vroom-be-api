@@ -21,6 +21,8 @@ async function bootstrap() {
   // app.useGlobalFilters(new AllExceptionsFilter());
 
   app.enableCors();
+  app.setGlobalPrefix('api');
+
 
   const config = new DocumentBuilder()
     .setTitle('Car Service Booking API')
@@ -29,7 +31,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('doc', app, document);
 
   const port = configService.get<number>('port') || 3005;
   await app.listen(port);

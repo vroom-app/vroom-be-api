@@ -20,7 +20,6 @@ import { BusinessOpeningHoursService } from 'src/business/services/business-open
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 import { BusinessMapper } from './business.mapper';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
-import { GooglePlacesService } from '../google-places/service/google-places.service';
 import { SearchClientService } from 'src/search-client/search-client.service';
 
 @Injectable()
@@ -31,7 +30,6 @@ export class BusinessManagementService {
     private readonly businessService: BusinessService,
     private readonly serviceOfferingService: ServiceOfferingService,
     private readonly openingHoursService: BusinessOpeningHoursService,
-    private readonly googlePlacesService: GooglePlacesService,
     private readonly searchClient: SearchClientService
   ) {}
 
@@ -57,23 +55,10 @@ export class BusinessManagementService {
    * @throws NotFoundException if business doesn't exist
    */
   async getBusinessDetails(businessId: string): Promise<BusinessProfileDto> {
-    try {
-      this.logger.log(
-        `Attempting to fetch Business with ID ${businessId} from database.`,
-      );
-      return await this.businessService.getBusinessDetails(businessId);
-    } catch (error) {
-      if (error.name === 'NotFoundException') {
-        this.logger.log(
-          `Business with ID ${businessId} not found in the database. Attempting to fetch from Google Places...`,
-        );
-        return this.googlePlacesService.getGooglePlaceDetails(businessId);
-      } else {
-        throw new NotFoundException(
-          `Business with ID ${businessId} not found. ${error.name}`,
-        );
-      }
-    }
+    this.logger.log(
+      `Attempting to fetch Business with ID ${businessId} from database.`,
+    );
+    return await this.businessService.getBusinessDetails(businessId);
   }
 
   /**
