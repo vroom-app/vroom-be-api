@@ -10,15 +10,12 @@ import { BusinessModule } from './business/business.module';
 import { ReviewModule } from './review/review.module';
 import { ServiceOfferingModule } from './service-offering/service-offering.module';
 import { SlotModule } from './slot/slot.module';
-import { Specialization } from './specialization/entities/specialization.entity';
-import { SpecializationModule } from './specialization/specialization.module';
 import { Booking } from './booking/entities/booking.entity';
 import { Business } from './business/entities/business.entity';
 import { Review } from './review/entities/review.entity';
 import { ServiceOffering } from './service-offering/entities/service-offering.entity';
 import { Slot } from './slot/entities/slot.entity';
 import { BusinessOpeningHours } from './business/entities/business-opening-hours.entity';
-import { BusinessSpecialization } from './business/entities/business-specialization.entity';
 import { BusinessManagementModule } from './business-management/business-manager.module';
 import { Car } from './car/entities/car.entity';
 import { CarModule } from './car/car.module';
@@ -40,18 +37,16 @@ import { CarModule } from './car/car.module';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        // ssl: {
+        //   rejectUnauthorized: false,
+        // },
         entities: [
           Booking,
           BusinessOpeningHours,
-          BusinessSpecialization,
           Business,
           Review,
           ServiceOffering,
           Slot,
-          Specialization,
           User,
           Car,
         ],
@@ -65,7 +60,6 @@ import { CarModule } from './car/car.module';
     ReviewModule,
     ServiceOfferingModule,
     SlotModule,
-    SpecializationModule,
     UsersModule,
     CarModule,
   ],

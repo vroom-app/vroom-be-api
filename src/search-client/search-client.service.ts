@@ -12,7 +12,9 @@ export class SearchClientService implements SearchClient {
 
   async upsertBusiness(payload: SearchBusinessPayload): Promise<void> {
     try {
-      await this.http.put('/api/businesses/sync', payload);
+      this.logger.debug(`Upserted business ${JSON.stringify(payload)}`);
+
+      await this.http.put('/search/businesses/sync', payload);
       this.logger.debug(`Upserted business ${payload.id}`);
     } catch (err: any) {
       this.logger.error(
