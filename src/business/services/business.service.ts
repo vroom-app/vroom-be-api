@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateBusinessDto } from '../dto/create-business.dto';
-import { Business, BusinessCategory } from '../entities/business.entity';
+import { Business, BusinessCategory, BusinessSpecialization } from '../entities/business.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
 import { UpdateBusinessDetailsDto } from 'src/business-management/dto/business-details-update.dto';
@@ -57,9 +57,6 @@ export class BusinessService {
       },
       relations: {
         openingHours: true,
-        specializations: {
-          specialization: true,
-        },
         serviceOfferings: true,
       },
     });
@@ -86,10 +83,6 @@ export class BusinessService {
       },
       relations: {
         openingHours: true,
-        specializations: {
-          specialization: true,
-        },
-        serviceOfferings: true,
       },
     });
 
@@ -145,21 +138,33 @@ export class BusinessService {
     dto: CreateBusinessDto,
   ): Promise<Business> {
     const businessData: Partial<Business> = {
-      ownerId,
+      // BASIC INFO 
       name: dto.name,
       description: dto.description,
+      // CATEGORIES & SPECIALISATIONS
+      categories: dto.categories as BusinessCategory[],
+      specializations: dto.specializations,
+      // CONTACT & WEB
+      email: dto.email,
+      website: dto.website,      
+      phone: dto.phone,
+      // LOCATION
       address: dto.address,
       city: dto.city,
       latitude: dto.latitude,
       longitude: dto.longitude,
-      email: dto.email,
-      phone: dto.phone,
-      website: dto.website,
-      categories: dto.categories as BusinessCategory[],
-      additionalPhotos: [],
+      // SOCIAL LINKS
+      facebook: dto.facebook,
+      instagram: dto.instagram,
+      youtube: dto.youtube,
+      linkedin: dto.linkedin,
+      tiktok: dto.tiktok,
+      // FLAGS 
       isVerified: false,
       isSponsored: false,
       acceptBookings: false,
+      // RELATIONS
+      ownerId,
     };
 
     // Only add the id if searchEngineId is provided

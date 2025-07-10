@@ -10,7 +10,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BusinessOpeningHours } from './business-opening-hours.entity';
-import { BusinessSpecialization } from './business-specialization.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { Slot } from 'src/slot/entities/slot.entity';
 import { Review } from 'src/review/entities/review.entity';
@@ -30,12 +29,55 @@ export enum BusinessCategory {
   CarInspectionStation = 'CarInspectionStation',
 }
 
+export enum BusinessSpecialization {
+  // Parking
+  LongTermRental,
+  NonStopSupport,
+  SecuredParking,
+  VideoSurveillance,
+  ElectricBarrier,
+  EvCharging,
+
+  // Mobile services
+  ComesToAddress,
+  InspectionAtAddress,
+  PickupDelivery,
+
+  // Software and tuning
+  BmwSoftware,
+  RemoteServices,
+  ChipTuning,
+  CarSoftware,
+  ExtremeMachines,
+
+  // Wheels and restoration
+  WheelRestoration,
+  NationwideDelivery,
+
+  // Import and search
+  EuropeImport,
+  CustomSearch,
+
+  // Auto services
+  PaintingServices,
+  BodyRepair,
+  TechnicalInspection,
+
+  // Insurance companies
+  Dzi,
+  BulIns,
+  LevIns,
+  Generali,
+  Asset,
+  Bulstrad,
+}
+
 @Entity('businesses')
 export class Business {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // ── BASIC INFO ───────────────────────────────────────────────────────
+  // ── BASIC INFO ──────────────────────────────────────────────────────
   
   @Column()
   ownerId: number;
@@ -50,7 +92,7 @@ export class Business {
   @Column({ nullable: true })
   description?: string;
 
-  // ── CATEGORIES ──────────────────────────────────────────────────────
+  // ── CATEGORIES & SPECIALISATIONS ────────────────────────────────────
 
   @Column({
     type: 'enum',
@@ -60,13 +102,20 @@ export class Business {
   })
   categories: BusinessCategory[];
 
+  @Column({
+    type: 'text',
+    array: true,
+    default: () => 'ARRAY[]::text[]',
+  })
+  specializations: string[];
+
   // ── CONTACT & WEB ───────────────────────────────────────────────────
 
   @Column({ nullable: true })
   email?: string;
 
   @Column({ type: 'text', nullable: true })
-  website: string;
+  website?: string;
 
   @Column({ nullable: true })
   phone?: string;
@@ -99,7 +148,24 @@ export class Business {
   @Column('simple-array', { name: 'additional_photos', nullable: true })
   additionalPhotos?: string[];
 
-  // ── FLAGS ────────────────────────────────────────────────────────────
+  // ── SOCIAL LINKS ────────────────────────────────────────────────────
+
+  @Column({ nullable: true })
+  facebook?: string; 
+
+  @Column({ nullable: true })
+  instagram?: string;
+
+  @Column({ nullable: true })
+  youtube?: string;
+
+  @Column({ nullable: true })
+  linkedin?: string;
+  
+  @Column({ nullable: true })
+  tiktok?: string;
+
+  // ── FLAGS ───────────────────────────────────────────────────────────
 
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean;
@@ -115,9 +181,6 @@ export class Business {
   @OneToMany(() => BusinessOpeningHours, (hours) => hours.business)
   openingHours: BusinessOpeningHours[];
 
-  @OneToMany(() => BusinessSpecialization, (bs) => bs.business)
-  specializations: BusinessSpecialization[];
-
   @OneToMany(() => ServiceOffering, (service) => service.business)
   serviceOfferings: ServiceOffering[];
 
@@ -127,7 +190,8 @@ export class Business {
   @OneToMany(() => Review, (review) => review.business)
   reviews: Review[];
 
-  // ── AUDIT ────────────────────────────────────────────────────────────
+  // ── AUDIT ───────────────────────────────────────────────────────────
+  
   @CreateDateColumn()
   createdAt: Date;
 

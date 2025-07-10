@@ -9,10 +9,11 @@ import {
   IsPhoneNumber,
   MaxLength,
   IsEnum,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BusinessCategory } from '../entities/business.entity';
+import { BusinessCategory, BusinessSpecialization } from '../entities/business.entity';
 
 class OpeningHoursDto {
   @IsNumber()
@@ -28,9 +29,11 @@ class OpeningHoursDto {
 }
 
 export class CreateBusinessDto {
+  // ── BASIC INFO ───────────────────────────────────────────────────────
   @ApiPropertyOptional({
     description: 'If claiming an existing: the search‐engine UUID',
   })
+  @IsUUID()
   searchEngineId?: string;
 
   @ApiProperty({ example: 'My Shop' })
@@ -51,6 +54,32 @@ export class CreateBusinessDto {
   @MaxLength(1000)
   description: string;
 
+  // ── CATEGORIES & SPECIALISATIONS ──────────────────────────────────────────────────────
+
+  @IsArray()
+  @IsEnum(BusinessCategory, { each: true })
+  @ApiProperty({ enum: BusinessCategory, isArray: true })
+  categories: BusinessCategory[];
+
+  @IsArray()
+  specializations: string[];
+
+  // ── CONTACT & WEB ───────────────────────────────────────────────────
+
+  @ApiPropertyOptional({ example: 'shop@example.com' })
+  @IsString()
+  email?: string;
+
+  @ApiPropertyOptional({ example: '+359123456789' })
+  @IsPhoneNumber()
+  phone?: string;
+
+  @ApiPropertyOptional({ example: 'https://shop.example.com' })
+  @IsString()
+  website?: string;
+
+  // ── LOCATION ────────────────────────────────────────────────────────
+
   @ApiProperty({ example: '123 Main St' })
   @IsString()
   address: string;
@@ -67,26 +96,28 @@ export class CreateBusinessDto {
   @ApiProperty({ example: 42.70 })
   longitude: number;
 
-  @ApiPropertyOptional({ example: 'shop@example.com' })
+  // ── SOCIAL LINKS ─────────────────────────────────────────────────────
+  @ApiPropertyOptional()
   @IsString()
-  email?: string;
+  facebook?: string; 
 
-  @ApiPropertyOptional({ example: '+359123456789' })
-  @IsPhoneNumber()
-  phone?: string;
-
-  @ApiPropertyOptional({ example: 'https://shop.example.com' })
+  @ApiPropertyOptional()
   @IsString()
-  website?: string;
+  instagram?: string;
 
-  @IsArray()
-  @IsEnum(BusinessCategory, { each: true })
-  @ApiProperty({ enum: BusinessCategory, isArray: true })
-  categories: BusinessCategory[];
+  @ApiPropertyOptional()
+  @IsString()  
+  youtube?: string;
 
-  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
-  @IsOptional()
-  tags?: Record<string, any>;
+  @ApiPropertyOptional()
+  @IsString()  
+  linkedin?: string;
+  
+  @ApiPropertyOptional()
+  @IsString()  
+  tiktok?: string;
+
+  // ── RELATIONS ───────────────────────────────────────────────────────
 
   @IsArray()
   @ValidateNested({ each: true })

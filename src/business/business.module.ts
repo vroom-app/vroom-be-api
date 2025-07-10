@@ -6,14 +6,12 @@ import { UsersModule } from 'src/users/users.module';
 import { BusinessService } from './services/business.service';
 import { BusinessController } from './business.controller';
 import { BusinessOpeningHoursService } from './services/business-opening-hours.service';
-import { BusinessSpecialization } from './entities/business-specialization.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Business,
       BusinessOpeningHours,
-      BusinessSpecialization,
     ]),
     UsersModule,
   ],

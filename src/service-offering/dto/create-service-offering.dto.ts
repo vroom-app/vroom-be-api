@@ -36,6 +36,7 @@ export class CreateServiceOfferingDto {
 
   @IsNumber()
   @IsPositive()
+  @IsOptional()
   price: number;
 
   @IsEnum(PriceType)

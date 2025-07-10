@@ -1,25 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ReviewDto } from 'src/review/dto/review.dto';
+import { BusinessCategory, BusinessSpecialization } from 'src/business/entities/business.entity';
 import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
-import { BusinessSpecializationDto } from 'src/specialization/dto/dto.business-specialization.dto';
-export class CurrentBusinessOpeningHourDto {
-  @ApiProperty({ example: true })
-  openNow: boolean;
-
-  @ApiProperty({
-    type: [Object],
-    description: 'List of opening and closing periods for each day',
-  })
-  periods: Array<{
-    open: { day: number; time: string };
-    close: { day: number; time: string };
-  }>;
-  @ApiProperty({
-    type: [String],
-    description: 'Descriptions of opening hours for each day of the week',
-  })
-  weekdayDescriptions: string[];
-}
 
 export class BusinessProfileDto {
   @ApiProperty({ example: 1 })
@@ -34,20 +15,11 @@ export class BusinessProfileDto {
   })
   description?: string;
 
-  @ApiProperty({ example: '123 Main St, Springfield' })
-  formattedAddress: string;
+  @ApiProperty()
+  categories: BusinessCategory[];
 
-  @ApiProperty({ example: 'Springfield' })
-  city?: string;
-
-  @ApiProperty({ example: '+1234567890' })
-  nationalPhoneNumber?: string;
-
-  @ApiProperty({ example: 'https://awesomecleaning.com', required: false })
-  websiteUri?: string;
-
-  @ApiProperty({ example: true })
-  isVerified: boolean;
+  @ApiProperty()
+  specializations?: BusinessSpecialization[ ];
 
   @ApiProperty({ example: true })
   isSponsored: boolean;
@@ -55,60 +27,43 @@ export class BusinessProfileDto {
   @ApiProperty({ example: true })
   acceptBookings: boolean;
 
-  @ApiProperty({
-    example: [
-      'https://example.com/photo1.jpg',
-      'https://example.com/photo2.jpg',
-    ],
-    type: [String],
-    required: false,
-  })
-  photoUrls?: string[];
-
   @ApiProperty()
   location: {
-    latitude?: number;
-    longitude?: number;
+    latitude: number;
+    longitude: number;
+    address: string;
+    city?: string;
   };
+
+  @ApiProperty()
+  contact: {
+    email?: string;
+    phone?: string;
+    website?: string;
+  };
+
+  @ApiProperty()
+  media: {
+    heroPicture?: string;
+    mapLogo?: string;
+    logo?: string;
+    photoRefs?: string[];
+  };
+
+  @ApiProperty()
+  socialLinks: {
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+    linkedin?: string;
+    tiktok?: string;
+  }
 
   @ApiProperty({
     type: () => [BusinessOpeningHourDto],
     description: 'List of opening hours per day of week',
   })
   openingHours?: BusinessOpeningHourDto[];
-
-  @ApiProperty({
-    type: () => [CurrentBusinessOpeningHourDto],
-    description: 'Current opening hours status',
-  })
-  currentOpeningHours?: CurrentBusinessOpeningHourDto;
-
-  @ApiProperty({
-    type: () => [BusinessSpecializationDto],
-    description: 'List of business specializations',
-  })
-  specializations?: BusinessSpecializationDto[];
-
-  @ApiProperty({
-    type: () => [ServiceOfferingDto],
-    description: 'List of service offerings provided by the business',
-  })
-  services?: ServiceOfferingDto[];
-
-  @ApiProperty({ required: false })
-  rating?: number;
-
-  @ApiProperty({ required: false })
-  userRatingCount?: number;
-
-  @ApiProperty({ type: [ReviewDto], required: false })
-  reviews?: ReviewDto[];
-
-  @ApiProperty({ type: [String], required: false })
-  types?: string[];
-
-  @ApiProperty({ type: [String], required: false })
-  photoRefs?: string[];
 }
 
 export class BusinessOpeningHourDto {

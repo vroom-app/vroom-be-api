@@ -5,6 +5,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -16,7 +17,8 @@ export class Review {
   id: number;
 
   @Column()
-  businessId: number;
+  @Index()
+  businessId: string;
 
   @ManyToOne(() => Business, (business) => business.reviews, {
     onDelete: 'CASCADE',
@@ -24,7 +26,8 @@ export class Review {
   @JoinColumn({ name: 'businessId' })
   business: Business;
 
-  @Column()
+  @Column({ nullable: true })
+  @Index()
   serviceId: number;
 
   @ManyToOne(() => ServiceOffering, (offering) => offering.reviews)
@@ -43,6 +46,15 @@ export class Review {
 
   @Column()
   comment: string;
+
+  @Column({ name: 'communication_rating', nullable: true })
+  communicationRating?: number;
+
+  @Column({ name: 'quality_rating', nullable: true })
+  qualityRating?: number;
+
+  @Column({ name: 'punctuality_rating', nullable: true })
+  punctualityRating?: number;
 
   @CreateDateColumn()
   createdAt: Date;

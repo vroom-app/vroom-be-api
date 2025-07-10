@@ -1,4 +1,3 @@
-import { BusinessSpecializationDto } from 'src/specialization/dto/dto.business-specialization.dto';
 import {
   BusinessOpeningHourDto,
   BusinessProfileDto,
@@ -7,7 +6,6 @@ import { ServiceOffering } from 'src/service-offering/entities/service-offering.
 import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { Business } from 'src/business/entities/business.entity';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
-import { BusinessSpecialization } from 'src/business/entities/business-specialization.entity';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
 
 export class BusinessMapper {
@@ -17,16 +15,7 @@ export class BusinessMapper {
       opensAt: hour.opensAt,
       closesAt: hour.closesAt,
     };
-  }
-
-  static toSpecializationDto(
-    spec: BusinessSpecialization,
-  ): BusinessSpecializationDto {
-    return {
-      id: spec.specialization.id,
-      name: spec.specialization.name,
-    };
-  }
+  }a
 
   static toServiceOfferingDto(service: ServiceOffering): ServiceOfferingDto {
     return {
@@ -45,21 +34,34 @@ export class BusinessMapper {
       id: business.id,
       name: business.name,
       description: business.description,
-      formattedAddress: business.address,
-      city: business.city,
-      nationalPhoneNumber: business.phone,
-      websiteUri: business.website,
-      isVerified: business.isVerified,
+      categories: business.categories,
       isSponsored: business.isSponsored,
       acceptBookings: business.acceptBookings,
-      photoUrls: business.additionalPhotos,
       location: {
         latitude: business.latitude,
         longitude: business.longitude,
+        address: business.address,
+        city: business.city,
+      },
+      contact: {
+        email: business.email,
+        phone: business.phone,
+        website: business.website,
+      },
+      media: {
+        heroPicture: business.photoUrl,
+        mapLogo: business.logoMapUrl,
+        logo: business.logoUrl,
+        photoRefs: business.additionalPhotos,
+      },
+      socialLinks : {
+        facebook: business.facebook,
+        instagram: business.instagram,
+        youtube: business.youtube,
+        linkedin: business.linkedin,
+        tiktok: business.tiktok,
       },
       openingHours: business.openingHours?.map(this.toOpeningHourDto),
-      specializations: business.specializations?.map(this.toSpecializationDto),
-      services: business.serviceOfferings?.map(this.toServiceOfferingDto),
     };
   }
   static toFullServiceOfferingDto(

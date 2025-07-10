@@ -12,7 +12,6 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { BusinessManagementService } from './business-management.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BusinessProfileDto } from './dto/business-profile.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
@@ -26,6 +25,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { BusinessManagementService } from './services/business-management.service';
 
 @ApiTags('Business Management')
 @Controller('businesses')
@@ -33,6 +33,8 @@ export class BusinessManagementController {
   constructor(
     private readonly businessManagementService: BusinessManagementService,
   ) {}
+
+  // ── BUSINESS ──────────────────────────────────────────────────────
 
   @Get(':businessId')
   @ApiOperation({ summary: 'Get a business profile by ID' })
@@ -48,7 +50,7 @@ export class BusinessManagementController {
   @ApiBearerAuth()
   @ApiOperation({
     summary:
-      'Create a new business. TODO remove this when integration with google is done',
+      'Create a new business.',
   })
   @ApiResponse({ status: 201, description: 'Business created successfully' })
   async CreateBusiness(
@@ -62,6 +64,8 @@ export class BusinessManagementController {
     );
   }
 
+  // ── SERVICES ──────────────────────────────────────────────────────
+  
   @UseGuards(JwtAuthGuard)
   @Post(':businessId')
   @ApiBearerAuth()

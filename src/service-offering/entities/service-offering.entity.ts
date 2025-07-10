@@ -52,7 +52,7 @@ export class ServiceOffering {
   @Column('simple-array', { nullable: true })
   benefits: string[];
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, nullable: true  })
   price: number;
 
   @Column({
