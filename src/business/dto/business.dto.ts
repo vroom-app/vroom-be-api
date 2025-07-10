@@ -45,10 +45,6 @@ export class CreateBusinessDto {
   @IsOptional()
   nameEn?: string;
 
-  @ApiPropertyOptional({ example: 'Магазин' })
-  @IsOptional()
-  nameBg?: string;
-
   @IsString()
   @IsOptional()
   @MaxLength(1000)

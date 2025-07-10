@@ -148,7 +148,7 @@ export class BusinessManagementService {
   ): Promise<BusinessProfileDto> {
     try {
       await this.businessService.isOwnedByUser(userId, businessId);
-      const { openingHours, ...businessData } = updateBusinessDetailsDto;
+      const { openingHours, ...businessData } = updateBusinessDto;
 
       const updatedBusiness = await this.businessService.updateBusiness(
         businessId,
