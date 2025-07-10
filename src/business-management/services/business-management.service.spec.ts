@@ -7,8 +7,6 @@ import {
   DurationUnit,
   PriceType,
 } from 'src/service-offering/entities/service-offering.entity';
-import { UpdateBusinessDetailsDto } from './dto/business-details-update.dto';
-import { UpdateBusinessServicesDto } from './dto/business-offerings-update.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Point } from 'typeorm';
 import { Slot } from 'src/slot/entities/slot.entity';
@@ -16,8 +14,9 @@ import { Business } from 'src/business/entities/business.entity';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
-import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
 import { SearchClientService } from 'src/search-client/search-client.service';
+import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
 
 describe('BusinessManagementService', () => {
   let service: BusinessManagementService;
@@ -69,17 +68,38 @@ describe('BusinessManagementService', () => {
         id: '1',
         name: 'Test Business',
         description: 'Test Description',
-        formattedAddress: '123 Test St',
-        city: 'Test City',
-        phone: '1234567890',
-        website: 'https://testbusiness.com',
+        address: '123 Test St',
         isVerified: true,
         isSponsored: false,
         acceptBookings: true,
         additionalPhotos: [],
-        location: { latitude: 40.7128, longitude: -74.006 },
-        openingHours: [],
+        categories: [],
         specializations: [],
+        contact: {
+          email: "",
+          phone: '1234567890',
+          website: 'https://testbusiness.com',
+        },
+        media: {
+          heroPicture: 'https://testbusiness.com/hero.jpg',
+          mapLogo: 'https://testbusiness.com/map-logo.jpg',
+          logo: 'https://testbusiness.com/logo.jpg',
+          photoRefs: [],
+        },
+        socialLinks: {
+          facebook: 'https://facebook.com/testbusiness',
+          instagram: 'https://instagram.com/testbusiness',
+          youtube: 'https://youtube.com/testbusiness',
+          linkedin: 'https://linkedin.com/company/testbusiness',
+          tiktok: 'https://tiktok.com/@testbusiness',
+        },
+        location: {
+          address: '123 Test St',
+          city: 'Test City',
+          latitude: 40.7128,
+          longitude: -74.006,
+        },
+        openingHours: [],
       };
 
       mockBusinessService.getBusinessProfile.mockResolvedValue(
@@ -218,7 +238,7 @@ describe('BusinessManagementService', () => {
     it('should update business details for a business owned by the user', async () => {
       const userId = 1;
       const businessId = '2';
-      const updateBusinessDetailsDto: UpdateBusinessDetailsDto = {
+      const updateBusinessDetailsDto: UpdateBusinessDto = {
         name: 'Updated Business Name',
         description: 'Updated description',
       };
@@ -275,7 +295,7 @@ describe('BusinessManagementService', () => {
     it('should throw ForbiddenException if user does not own the business', async () => {
       const userId = 1;
       const businessId = '2';
-      const updateBusinessDetailsDto: UpdateBusinessDetailsDto = {
+      const updateBusinessDetailsDto: UpdateBusinessDto = {
         name: 'Updated Business Name',
       };
 

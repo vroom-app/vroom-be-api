@@ -2,11 +2,10 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
-import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { Business } from 'src/business/entities/business.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
@@ -15,8 +14,7 @@ import { BusinessOpeningHours } from 'src/business/entities/business-opening-hou
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
-import { BusinessMapper } from '../business.mapper';
-import { UpdateBusinessDetailsDto } from '../dto/business-details-update.dto';
+import { BusinessMapper } from '../mapper/business.mapper';
 import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from '../dto/business-offerings-update.dto';
 
 @Injectable()
@@ -138,7 +136,7 @@ export class BusinessManagementService {
    *
    * @param userId The ID of the user updating the business
    * @param businessId The ID of the business to update
-   * @param updateBusinessDetailsDto The DTO containing business update data
+   * @param updateBusinessDto The DTO containing business update data
    * @returns The updated business
    * @throws NotFoundException if business doesn't exist
    * @throws ForbiddenException if user is not the owner
@@ -146,7 +144,7 @@ export class BusinessManagementService {
   async updateBusinessDetails(
     userId: number,
     businessId: string,
-    updateBusinessDetailsDto: UpdateBusinessDetailsDto,
+    updateBusinessDto: UpdateBusinessDto,
   ): Promise<BusinessProfileDto> {
     try {
       await this.businessService.isOwnedByUser(userId, businessId);

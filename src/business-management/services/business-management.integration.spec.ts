@@ -14,7 +14,7 @@ import {
   ServiceOffering,
 } from 'src/service-offering/entities/service-offering.entity';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
-import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Slot } from 'src/slot/entities/slot.entity';
@@ -25,7 +25,6 @@ import { BusinessOpeningHoursService } from 'src/business/services/business-open
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
 import { BusinessManagementModule } from '../business-manager.module';
 import { BusinessManagementService } from './business-management.service';
-import { UpdateBusinessDetailsDto } from '../dto/business-details-update.dto';
 import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
 
 describe('BusinessManagementService Integration Tests', () => {
@@ -194,7 +193,7 @@ describe('BusinessManagementService Integration Tests', () => {
     });
 
     it('should allow business owner to update business details', async () => {
-      const updateDto: UpdateBusinessDetailsDto = {
+      const updateDto: UpdateBusinessDto = {
         name: 'Updated Business Name',
         description: 'Updated business description',
         website: 'https://updated-business.com',
@@ -215,7 +214,7 @@ describe('BusinessManagementService Integration Tests', () => {
     });
 
     it('should not allow regular user to update business details', async () => {
-      const updateDto: UpdateBusinessDetailsDto = {
+      const updateDto: UpdateBusinessDto = {
         name: 'Unauthorized Update',
       };
 

@@ -13,11 +13,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { BusinessProfileDto } from './dto/business-profile.dto';
+import { BusinessProfileDto } from '../dto/business-profile.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
-import { UpdateBusinessServicesDto } from './dto/business-offerings-update.dto';
-import { UpdateBusinessDetailsDto } from './dto/business-details-update.dto';
-import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
+import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -25,7 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
-import { BusinessManagementService } from './services/business-management.service';
+import { BusinessManagementService } from '../services/business-management.service';
 
 @ApiTags('Business Management')
 @Controller('businesses')
@@ -64,6 +63,27 @@ export class BusinessManagementController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch(':businessId/details')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update business details' })
+  @ApiResponse({
+    status: 200,
+    description: 'Business details updated successfully',
+  })
+  async updateBusinessDetails(
+    @Param('businessId') businessId: string,
+    @Body() updateBusinessDto: UpdateBusinessDto,
+    @Request() req,
+  ): Promise<BusinessProfileDto> {
+    console.log('Updating business details for business ID:', businessId);
+    return this.businessManagementService.updateBusinessDetails(
+      req.user.id,
+      businessId,
+      updateBusinessDto,
+    );
+  }
+
   // ── SERVICES ──────────────────────────────────────────────────────
   
   @UseGuards(JwtAuthGuard)
@@ -84,27 +104,6 @@ export class BusinessManagementController {
       req.user.id,
       businessId,
       createServiceOfferingDto,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch(':businessId/details')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update business details' })
-  @ApiResponse({
-    status: 200,
-    description: 'Business details updated successfully',
-  })
-  async updateBusinessDetails(
-    @Param('businessId') businessId: string,
-    @Body() updateBusinessDetailsDto: UpdateBusinessDetailsDto,
-    @Request() req,
-  ): Promise<BusinessProfileDto> {
-    console.log('Updating business details for business ID:', businessId);
-    return this.businessManagementService.updateBusinessDetails(
-      req.user.id,
-      businessId,
-      updateBusinessDetailsDto,
     );
   }
 

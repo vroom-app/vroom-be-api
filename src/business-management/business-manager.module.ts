@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BusinessManagementController } from './business-management.controller';
+import { BusinessManagementController } from './controller/business-management.controller';
 import { BusinessModule } from 'src/business/business.module';
 import { ServiceOfferingModule } from 'src/service-offering/service-offering.module';
 import { SearchClientModule } from 'src/search-client/search-client.module';

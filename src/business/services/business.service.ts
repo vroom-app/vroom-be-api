@@ -5,12 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CreateBusinessDto } from '../dto/create-business.dto';
+import { CreateBusinessDto, UpdateBusinessDto } from '../dto/business.dto';
 import { Business, BusinessCategory, BusinessSpecialization } from '../entities/business.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
-import { UpdateBusinessDetailsDto } from 'src/business-management/dto/business-details-update.dto';
-import { BusinessMapper } from 'src/business-management/business.mapper';
+import { BusinessMapper } from 'src/business-management/mapper/business.mapper';
 
 @Injectable()
 export class BusinessService {
@@ -187,7 +186,7 @@ export class BusinessService {
    */
   async updateBusiness(
     id: string,
-    updateBusinessDto: UpdateBusinessDetailsDto,
+    updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
     const { openingHours, ...businessData } = updateBusinessDto;
 

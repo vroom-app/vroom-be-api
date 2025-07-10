@@ -12,7 +12,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
 import { BusinessCategory, BusinessSpecialization } from '../entities/business.entity';
 
 class OpeningHoursDto {
@@ -62,7 +62,7 @@ export class CreateBusinessDto {
   categories: BusinessCategory[];
 
   @IsArray()
-  specializations: string[];
+  specializations?: string[];
 
   // ── CONTACT & WEB ───────────────────────────────────────────────────
 
@@ -125,3 +125,7 @@ export class CreateBusinessDto {
   @IsOptional()
   openingHours?: OpeningHoursDto[];
 }
+
+export class UpdateBusinessDto extends PartialType(
+  OmitType(CreateBusinessDto, ['searchEngineId'] as const),
+) {}

@@ -1,7 +1,7 @@
 import {
   BusinessOpeningHourDto,
   BusinessProfileDto,
-} from './dto/business-profile.dto';
+} from '../dto/business-profile.dto';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { Business } from 'src/business/entities/business.entity';
