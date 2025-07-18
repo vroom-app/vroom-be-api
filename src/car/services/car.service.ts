@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Car } from '../entities/car.entity';
 import { Repository } from 'typeorm';
 import { CreateCarDto } from '../dto/create-car.dto';
-import { UserService } from 'src/users/user.service';
 import { CarFuel } from '../entities/car-fuel';
 import { CarResponseDto } from '../dto/car.dto';
 import { CarMapper } from '../car.mapper';
@@ -16,16 +15,13 @@ import { CarMapper } from '../car.mapper';
 export class CarService {
   constructor(
     @InjectRepository(Car)
-    private readonly carRepository: Repository<Car>,
-    private readonly userService: UserService,
+    private readonly carRepository: Repository<Car>
   ) {}
 
   async create(
     createCarDto: CreateCarDto,
     userId: number,
   ): Promise<CarResponseDto> {
-    await this.userService.findOne(userId);
-
     const car = this.carRepository.create({
       ...createCarDto,
       fuel: createCarDto.fuel ?? CarFuel.OTHER,

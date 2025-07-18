@@ -37,9 +37,9 @@ import { CarModule } from './car/car.module';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        // ssl: {
-        //   rejectUnauthorized: false,
-        // },
+        ssl: {
+          rejectUnauthorized: false,
+        },
         entities: [
           Booking,
           BusinessOpeningHours,
@@ -50,7 +50,7 @@ import { CarModule } from './car/car.module';
           User,
           Car,
         ],
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: process.env.NODE_ENV !== 'prod',
       }),
     }),
     AuthModule,

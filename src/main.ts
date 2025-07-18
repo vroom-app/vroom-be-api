@@ -21,7 +21,6 @@ async function bootstrap() {
   // app.useGlobalFilters(new AllExceptionsFilter());
 
   app.enableCors();
-  app.setGlobalPrefix('api');
 
 
   const config = new DocumentBuilder()

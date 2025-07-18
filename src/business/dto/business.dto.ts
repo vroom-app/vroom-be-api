@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
-import { BusinessCategory, BusinessSpecialization } from '../entities/business.entity';
+import { BusinessCategory } from '../entities/business.entity';
 
 class OpeningHoursDto {
   @IsNumber()
