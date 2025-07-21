@@ -73,7 +73,6 @@ describe('BusinessService', () => {
     service = module.get<BusinessService>(BusinessService);
     businessRepository = module.get(BusinessRepository);
     
-    // Mock the logger
     logger = {
       log: jest.fn(),
       warn: jest.fn(),
@@ -82,7 +81,6 @@ describe('BusinessService', () => {
       verbose: jest.fn(),
     } as any;
     
-    // Replace the private logger with our mock
     (service as any).logger = logger;
   });
 
