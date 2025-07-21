@@ -11,9 +11,9 @@ import { DeleteResult, UpdateResult } from 'typeorm';
  */
 export function assertAffected(
   result: DeleteResult | UpdateResult,
-  message = 'Entity not found'
+  message = 'Entity not found',
 ): void {
-  if (result.affected === 0) {
+  if (result.affected === undefined || result.affected === 0) {
     throw new NotFoundException(message);
   }
 }

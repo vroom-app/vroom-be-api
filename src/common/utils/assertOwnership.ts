@@ -1,4 +1,4 @@
-import { ForbiddenException } from "@nestjs/common";
+import { ForbiddenException } from '@nestjs/common';
 
 /**
  * Asserts that the current user is the owner of the resource.
@@ -11,7 +11,7 @@ import { ForbiddenException } from "@nestjs/common";
 export function assertOwnership(
   resourceOwnerId: number,
   currentUserId: number,
-  message = 'You are not authorized to access this resource'
+  message = 'You are not authorized to access this resource',
 ): void {
   if (resourceOwnerId !== currentUserId) {
     throw new ForbiddenException(message);

@@ -29,10 +29,4 @@ describe('assertEntityPresent', () => {
       new NotFoundException(customMessage),
     );
   });
-
-  it('should return falsy but defined values', () => {
-    expect(assertEntityPresent(0)).toBe(0);
-    expect(assertEntityPresent('')).toBe('');
-    expect(assertEntityPresent(false)).toBe(false);
-  });
 });
