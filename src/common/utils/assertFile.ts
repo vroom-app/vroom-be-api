@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import { FileUpload } from "src/buisness-photo/interfaces/business-photo.interface";
 
 /**
@@ -12,6 +13,32 @@ export function assertFileExists(
     message: string = 'At least one picture file is required',    
 ): void {
     if (!files || files.length === 0) {
-        throw new Error(message);
+        throw new BadRequestException(message);
     }
 }
+
+/**
+ * Asserts that the provided file is a valid image file.
+ * Throws an error if the file type is not allowed or if the file size exceeds the limit.
+ * 
+ * @param {Express.Multer.File} file - The file to validate.
+ * @throws {BadRequestException} If the file type is not allowed or if the file size exceeds the limit.
+ */
+export function assertValidImageFile(
+    file: Express.Multer.File
+): void {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Invalid file type. Only JPEG, PNG, and WebP images are allowed.',
+      );
+    }
+
+    if (file.size > maxSize) {
+      throw new BadRequestException(
+        'File size too large. Maximum size is 5MB.',
+      );
+    }
+  }
