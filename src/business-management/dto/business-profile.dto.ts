@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BusinessCategory, BusinessSpecialization } from 'src/business/entities/business.entity';
-import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
+import {
+  BusinessCategory,
+} from 'src/business/entities/business.entity';
 
 export class BusinessProfileDto {
   @ApiProperty({ example: 1 })
@@ -19,7 +20,7 @@ export class BusinessProfileDto {
   categories: BusinessCategory[];
 
   @ApiProperty()
-  specializations?: BusinessSpecialization[ ];
+  specializations?: string[];
 
   @ApiProperty({ example: true })
   isSponsored: boolean;
@@ -57,7 +58,7 @@ export class BusinessProfileDto {
     youtube?: string;
     linkedin?: string;
     tiktok?: string;
-  }
+  };
 
   @ApiProperty({
     type: () => [BusinessOpeningHourDto],

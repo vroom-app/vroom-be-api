@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from '../entities/review.entity';
@@ -20,12 +24,9 @@ export class ReviewService {
 
   async createReview(
     createReviewDto: CreateReviewDto,
-    userId: number
-  ) : Promise<ReviewResponseDto> {
+    userId: number,
+  ): Promise<ReviewResponseDto> {
     const { businessId, serviceId, rating, comment } = createReviewDto;
-
-    // Check if business exists
-    await this.businessService.findById(businessId);
 
     // Check if service exists (if provided)
     let serviceOffering: ServiceOffering;
@@ -46,7 +47,7 @@ export class ReviewService {
       throw new BadRequestException(
         serviceId
           ? 'You have already reviewed this service'
-          : 'You have already reviewed this business'
+          : 'You have already reviewed this business',
       );
     }
 
@@ -65,7 +66,7 @@ export class ReviewService {
     return this.getReviewWithRelations(savedReview.id);
   }
 
- async getBusinessReviews(
+  async getBusinessReviews(
     businessId: string,
     listReviewsDto: ListReviewsDto,
   ): Promise<{
@@ -79,8 +80,6 @@ export class ReviewService {
   }> {
     const { page = 1, limit = 10, serviceId } = listReviewsDto;
 
-    await this.businessService.findById(businessId);
-
     const whereClause = { businessId, ...(serviceId && { serviceId }) };
     const [reviews, total] = await this.reviewRepository.findAndCount({
       where: whereClause,
@@ -90,14 +89,17 @@ export class ReviewService {
       take: limit,
     });
 
-    const { avgCommunication, avgQuality, avgPunctuality } = await this.reviewRepository
-      .createQueryBuilder('review')
-      .select('AVG(review.communicationRating)', 'avgCommunication')
-      .addSelect('AVG(review.qualityRating)', 'avgQuality')
-      .addSelect('AVG(review.punctualityRating)', 'avgPunctuality')
-      .where('review.businessId = :businessId', { businessId })
-      .andWhere(serviceId ? 'review.serviceId = :serviceId' : '1=1', { serviceId })
-      .getRawOne();
+    const { avgCommunication, avgQuality, avgPunctuality } =
+      await this.reviewRepository
+        .createQueryBuilder('review')
+        .select('AVG(review.communicationRating)', 'avgCommunication')
+        .addSelect('AVG(review.qualityRating)', 'avgQuality')
+        .addSelect('AVG(review.punctualityRating)', 'avgPunctuality')
+        .where('review.businessId = :businessId', { businessId })
+        .andWhere(serviceId ? 'review.serviceId = :serviceId' : '1=1', {
+          serviceId,
+        })
+        .getRawOne();
 
     return {
       reviews: reviews.map((r) => this.mapToResponseDto(r)),
@@ -110,7 +112,15 @@ export class ReviewService {
     };
   }
 
-  async getUserReviews(userId: number, listReviewsDto: ListReviewsDto): Promise<{ reviews: ReviewResponseDto[]; total: number; page: number; limit: number }> {
+  async getUserReviews(
+    userId: number,
+    listReviewsDto: ListReviewsDto,
+  ): Promise<{
+    reviews: ReviewResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const { page = 1, limit = 10 } = listReviewsDto;
 
     const [reviews, total] = await this.reviewRepository.findAndCount({
@@ -121,7 +131,9 @@ export class ReviewService {
       take: limit,
     });
 
-    const reviewResponseDtos = reviews.map(review => this.mapToResponseDto(review));
+    const reviewResponseDtos = reviews.map((review) =>
+      this.mapToResponseDto(review),
+    );
 
     return {
       reviews: reviewResponseDtos,
@@ -132,7 +144,7 @@ export class ReviewService {
   }
 
   async getBusinessAverageRating(
-    businessId: string
+    businessId: string,
   ): Promise<{ averageRating: number; totalReviews: number }> {
     const result = await this.reviewRepository
       .createQueryBuilder('review')
@@ -147,7 +159,9 @@ export class ReviewService {
     };
   }
 
-  private async getReviewWithRelations(reviewId: number): Promise<ReviewResponseDto> {
+  private async getReviewWithRelations(
+    reviewId: number,
+  ): Promise<ReviewResponseDto> {
     const review = await this.reviewRepository.findOne({
       where: { id: reviewId },
       relations: ['user', 'business', 'serviceOffering'],
@@ -156,7 +170,7 @@ export class ReviewService {
     if (!review) {
       throw new NotFoundException(`Review with ID ${reviewId} not found`);
     }
-    
+
     return this.mapToResponseDto(review);
   }
 
@@ -190,7 +204,7 @@ export class ReviewService {
 
 function averageOptionalField<T extends keyof Review>(
   reviews: Review[],
-  field: T
+  field: T,
 ): number {
   let sum = 0;
   let count = 0;

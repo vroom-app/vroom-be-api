@@ -58,7 +58,7 @@ describe('SlotService', () => {
 
     slotRepo.find.mockResolvedValue([]);
 
-    const result = await service.getAvailableSlots("1", 1, '2025-06-09', 1);
+    const result = await service.getAvailableSlots('1', 1, '2025-06-09', 1);
 
     expect(result).toHaveLength(1);
     expect(result[0].available_slots.length).toBeGreaterThan(0);
@@ -74,7 +74,7 @@ describe('SlotService', () => {
     openingHoursService.findBusinessWorktimeForWeekday.mockResolvedValue(null);
 
     const result: AvailableSlotsResponse[] = await service.getAvailableSlots(
-      "1",
+      '1',
       1,
       '2025-06-09',
       1,
@@ -107,7 +107,7 @@ describe('SlotService', () => {
 
     slotRepo.find.mockResolvedValue([]);
 
-    const result = await service.getAvailableSlots("1", 1, '2025-06-09', 5);
+    const result = await service.getAvailableSlots('1', 1, '2025-06-09', 5);
 
     expect(result).toHaveLength(3);
     expect(result[0].available_slots.length).toBeGreaterThan(0);
@@ -125,7 +125,7 @@ describe('SlotService', () => {
       closesAt: '17:00',
     } as BusinessOpeningHours);
 
-    const result = await service.getAvailableSlots("1", 1, '2025-06-09', 1);
+    const result = await service.getAvailableSlots('1', 1, '2025-06-09', 1);
 
     expect(result).toHaveLength(0);
   });
@@ -142,7 +142,7 @@ describe('SlotService', () => {
 
     slotRepo.find.mockResolvedValue([]);
 
-    const result = await service.getAvailableSlots("1", 1, '2025-06-09', 2);
+    const result = await service.getAvailableSlots('1', 1, '2025-06-09', 2);
 
     expect(result).toHaveLength(2);
     expect(result[0].available_slots).toHaveLength(2);

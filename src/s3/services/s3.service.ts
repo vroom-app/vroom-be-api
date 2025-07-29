@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import * as mime from 'mime-types';
 import { S3ClientService } from './s3-client.service';
@@ -33,15 +30,11 @@ export class S3Service {
     }
   }
 
-  private async deleteFileByKey(
-    key: string
-  ): Promise<void> {
+  private async deleteFileByKey(key: string): Promise<void> {
     await this.s3Client.deleteFile(key);
   }
 
-  private extractKeyFromUrl(
-    url: string
-  ): string {
+  private extractKeyFromUrl(url: string): string {
     const urlParts = url.split('/');
     return urlParts.slice(-2).join('/'); // Get the last two parts (folder/filename)
   }

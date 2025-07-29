@@ -12,10 +12,15 @@ export class SearchClientService {
 
   /**
    * Upsert a business in the search engine. The service api ensures that payload includes the id of the business.
-   * @param payload 
+   * @param payload
    */
   async upsertBusiness(payload: SearchBusinessPayload): Promise<void> {
-    await this.http.put('/search/businesses/sync', payload);
+    console.log('upsertBusiness payload', payload);
+    try{ 
+      await this.http.put('/search/businesses/sync', payload);
+    } catch (error) {
+      this.logger.error(`Failed to upsert business ${payload.id} in search engine`)
+    };
     this.logger.debug(`Upserted business ${payload.id}`);
   }
 }

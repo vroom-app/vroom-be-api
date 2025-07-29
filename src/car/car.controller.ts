@@ -39,7 +39,12 @@ export class CarController {
     @Body() createCarDto: CreateCarDto,
   ): Promise<CarResponseDto> {
     const userId = req.user.userId;
-    console.log('Creating car for user ID:', userId, 'with data:', createCarDto, );
+    console.log(
+      'Creating car for user ID: ',
+      userId,
+      ' with data: ',
+      createCarDto,
+    );
     return this.carService.create(createCarDto, userId);
   }
 

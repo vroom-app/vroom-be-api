@@ -1,4 +1,4 @@
-import { BusinessCategory } from "src/business/entities/business.entity";
+import { BusinessCategory } from 'src/business/entities/business.entity';
 
 export interface SearchBusinessPayload {
   id: string;

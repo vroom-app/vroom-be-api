@@ -14,7 +14,12 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { BusinessCategory } from '../entities/business.entity';
 
 class OpeningHoursDto {
@@ -36,6 +41,7 @@ export class CreateBusinessDto {
     description: 'If claiming an existing: the search‐engine UUID',
   })
   @IsUUID()
+  @IsOptional()
   searchEngineId?: string;
 
   @ApiProperty({ example: 'My Shop' })
@@ -50,7 +56,7 @@ export class CreateBusinessDto {
   @IsString()
   @IsOptional()
   @MaxLength(1000)
-  description: string;
+  description?: string;
 
   // ── CATEGORIES & SPECIALISATIONS ──────────────────────────────────────────────────────
 
@@ -60,20 +66,24 @@ export class CreateBusinessDto {
   categories: BusinessCategory[];
 
   @IsArray()
+  @IsOptional()
   specializations?: string[];
 
   // ── CONTACT & WEB ───────────────────────────────────────────────────
 
   @ApiPropertyOptional({ example: 'shop@example.com' })
   @IsString()
+  @IsOptional()
   email?: string;
 
   @ApiPropertyOptional({ example: '+359123456789' })
   @IsPhoneNumber()
+  @IsOptional()
   phone?: string;
 
   @ApiPropertyOptional({ example: 'https://shop.example.com' })
   @IsString()
+  @IsOptional()
   website?: string;
 
   // ── LOCATION ────────────────────────────────────────────────────────
@@ -87,32 +97,37 @@ export class CreateBusinessDto {
   city: string;
 
   @IsNumber()
-  @ApiProperty({ example: 42.70 })
+  @ApiProperty({ example: 42.7 })
   latitude: number;
 
   @IsNumber()
-  @ApiProperty({ example: 42.70 })
+  @ApiProperty({ example: 42.7 })
   longitude: number;
 
   // ── SOCIAL LINKS ─────────────────────────────────────────────────────
   @ApiPropertyOptional()
   @IsString()
-  facebook?: string; 
+  @IsOptional()
+  facebook?: string;
 
   @ApiPropertyOptional()
   @IsString()
+  @IsOptional()
   instagram?: string;
 
   @ApiPropertyOptional()
-  @IsString()  
+  @IsString()
+  @IsOptional()
   youtube?: string;
 
   @ApiPropertyOptional()
-  @IsString()  
+  @IsString()
+  @IsOptional()
   linkedin?: string;
-  
+
   @ApiPropertyOptional()
-  @IsString()  
+  @IsString()
+  @IsOptional()
   tiktok?: string;
 
   // ── RELATIONS ───────────────────────────────────────────────────────
@@ -179,7 +194,9 @@ export class UpdateBusinessDto extends UpdateBusinessBaseDto {
   @Type(() => UpdateBusinessPhotosDto)
   photos?: UpdateBusinessPhotosDto;
 
-  @ApiPropertyOptional({ description: 'Business flags update (owner/admin only)' })
+  @ApiPropertyOptional({
+    description: 'Business flags update (owner/admin only)',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => UpdateBusinessFlagsDto)

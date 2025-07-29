@@ -15,7 +15,7 @@ import { CarMapper } from '../car.mapper';
 export class CarService {
   constructor(
     @InjectRepository(Car)
-    private readonly carRepository: Repository<Car>
+    private readonly carRepository: Repository<Car>,
   ) {}
 
   async create(

@@ -29,56 +29,13 @@ export enum BusinessCategory {
   CarInspectionStation = 'CarInspectionStation',
 }
 
-export enum BusinessSpecialization {
-  // Parking
-  LongTermRental,
-  NonStopSupport,
-  SecuredParking,
-  VideoSurveillance,
-  ElectricBarrier,
-  EvCharging,
-
-  // Mobile services
-  ComesToAddress,
-  InspectionAtAddress,
-  PickupDelivery,
-
-  // Software and tuning
-  BmwSoftware,
-  RemoteServices,
-  ChipTuning,
-  CarSoftware,
-  ExtremeMachines,
-
-  // Wheels and restoration
-  WheelRestoration,
-  NationwideDelivery,
-
-  // Import and search
-  EuropeImport,
-  CustomSearch,
-
-  // Auto services
-  PaintingServices,
-  BodyRepair,
-  TechnicalInspection,
-
-  // Insurance companies
-  Dzi,
-  BulIns,
-  LevIns,
-  Generali,
-  Asset,
-  Bulstrad,
-}
-
 @Entity('businesses')
 export class Business {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   // ── BASIC INFO ──────────────────────────────────────────────────────
-  
+
   @Column()
   ownerId: number;
 
@@ -88,7 +45,7 @@ export class Business {
 
   @Column()
   name: string;
-  
+
   @Column({ nullable: true })
   description?: string;
 
@@ -151,7 +108,7 @@ export class Business {
   // ── SOCIAL LINKS ────────────────────────────────────────────────────
 
   @Column({ nullable: true })
-  facebook?: string; 
+  facebook?: string;
 
   @Column({ nullable: true })
   instagram?: string;
@@ -161,7 +118,7 @@ export class Business {
 
   @Column({ nullable: true })
   linkedin?: string;
-  
+
   @Column({ nullable: true })
   tiktok?: string;
 
@@ -177,7 +134,7 @@ export class Business {
   acceptBookings: boolean;
 
   // ── RELATIONS ───────────────────────────────────────────────────────
-  
+
   @OneToMany(() => BusinessOpeningHours, (hours) => hours.business)
   openingHours: BusinessOpeningHours[];
 
@@ -191,7 +148,7 @@ export class Business {
   reviews: Review[];
 
   // ── AUDIT ───────────────────────────────────────────────────────────
-  
+
   @CreateDateColumn()
   createdAt: Date;
 

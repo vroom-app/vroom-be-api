@@ -1,8 +1,7 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Business } from "../entities/business.entity";
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { DeleteResult, Repository, UpdateResult } from "typeorm";
-import { assertAffected } from "src/common/utils/assertAffected";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Business } from '../entities/business.entity';
+import { Injectable } from '@nestjs/common';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class BusinessRepository {
@@ -11,12 +10,12 @@ export class BusinessRepository {
     private businessRepository: Repository<Business>,
   ) {}
 
-    /** 
-     * Find all businesses owned by a specific user.
-     * @param userId The ID of the user whose businesses to find
-     * @return An array of businesses owned by the user
-     */
-    async findUserBusinesses(userId: number): Promise<Business[]> {
+  /**
+   * Find all businesses owned by a specific user.
+   * @param userId The ID of the user whose businesses to find
+   * @return An array of businesses owned by the user
+   */
+  async findUserBusinesses(userId: number): Promise<Business[]> {
     return this.businessRepository.find({
       where: {
         ownerId: userId,
@@ -27,20 +26,21 @@ export class BusinessRepository {
       relations: ['openingHours'],
     });
   }
-    
-    
+
   /**
    * Find a business by its ID, including its opening hours and service offerings.
    * @param id The ID of the business to find
    * @returns The business entity, or null if not found.
    */
-  async findBusinessWithOpeningHoursAndServiceOfferingsById(businessId: string): Promise<Business | null> {
-      return this.businessRepository.findOne({
-          where: { 
-            id: businessId 
-          },
-          relations: ['openingHours', 'serviceOfferings'],
-      });
+  async findBusinessWithOpeningHoursAndServiceOfferingsById(
+    businessId: string,
+  ): Promise<Business | null> {
+    return this.businessRepository.findOne({
+      where: {
+        id: businessId,
+      },
+      relations: ['openingHours', 'serviceOfferings'],
+    });
   }
 
   /**
@@ -49,11 +49,11 @@ export class BusinessRepository {
    * @returns The business entity, or null if not found.
    */
   async findBusinessById(businessId: string): Promise<Business | null> {
-      return await this.businessRepository.findOne({
-          where: { 
-            id: businessId 
-          },
-      });
+    return await this.businessRepository.findOne({
+      where: {
+        id: businessId,
+      },
+    });
   }
 
   /**
@@ -83,7 +83,10 @@ export class BusinessRepository {
    * @param businessId The ID of the business to update
    * @param updateData The data to update the business with
    */
-  async updateBusiness(businessId: string, updateData: Partial<Business>): Promise<UpdateResult> {
+  async updateBusiness(
+    businessId: string,
+    updateData: Partial<Business>,
+  ): Promise<UpdateResult> {
     return await this.businessRepository.update(businessId, updateData);
   }
 }

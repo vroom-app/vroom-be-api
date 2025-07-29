@@ -22,7 +22,6 @@ async function bootstrap() {
 
   app.enableCors();
 
-
   const config = new DocumentBuilder()
     .setTitle('Car Service Booking API')
     .setDescription('API for managing available service slots')

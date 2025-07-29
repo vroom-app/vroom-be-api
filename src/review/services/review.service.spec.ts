@@ -41,9 +41,15 @@ describe('createReview', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReviewService,
-        { provide: getRepositoryToken(Review), useFactory: mockReviewRepository },
+        {
+          provide: getRepositoryToken(Review),
+          useFactory: mockReviewRepository,
+        },
         { provide: BusinessService, useFactory: mockBusinessService },
-        { provide: ServiceOfferingService, useFactory: mockServiceOfferingService },
+        {
+          provide: ServiceOfferingService,
+          useFactory: mockServiceOfferingService,
+        },
       ],
     }).compile();
 
@@ -52,14 +58,24 @@ describe('createReview', () => {
   });
 
   it('should create a review successfully (without serviceId)', async () => {
-    const dto = { businessId: 'biz-123', rating: 4, comment: 'Good', serviceId: undefined };
+    const dto = {
+      businessId: 'biz-123',
+      rating: 4,
+      comment: 'Good',
+      serviceId: undefined,
+    };
     const userId = 1;
 
-    (service['businessService'].findById as jest.Mock).mockResolvedValue({ id: 'biz-123', name: 'Test Biz' });
+    // (service['businessService'].findById as jest.Mock).mockResolvedValue({
+    //   id: 'biz-123',
+    //   name: 'Test Biz',
+    // });
     reviewRepo.findOne.mockResolvedValue(null);
     reviewRepo.create.mockReturnValue({ ...dto, userId });
     reviewRepo.save.mockResolvedValue({ id: 1 });
-    jest.spyOn(service as any, 'getReviewWithRelations').mockResolvedValue({ id: 1 } as any);
+    jest
+      .spyOn(service as any, 'getReviewWithRelations')
+      .mockResolvedValue({ id: 1 } as any);
 
     const result = await service.createReview(dto as any, userId);
 
@@ -69,20 +85,31 @@ describe('createReview', () => {
 
   it('should throw BadRequestException if user already reviewed business', async () => {
     const dto = { businessId: 'biz-123', rating: 5, comment: 'Repeat' };
-    (service['businessService'].findById as jest.Mock).mockResolvedValue({});
+    // (service['businessService'].findById as jest.Mock).mockResolvedValue({});
     reviewRepo.findOne.mockResolvedValue({ id: 99 });
 
-    await expect(service.createReview(dto as any, 1)).rejects.toThrow(BadRequestException);
+    await expect(service.createReview(dto as any, 1)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should call serviceOfferingService.findById if serviceId is provided', async () => {
-    const dto = { businessId: 'biz-123', rating: 5, comment: 'Service Review', serviceId: 42 };
-    (service['businessService'].findById as jest.Mock).mockResolvedValue({});
-    (service['serviceOfferingService'].findById as jest.Mock).mockResolvedValue({});
+    const dto = {
+      businessId: 'biz-123',
+      rating: 5,
+      comment: 'Service Review',
+      serviceId: 42,
+    };
+    // (service['businessService'].findById as jest.Mock).mockResolvedValue({});
+    (service['serviceOfferingService'].findById as jest.Mock).mockResolvedValue(
+      {},
+    );
     reviewRepo.findOne.mockResolvedValue(null);
     reviewRepo.create.mockReturnValue({ ...dto, userId: 1 });
     reviewRepo.save.mockResolvedValue({ id: 2 });
-    jest.spyOn(service as any, 'getReviewWithRelations').mockResolvedValue({ id: 2 } as any);
+    jest
+      .spyOn(service as any, 'getReviewWithRelations')
+      .mockResolvedValue({ id: 2 } as any);
 
     await service.createReview(dto as any, 1);
 
@@ -105,10 +132,15 @@ describe('getBusinessReviews', () => {
     };
 
     const service = await createService(); // same setup as above
-    (service['businessService'].findById as jest.Mock).mockResolvedValue({});
-    service['reviewRepository'].findAndCount = jest.fn().mockResolvedValue([[review], 1]);
+    // (service['businessService'].findById as jest.Mock).mockResolvedValue({});
+    service['reviewRepository'].findAndCount = jest
+      .fn()
+      .mockResolvedValue([[review], 1]);
 
-    const result = await service.getBusinessReviews('biz-123', { page: 1, limit: 10 });
+    const result = await service.getBusinessReviews('biz-123', {
+      page: 1,
+      limit: 10,
+    });
 
     expect(result.reviews).toHaveLength(1);
     expect(result.total).toBe(1);
@@ -123,9 +155,13 @@ describe('getBusinessAverageRating', () => {
       select: jest.fn().mockReturnThis(),
       addSelect: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
-      getRawOne: jest.fn().mockResolvedValue({ averageRating: '4.25', totalReviews: '12' }),
+      getRawOne: jest
+        .fn()
+        .mockResolvedValue({ averageRating: '4.25', totalReviews: '12' }),
     };
-    service['reviewRepository'].createQueryBuilder = jest.fn().mockReturnValue(qbMock);
+    service['reviewRepository'].createQueryBuilder = jest
+      .fn()
+      .mockReturnValue(qbMock);
 
     const result = await service.getBusinessAverageRating('biz-1');
 
@@ -138,9 +174,13 @@ describe('getBusinessAverageRating', () => {
       select: jest.fn().mockReturnThis(),
       addSelect: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
-      getRawOne: jest.fn().mockResolvedValue({ averageRating: null, totalReviews: null }),
+      getRawOne: jest
+        .fn()
+        .mockResolvedValue({ averageRating: null, totalReviews: null }),
     };
-    service['reviewRepository'].createQueryBuilder = jest.fn().mockReturnValue(qbMock);
+    service['reviewRepository'].createQueryBuilder = jest
+      .fn()
+      .mockReturnValue(qbMock);
 
     const result = await service.getBusinessAverageRating('biz-1');
 
@@ -154,7 +194,10 @@ async function createService(): Promise<ReviewService> {
       ReviewService,
       { provide: getRepositoryToken(Review), useFactory: mockReviewRepository },
       { provide: BusinessService, useFactory: mockBusinessService },
-      { provide: ServiceOfferingService, useFactory: mockServiceOfferingService },
+      {
+        provide: ServiceOfferingService,
+        useFactory: mockServiceOfferingService,
+      },
     ],
   }).compile();
 

@@ -16,7 +16,10 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
-import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
+import {
+  CreateBusinessDto,
+  UpdateBusinessDto,
+} from 'src/business/dto/business.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -41,15 +44,14 @@ export class BusinessManagementController {
   async getBusinessDetails(
     @Param('businessId') businessId: string,
   ): Promise<BusinessProfileDto> {
-    return this.businessManagementService.getBusinessDetails(businessId);
+    return this.businessManagementService.getBusinessProfile(businessId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiBearerAuth()
   @ApiOperation({
-    summary:
-      'Create a new business.',
+    summary: 'Create a new business.',
   })
   @ApiResponse({ status: 201, description: 'Business created successfully' })
   async CreateBusiness(
@@ -85,7 +87,7 @@ export class BusinessManagementController {
   }
 
   // ── SERVICES ──────────────────────────────────────────────────────
-  
+
   @UseGuards(JwtAuthGuard)
   @Post(':businessId')
   @ApiBearerAuth()

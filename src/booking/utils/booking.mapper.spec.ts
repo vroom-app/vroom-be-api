@@ -51,7 +51,7 @@ describe('BookingMapper', () => {
         id: 10,
         startTime: '10:00',
         endTime: '11:00',
-        businessId: "100",
+        businessId: '100',
         date: '2025-06-11',
       },
       serviceOffering: {
@@ -59,7 +59,7 @@ describe('BookingMapper', () => {
         name: 'Haircut',
         duration: 60,
         price: 30.5,
-        businessId: "100",
+        businessId: '100',
       },
     });
   });
