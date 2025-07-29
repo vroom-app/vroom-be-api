@@ -10,9 +10,16 @@ import {
   MaxLength,
   IsEnum,
   IsUUID,
+  IsUrl,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  OmitType,
+  PartialType,
+} from '@nestjs/swagger';
 import { BusinessCategory } from '../entities/business.entity';
 
 class OpeningHoursDto {
@@ -34,6 +41,7 @@ export class CreateBusinessDto {
     description: 'If claiming an existing: the search‐engine UUID',
   })
   @IsUUID()
+  @IsOptional()
   searchEngineId?: string;
 
   @ApiProperty({ example: 'My Shop' })
@@ -48,7 +56,7 @@ export class CreateBusinessDto {
   @IsString()
   @IsOptional()
   @MaxLength(1000)
-  description: string;
+  description?: string;
 
   // ── CATEGORIES & SPECIALISATIONS ──────────────────────────────────────────────────────
 
@@ -58,20 +66,24 @@ export class CreateBusinessDto {
   categories: BusinessCategory[];
 
   @IsArray()
+  @IsOptional()
   specializations?: string[];
 
   // ── CONTACT & WEB ───────────────────────────────────────────────────
 
   @ApiPropertyOptional({ example: 'shop@example.com' })
   @IsString()
+  @IsOptional()
   email?: string;
 
   @ApiPropertyOptional({ example: '+359123456789' })
   @IsPhoneNumber()
+  @IsOptional()
   phone?: string;
 
   @ApiPropertyOptional({ example: 'https://shop.example.com' })
   @IsString()
+  @IsOptional()
   website?: string;
 
   // ── LOCATION ────────────────────────────────────────────────────────
@@ -85,32 +97,37 @@ export class CreateBusinessDto {
   city: string;
 
   @IsNumber()
-  @ApiProperty({ example: 42.70 })
+  @ApiProperty({ example: 42.7 })
   latitude: number;
 
   @IsNumber()
-  @ApiProperty({ example: 42.70 })
+  @ApiProperty({ example: 42.7 })
   longitude: number;
 
   // ── SOCIAL LINKS ─────────────────────────────────────────────────────
   @ApiPropertyOptional()
   @IsString()
-  facebook?: string; 
+  @IsOptional()
+  facebook?: string;
 
   @ApiPropertyOptional()
   @IsString()
+  @IsOptional()
   instagram?: string;
 
   @ApiPropertyOptional()
-  @IsString()  
+  @IsString()
+  @IsOptional()
   youtube?: string;
 
   @ApiPropertyOptional()
-  @IsString()  
+  @IsString()
+  @IsOptional()
   linkedin?: string;
-  
+
   @ApiPropertyOptional()
-  @IsString()  
+  @IsString()
+  @IsOptional()
   tiktok?: string;
 
   // ── RELATIONS ───────────────────────────────────────────────────────
@@ -122,6 +139,66 @@ export class CreateBusinessDto {
   openingHours?: OpeningHoursDto[];
 }
 
-export class UpdateBusinessDto extends PartialType(
+// Base update DTO without photos and flags
+export class UpdateBusinessBaseDto extends PartialType(
   OmitType(CreateBusinessDto, ['searchEngineId'] as const),
 ) {}
+
+// Photo-specific DTO for handling media updates
+export class UpdateBusinessPhotosDto {
+  @ApiPropertyOptional({ description: 'Main logo URL' })
+  @IsOptional()
+  @IsUrl()
+  logoUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Map logo URL' })
+  @IsOptional()
+  @IsUrl()
+  logoMapUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Primary photo URL' })
+  @IsOptional()
+  @IsUrl()
+  photoUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Additional photo URLs', type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsUrl({}, { each: true })
+  additionalPhotos?: string[];
+}
+
+// Business flags DTO updates
+export class UpdateBusinessFlagsDto {
+  @ApiPropertyOptional({ description: 'Verification status' })
+  @IsOptional()
+  @IsBoolean()
+  isVerified?: boolean;
+
+  @ApiPropertyOptional({ description: 'Sponsored status' })
+  @IsOptional()
+  @IsBoolean()
+  isSponsored?: boolean;
+
+  @ApiPropertyOptional({ description: 'Accept bookings flag' })
+  @IsOptional()
+  @IsBoolean()
+  acceptBookings?: boolean;
+}
+
+// Combined update DTO
+export class UpdateBusinessDto extends UpdateBusinessBaseDto {
+  @ApiPropertyOptional({ description: 'Photo URLs update' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateBusinessPhotosDto)
+  photos?: UpdateBusinessPhotosDto;
+
+  @ApiPropertyOptional({
+    description: 'Business flags update (owner/admin only)',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateBusinessFlagsDto)
+  flags?: UpdateBusinessFlagsDto;
+}

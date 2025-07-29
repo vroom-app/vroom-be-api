@@ -15,7 +15,7 @@ export class BusinessMapper {
       opensAt: hour.opensAt,
       closesAt: hour.closesAt,
     };
-  }a
+  };
 
   static toServiceOfferingDto(service: ServiceOffering): ServiceOfferingDto {
     return {
@@ -37,6 +37,7 @@ export class BusinessMapper {
       categories: business.categories,
       isSponsored: business.isSponsored,
       acceptBookings: business.acceptBookings,
+      specializations: business.specializations,
       location: {
         latitude: business.latitude,
         longitude: business.longitude,
@@ -54,7 +55,7 @@ export class BusinessMapper {
         logo: business.logoUrl,
         photoRefs: business.additionalPhotos,
       },
-      socialLinks : {
+      socialLinks: {
         facebook: business.facebook,
         instagram: business.instagram,
         youtube: business.youtube,

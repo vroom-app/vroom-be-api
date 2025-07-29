@@ -1,71 +1,22 @@
+import { Injectable, Logger } from '@nestjs/common';
 import {
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { CreateBusinessDto, UpdateBusinessDto } from '../dto/business.dto';
-import { Business, BusinessCategory, BusinessSpecialization } from '../entities/business.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+  CreateBusinessDto,
+  UpdateBusinessDto,
+  UpdateBusinessPhotosDto,
+} from '../dto/business.dto';
+import { Business, BusinessCategory } from '../entities/business.entity';
 import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
 import { BusinessMapper } from 'src/business-management/mapper/business.mapper';
+import { BusinessRepository } from '../repositories/business.repository';
+import { assertEntityPresent } from 'src/common/utils/assertEntity';
+import { assertOwnership } from 'src/common/utils/assertOwnership';
+import { assertAffected } from 'src/common/utils/assertAffected';
 
 @Injectable()
 export class BusinessService {
   private readonly logger = new Logger(BusinessService.name);
 
-  constructor(
-    @InjectRepository(Business)
-    private businessRepository: Repository<Business>,
-  ) {}
-
-  /**
-   * Get all businesses owned by a specific user
-   * @param userId The ID of the user
-   * @returns Array of businesses owned by the user
-   */
-  async getAllUserBusinesses(userId: number): Promise<Business[]> {
-    return this.businessRepository.find({
-      where: {
-        ownerId: userId,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-      relations: ['openingHours', 'specializations.specialization'],
-    });
-  }
-
-  /**
-   * Get a business profile by ID
-   *
-   * @param businessId The ID of the business
-   * @param userId The ID of the user requesting the profile
-   * @returns The business profile including services, specializations, and opening hours
-   * @throws NotFoundException if business doesn't exist
-   */
-  async getBusinessProfile(
-    businessId: string,
-    userId: number,
-  ): Promise<BusinessProfileDto> {
-    const business = await this.businessRepository.findOne({
-      where: {
-        id: businessId,
-        ownerId: userId,
-      },
-      relations: {
-        openingHours: true,
-        serviceOfferings: true,
-      },
-    });
-
-    if (!business) {
-      throw new NotFoundException(`Business with ID ${businessId} not found`);
-    }
-
-    return BusinessMapper.toBusinessProfileDto(business);
-  }
+  constructor(private readonly businessRepository: BusinessRepository) {}
 
   /**
    * Get a business profile by ID
@@ -76,53 +27,17 @@ export class BusinessService {
    * @throws NotFoundException if business doesn't exist
    */
   async getBusinessDetails(businessId: string): Promise<BusinessProfileDto> {
-    const business = await this.businessRepository.findOne({
-      where: {
-        id: businessId,
-      },
-      relations: {
-        openingHours: true,
-      },
-    });
-
-    if (!business) {
-      throw new NotFoundException(
-        `Business with ID ${businessId} not found in the database.`,
-      );
-    }
+    this.logger.log(
+      `Attempting to fetch Business with ID ${businessId} from database.`,
+    );
+    const business = assertEntityPresent(
+      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById(
+        businessId,
+      ),
+      `Business with ID ${businessId} not found.`,
+    );
 
     return BusinessMapper.toBusinessProfileDto(business);
-  }
-
-  /**
-   * Validates if an user is the owner of a business
-   * @param userId The ID of the user
-   * @param businessId The ID of the business
-   * @returns True is found and owned by the user
-   * @throws NotFoundException if business doesn't exist
-   * @throws ForbiddenException if user is not the owner
-   */
-  async isOwnedByUser(userId: number, businessId: string): Promise<boolean> {
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-      select: ['id', 'ownerId'],
-    });
-
-    if (!business) {
-      this.logger.warn(
-        `Business with ID ${businessId} not found for user ${userId}`,
-      );
-      throw new NotFoundException(`Business with ID ${businessId} not found`);
-    }
-
-    if (business.ownerId !== userId) {
-      this.logger.warn(
-        `User with ID ${userId} attempted to access business ${businessId} they do not own.`,
-      );
-      throw new ForbiddenException('You are not the owner of this business');
-    }
-
-    return true;
   }
 
   /**
@@ -136,8 +51,9 @@ export class BusinessService {
     ownerId: number,
     dto: CreateBusinessDto,
   ): Promise<Business> {
+    this.logger.log(`Creating business for user ID: ${ownerId}`);
     const businessData: Partial<Business> = {
-      // BASIC INFO 
+      // BASIC INFO
       name: dto.name,
       description: dto.description,
       // CATEGORIES & SPECIALISATIONS
@@ -145,7 +61,7 @@ export class BusinessService {
       specializations: dto.specializations,
       // CONTACT & WEB
       email: dto.email,
-      website: dto.website,      
+      website: dto.website,
       phone: dto.phone,
       // LOCATION
       address: dto.address,
@@ -158,7 +74,7 @@ export class BusinessService {
       youtube: dto.youtube,
       linkedin: dto.linkedin,
       tiktok: dto.tiktok,
-      // FLAGS 
+      // FLAGS
       isVerified: false,
       isSponsored: false,
       acceptBookings: false,
@@ -170,94 +86,184 @@ export class BusinessService {
     if (dto.searchEngineId) {
       businessData.id = dto.searchEngineId;
     }
-
-    const business = this.businessRepository.create(businessData);
-    
-    return this.businessRepository.save(business);
+    return await this.businessRepository.createBusiness(businessData);
   }
 
   /**
-   * Update a business if the user is the owner
-   * @param id The ID of the business to update
+   * Update a business with optimized database operations and proper validation
+   * @param businessId The ID of the business to update
+   * @param userId The ID of the current user
    * @param updateBusinessDto DTO containing updated business data
    * @returns The updated business
    * @throws NotFoundException if business doesn't exist
-   * @throws ForbiddenException if user is not the owner
+   * @throws ForbiddenException if user is not the owner (and not admin)
    */
   async updateBusiness(
-    id: string,
+    businessId: string,
     updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
-    const { openingHours, ...businessData } = updateBusinessDto;
+    this.logger.log(`Updating business with ID: ${businessId}`);
+    const updateData = await this.prepareUpdateData(updateBusinessDto);
 
-    const result = await this.businessRepository.update(id, businessData);
+    await this.updateIfNotEmpty(businessId, updateData.businessData);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`Business with ID ${id} not found`);
-    }
+    return assertEntityPresent(
+      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById(
+        businessId,
+      ),
+      `Business with ID ${businessId} not found after update.`,
+    );
+  }
 
-    const updatedBusiness = await this.businessRepository.findOne({
-      where: { id },
-      relations: ['openingHours'],
-    });
+  /**
+   * Update business photos
+   * @param businessId The ID of the business to update
+   * @param photosDto DTO containing updated photo URLs
+   * @returns The updated business profile
+   */
+  async updateBusinessPhotos(
+    businessId: string,
+    photosDto: UpdateBusinessPhotosDto,
+  ): Promise<Business> {
+    this.logger.log(`Updating photos for business ID: ${businessId}`);
+    this.logger.debug(`Photos DTO: ${JSON.stringify(photosDto)}`);
+    // Update only photo fields
+    const updateData: Partial<Business> = {};
+    if (photosDto.logoUrl !== undefined) updateData.logoUrl = photosDto.logoUrl;
+    if (photosDto.logoMapUrl !== undefined)
+      updateData.logoMapUrl = photosDto.logoMapUrl;
+    if (photosDto.photoUrl !== undefined)
+      updateData.photoUrl = photosDto.photoUrl;
+    if (photosDto.additionalPhotos !== undefined)
+      updateData.additionalPhotos = photosDto.additionalPhotos;
 
-    if (!updatedBusiness) {
-      throw new NotFoundException(`Business with ID ${id} not found`);
-    }
+    await this.updateIfNotEmpty(businessId, updateData);
 
-    return updatedBusiness;
+    return assertEntityPresent(
+      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById(
+        businessId,
+      ),
+      `Business with ID ${businessId} not found after update.`,
+    );
   }
 
   /**
    * Delete a business if the user is the owner
    *
-   * @param id The ID of the business to delete
-   * @param userId The ID of the user attempting the deletion
+   * @param businessId The ID of the business to delete
    * @returns True if deletion was successful
+   * @throws NotFoundException if business doesn't exist
+   */
+  async deleteBusinessById(businessId: string): Promise<boolean> {
+    this.logger.log(`Deleting business with ID: ${businessId}`);
+    const result = await this.businessRepository.deleteBusiness(businessId);
+    assertAffected(result, `Business with ID ${businessId} not found`);
+    return true;
+  }
+
+  /**
+   * Validates if an user is the owner of a business
+   * @todo This method should be replaced by `findBusinessAndValidateOwnership`
+   * @param userId The ID of the user
+   * @param businessId The ID of the business
+   * @returns True is found and owned by the user
+   * @throws NotFoundException if business doesn't exist
+   * @throws ForbiddenException if user is not the owner
+   * @deprecated Use `findBusinessAndValidateOwnership` instead
+   */
+  async isOwnedByUser(userId: number, businessId: string): Promise<boolean> {
+    const business = assertEntityPresent(
+      await this.businessRepository.findBusinessById(businessId),
+      `Business with ID ${businessId} not found for user ${userId}`,
+    );
+    assertOwnership(
+      business.ownerId,
+      userId,
+      'User with ID ${userId} is not the owner of business ${businessId}.',
+    );
+
+    return true;
+  }
+
+  /**
+   * Find a business and validate ownership
+   * @param businessId The ID of the business
+   * @param userId The ID of the user
+   * @returns The found business
    * @throws NotFoundException if business doesn't exist
    * @throws ForbiddenException if user is not the owner
    */
-  async deleteBusinessByIdAndUserId(
-    id: string,
+  async findBusinessAndValidateOwnership(
+    businessId: string,
     userId: number,
-  ): Promise<boolean> {
-    const business = await this.findById(id);
-
-    if (business.ownerId !== userId) {
-      throw new ForbiddenException(
-        'You do not have permission to delete this business',
-      );
-    }
-
-    const result = await this.businessRepository.remove(business);
-    return !!result;
-  }
-
-  /**
-   * Create a GeoJSON Point from latitude and longitude
-   * @param latitude The latitude coordinate
-   * @param longitude The longitude coordinate
-   * @returns GeoJSON Point object uses [longitude, latitude] order
-   */
-  private createPointFromCoordinates(latitude: number, longitude: number) {
-    return `(${longitude},${latitude})`;
-  }
-
-  /**
-   * Find a business by ID
-   * @param id The ID of the business
-   * @returns The found business
-   * @throws NotFoundException if business doesn't exist
-   */
-  async findById(id: string): Promise<Business> {
-    const business = await this.businessRepository.findOne({
-      where: { id },
-    });
-
-    if (!business) {
-      throw new NotFoundException(`Business with ID ${id} not found`);
-    }
+  ): Promise<Business> {
+    const business = assertEntityPresent(
+      await this.businessRepository.findBusinessById(businessId),
+      `Business with ID ${businessId} not found for user ${userId}`,
+    );
+    assertOwnership(
+      business.ownerId,
+      userId,
+      'User with ID ${userId} is not the owner of business ${businessId}.',
+    );
 
     return business;
+  }
+
+  // ── PRIVATE HELPER METHODS ──────────────────────────────────────────
+
+  private async prepareUpdateData(
+    updateDto: UpdateBusinessDto,
+  ): Promise<{ businessData: Partial<Business> }> {
+    const { openingHours, photos, flags, ...businessFields } = updateDto;
+
+    const businessData: Partial<Business> = { ...businessFields };
+
+    // Photo updates
+    if (photos) {
+      if (photos.logoUrl !== undefined) businessData.logoUrl = photos.logoUrl;
+      if (photos.logoMapUrl !== undefined)
+        businessData.logoMapUrl = photos.logoMapUrl;
+      if (photos.photoUrl !== undefined)
+        businessData.photoUrl = photos.photoUrl;
+      if (photos.additionalPhotos !== undefined)
+        businessData.additionalPhotos = photos.additionalPhotos;
+    }
+
+    // Flag updates
+    if (flags) {
+      if (flags.acceptBookings !== undefined)
+        businessData.acceptBookings = flags.acceptBookings;
+      if (flags.isVerified !== undefined)
+        businessData.isVerified = flags.isVerified;
+      if (flags.isSponsored !== undefined)
+        businessData.isSponsored = flags.isSponsored;
+    }
+
+    return { businessData };
+  }
+
+  /**
+   * Update a business if there are valid fields to update
+   * @param businessId The ID of the business to update
+   * @param updateData The data to update the business with
+   * @throws NotFoundException if no business was not updated
+   */
+  private async updateIfNotEmpty(
+    businessId: string,
+    updateData: Partial<Business>,
+  ) {
+    if (Object.keys(updateData).length > 0) {
+      console.log(`Updating business with ID ${businessId} with data:`, updateData);
+      const result = await this.businessRepository.updateBusiness(
+        businessId,
+        updateData,
+      );
+      assertAffected(result, `Business with ID ${businessId} not found`);
+    } else {
+      this.logger.warn(
+        `No valid fields to update for business ID ${businessId}`,
+      );
+    }
   }
 }

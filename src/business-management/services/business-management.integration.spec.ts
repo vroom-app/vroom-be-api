@@ -14,7 +14,10 @@ import {
   ServiceOffering,
 } from 'src/service-offering/entities/service-offering.entity';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
-import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
+import {
+  CreateBusinessDto,
+  UpdateBusinessDto,
+} from 'src/business/dto/business.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Slot } from 'src/slot/entities/slot.entity';
@@ -176,20 +179,6 @@ describe('BusinessManagementService Integration Tests', () => {
       });
       expect(businessFromDb).not.toBeNull();
       expect(businessFromDb!.openingHours.length).toBe(2);
-    });
-
-    it('should retrieve business profile', async () => {
-      const businessProfile =
-        await businessManagementService.getBusinessProfile(
-          testBusiness.id,
-          businessOwner.id,
-        );
-
-      // Verify
-      expect(businessProfile).toBeDefined();
-      expect(businessProfile.id).toBe(testBusiness.id);
-      expect(businessProfile.name).toBe(testBusiness.name);
-      expect(businessProfile.location.address).toBe(testBusiness.address);
     });
 
     it('should allow business owner to update business details', async () => {

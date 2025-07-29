@@ -1,11 +1,10 @@
-import {
-  ForbiddenException,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
-import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
+import {
+  CreateBusinessDto,
+  UpdateBusinessDto,
+} from 'src/business/dto/business.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { Business } from 'src/business/entities/business.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
@@ -15,7 +14,10 @@ import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-of
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
 import { BusinessMapper } from '../mapper/business.mapper';
-import { UpdateBusinessServicesDto, UpdateServiceOfferingDto } from '../dto/business-offerings-update.dto';
+import {
+  UpdateBusinessServicesDto,
+  UpdateServiceOfferingDto,
+} from '../dto/business-offerings-update.dto';
 
 @Injectable()
 export class BusinessManagementService {
@@ -25,43 +27,26 @@ export class BusinessManagementService {
     private readonly businessService: BusinessService,
     private readonly serviceOfferingService: ServiceOfferingService,
     private readonly openingHoursService: BusinessOpeningHoursService,
-    private readonly searchClient: SearchClientService
+    private readonly searchClient: SearchClientService,
   ) {}
 
   /**
-   * Get a business profile by ID
+   * Get a business details {@link BusinessProfileDto} by its ID.
    *
    * @param businessId The ID of the business
    * @returns The business profile including services
    * @throws NotFoundException if business doesn't exist
    */
-  async getBusinessProfile(
-    businessId: string,
-    userId: number,
-  ): Promise<BusinessProfileDto> {
-    return await this.businessService.getBusinessProfile(businessId, userId);
-  }
-
-  /**
-   * Get a business details
-   *
-   * @param businessId The ID of the business
-   * @returns The business profile including services
-   * @throws NotFoundException if business doesn't exist
-   */
-  async getBusinessDetails(businessId: string): Promise<BusinessProfileDto> {
-    this.logger.log(
-      `Attempting to fetch Business with ID ${businessId} from database.`,
-    );
+  async getBusinessProfile(businessId: string): Promise<BusinessProfileDto> {
     return await this.businessService.getBusinessDetails(businessId);
   }
 
   /**
-   * Create a business and its associated services
+   * Create a {@link Business} and its associated {@link BusinessServiceOffering} and {@link BusinessOpeningHours}.
    * TODO the function does not provide consistency between the business and the search engine.
    * - It should be refactored to ensure that if the business is created, it is also created in the search engine.
    * - This is a temporary solution to allow the business to be created in the search engine.
-   * 
+   *
    * @param userId The ID of the user creating the business
    * @param dto The DTO containing business
    * @returns The created business
@@ -82,21 +67,9 @@ export class BusinessManagementService {
           savedBusiness.id,
           openingHours,
         );
-      console.log(`created opening hours for business ${savedBusiness.id}`);
     }
 
-    const payload = {
-      id: dto.searchEngineId ?? savedBusiness.id,
-      name: dto.name,
-      name_en: dto.nameEn,
-      address: dto.address,
-      latitude: dto.latitude,
-      longitude: dto.longitude,
-      categories: dto.categories ?? [],
-      specializations: dto.specializations ?? [],
-      city: dto.city,
-    };
-    await this.searchClient.upsertBusiness(payload);
+    await this.syncBusinessWithSearchEngine(savedBusiness, dto);
 
     return BusinessMapper.toBusinessProfileDto(savedBusiness);
   }
@@ -116,23 +89,20 @@ export class BusinessManagementService {
     businessId: string,
     createServiceOfferingDto: CreateServiceOfferingDto[],
   ): Promise<FullServiceOfferingDto[]> {
-    try {
-      await this.businessService.isOwnedByUser(userId, businessId);
+    await this.businessService.findBusinessAndValidateOwnership(
+      businessId,
+      userId,
+    );
 
-      const serviceOfferings = await this.serviceOfferingService.createMultiple(
-        businessId,
-        createServiceOfferingDto,
-      );
-      return serviceOfferings.map(BusinessMapper.toFullServiceOfferingDto);
-    } catch (error) {
-      throw new ForbiddenException(
-        `You are not allowed to modify this business. ${error.message}`,
-      );
-    }
+    const serviceOfferings = await this.serviceOfferingService.createMultiple(
+      businessId,
+      createServiceOfferingDto,
+    );
+    return serviceOfferings.map(BusinessMapper.toFullServiceOfferingDto);
   }
 
   /**
-   * Update business details including basic info and opening hours
+   * Update business details including basic info and {@link BusinessOpeningHours}
    *
    * @param userId The ID of the user updating the business
    * @param businessId The ID of the business to update
@@ -146,29 +116,27 @@ export class BusinessManagementService {
     businessId: string,
     updateBusinessDto: UpdateBusinessDto,
   ): Promise<BusinessProfileDto> {
-    try {
-      await this.businessService.isOwnedByUser(userId, businessId);
-      const { openingHours, ...businessData } = updateBusinessDto;
+    await this.businessService.findBusinessAndValidateOwnership(
+      businessId,
+      userId,
+    );
 
-      const updatedBusiness = await this.businessService.updateBusiness(
-        businessId,
-        businessData,
-      );
+    const { openingHours, ...businessData } = updateBusinessDto;
 
-      if (openingHours && openingHours.length > 0) {
-        updatedBusiness.openingHours =
-          await this.openingHoursService.updateForBusiness(
-            businessId,
-            openingHours,
-          );
-      }
+    const updatedBusiness = await this.businessService.updateBusiness(
+      businessId,
+      businessData,
+    );
 
-      return BusinessMapper.toBusinessProfileDto(updatedBusiness);
-    } catch (error) {
-      throw new ForbiddenException(
-        `You are not allowed to modify this business. ${error.message}`,
-      );
+    if (openingHours && openingHours.length > 0) {
+      updatedBusiness.openingHours =
+        await this.openingHoursService.updateForBusiness(
+          businessId,
+          openingHours,
+        );
     }
+
+    return BusinessMapper.toBusinessProfileDto(updatedBusiness);
   }
 
   /**
@@ -186,24 +154,21 @@ export class BusinessManagementService {
     businessId: string,
     updateBusinessServicesDto: UpdateBusinessServicesDto,
   ): Promise<FullServiceOfferingDto[]> {
-    try {
-      await this.businessService.isOwnedByUser(userId, businessId);
-      const updatedServices = await Promise.all(
-        updateBusinessServicesDto.services.map(
-          (serviceDto: UpdateServiceOfferingDto) =>
-            this.serviceOfferingService.update(serviceDto.id, serviceDto),
-        ),
-      );
-      return updatedServices.map(BusinessMapper.toFullServiceOfferingDto);
-    } catch (error) {
-      throw new ForbiddenException(
-        `You are not allowed to modify this business. ${error.message}`,
-      );
-    }
+    await this.businessService.findBusinessAndValidateOwnership(
+      businessId,
+      userId,
+    );
+    const updatedServices = await Promise.all(
+      updateBusinessServicesDto.services.map(
+        (serviceDto: UpdateServiceOfferingDto) =>
+          this.serviceOfferingService.update(serviceDto.id, serviceDto),
+      ),
+    );
+    return updatedServices.map(BusinessMapper.toFullServiceOfferingDto);
   }
 
   /**
-   * Update opening hours for a business
+   * Update {@link BusinessOpeningHours} for a business
    *
    * @param userId The ID of the user updating the hours
    * @param businessId The ID of the business
@@ -221,21 +186,18 @@ export class BusinessManagementService {
       closesAt: string;
     }>,
   ): Promise<BusinessOpeningHours[]> {
-    try {
-      await this.businessService.isOwnedByUser(userId, businessId);
-      return await this.openingHoursService.updateForBusiness(
-        businessId,
-        openingHours,
-      );
-    } catch (error) {
-      throw new ForbiddenException(
-        `You are not allowed to modify this business. ${error.message}`,
-      );
-    }
+    await this.businessService.findBusinessAndValidateOwnership(
+      businessId,
+      userId,
+    );
+    return await this.openingHoursService.updateForBusiness(
+      businessId,
+      openingHours,
+    );
   }
 
   /**
-   * Delete a service offering
+   * Delete a {@link ServiceOffering}
    *
    * @param userId The ID of the user
    * @param businessId The ID of the business to which the service offering belongs
@@ -249,21 +211,18 @@ export class BusinessManagementService {
     businessId: string,
     serviceOfferingId: number,
   ): Promise<boolean> {
-    try {
-      await this.businessService.isOwnedByUser(userId, businessId);
-      return await this.serviceOfferingService.deleteServiceOfferingByIdAndBusinessId(
-        serviceOfferingId,
-        businessId,
-      );
-    } catch (error) {
-      throw new ForbiddenException(
-        `You are not allowed to modify this business. ${error.message}`,
-      );
-    }
+    await this.businessService.findBusinessAndValidateOwnership(
+      businessId,
+      userId,
+    );
+    return await this.serviceOfferingService.deleteServiceOfferingByIdAndBusinessId(
+      serviceOfferingId,
+      businessId,
+    );
   }
 
   /**
-   * Delete {@link Business} and its {@link ServiceOffering}, {@link BusinessSpecialization} and {@link BusinessOpeningHours}
+   * Delete {@link Business} and its {@link ServiceOffering} and {@link BusinessOpeningHours}
    *
    * @param id The ID of the business to delete
    * @param userId The ID of the user attempting the deletion
@@ -275,9 +234,25 @@ export class BusinessManagementService {
     businessId: string,
     userId: number,
   ): Promise<boolean> {
-    return await this.businessService.deleteBusinessByIdAndUserId(
-      businessId,
-      userId,
-    );
+    this.businessService.findBusinessAndValidateOwnership(businessId, userId);
+    return await this.businessService.deleteBusinessById(businessId);
+  }
+
+  private async syncBusinessWithSearchEngine(
+    savedBusiness: Business,
+    dto: CreateBusinessDto,
+  ) {
+    const payload = {
+      id: dto.searchEngineId ?? savedBusiness.id,
+      name: dto.name,
+      name_en: dto.nameEn,
+      address: dto.address,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      categories: dto.categories ?? [],
+      specializations: dto.specializations ?? [],
+      city: dto.city,
+    };
+    await this.searchClient.upsertBusiness(payload);
   }
 }

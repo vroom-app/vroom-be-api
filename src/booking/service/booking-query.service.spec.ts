@@ -63,7 +63,7 @@ describe('BookingQueryService', () => {
     };
 
     const context: BookingQueryContext = {
-      businessId: "123",
+      businessId: '123',
       isBusinessOwner: true,
       canViewAllBookings: true,
     };
@@ -73,7 +73,7 @@ describe('BookingQueryService', () => {
     expect(result).toEqual({ bookings: mockBookings, total: mockTotal });
     expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
       'business.id = :businessId',
-      { businessId: "123" },
+      { businessId: '123' },
     );
   });
 
@@ -120,7 +120,7 @@ describe('BookingQueryService', () => {
     };
 
     const context: BookingQueryContext = {
-      businessId: "1",
+      businessId: '1',
       isBusinessOwner: true,
       canViewAllBookings: true,
     };
@@ -147,7 +147,7 @@ describe('BookingQueryService', () => {
     };
 
     const context: BookingQueryContext = {
-      businessId: "1",
+      businessId: '1',
       isBusinessOwner: true,
       canViewAllBookings: true,
     };

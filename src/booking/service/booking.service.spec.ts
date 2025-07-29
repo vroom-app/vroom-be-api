@@ -188,7 +188,7 @@ describe('BookingService', () => {
         .mockReturnValue(mockResponse);
 
       const userId = 7;
-      const businessId = "99";
+      const businessId = '99';
 
       const result = await service.findBusinessBookings(
         query,

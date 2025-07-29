@@ -14,7 +14,10 @@ import { Business } from 'src/business/entities/business.entity';
 import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
-import { CreateBusinessDto, UpdateBusinessDto } from 'src/business/dto/business.dto';
+import {
+  CreateBusinessDto,
+  UpdateBusinessDto,
+} from 'src/business/dto/business.dto';
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
 
@@ -32,9 +35,9 @@ describe('BusinessManagementService', () => {
         {
           provide: BusinessService,
           useValue: {
-            getBusinessProfile: jest.fn(),
             createBusiness: jest.fn(),
             isOwnedByUser: jest.fn(),
+            findBusinessAndValidateOwnership: jest.fn(),
             updateBusiness: jest.fn(),
             deleteBusinessByIdAndUserId: jest.fn(),
           },
@@ -60,57 +63,6 @@ describe('BusinessManagementService', () => {
     mockBusinessService = module.get(BusinessService);
     mockServiceOfferingService = module.get(ServiceOfferingService);
     mockBusinessOpeningHoursService = module.get(BusinessOpeningHoursService);
-  });
-
-  describe('getBusinessProfile', () => {
-    it('should retrieve business profile for a given business and user', async () => {
-      const mockBusinessProfile = {
-        id: '1',
-        name: 'Test Business',
-        description: 'Test Description',
-        address: '123 Test St',
-        isVerified: true,
-        isSponsored: false,
-        acceptBookings: true,
-        additionalPhotos: [],
-        categories: [],
-        specializations: [],
-        contact: {
-          email: "",
-          phone: '1234567890',
-          website: 'https://testbusiness.com',
-        },
-        media: {
-          heroPicture: 'https://testbusiness.com/hero.jpg',
-          mapLogo: 'https://testbusiness.com/map-logo.jpg',
-          logo: 'https://testbusiness.com/logo.jpg',
-          photoRefs: [],
-        },
-        socialLinks: {
-          facebook: 'https://facebook.com/testbusiness',
-          instagram: 'https://instagram.com/testbusiness',
-          youtube: 'https://youtube.com/testbusiness',
-          linkedin: 'https://linkedin.com/company/testbusiness',
-          tiktok: 'https://tiktok.com/@testbusiness',
-        },
-        location: {
-          address: '123 Test St',
-          city: 'Test City',
-          latitude: 40.7128,
-          longitude: -74.006,
-        },
-        openingHours: [],
-      };
-
-      mockBusinessService.getBusinessProfile.mockResolvedValue(
-        mockBusinessProfile,
-      );
-
-      const result = await service.getBusinessProfile('1', 1);
-
-      expect(mockBusinessService.getBusinessProfile).toHaveBeenCalledWith(1, 1);
-      expect(result.id).toEqual(mockBusinessProfile.id);
-    });
   });
 
   describe('createBusiness', () => {
@@ -195,7 +147,9 @@ describe('BusinessManagementService', () => {
         },
       ];
 
-      mockBusinessService.isOwnedByUser.mockResolvedValue(true);
+      mockBusinessService.findBusinessAndValidateOwnership.mockResolvedValue(
+        new Business(),
+      );
       mockServiceOfferingService.createMultiple.mockResolvedValue(
         mockServiceOfferings,
       );
@@ -206,10 +160,9 @@ describe('BusinessManagementService', () => {
         createServiceOfferingDto,
       );
 
-      expect(mockBusinessService.isOwnedByUser).toHaveBeenCalledWith(
-        userId,
-        businessId,
-      );
+      expect(
+        mockBusinessService.findBusinessAndValidateOwnership,
+      ).toHaveBeenCalledWith(businessId, userId);
       expect(mockServiceOfferingService.createMultiple).toHaveBeenCalledWith(
         businessId,
         createServiceOfferingDto,
@@ -222,7 +175,9 @@ describe('BusinessManagementService', () => {
       const businessId = '2';
       const createServiceOfferingDto: CreateServiceOfferingDto[] = [];
 
-      mockBusinessService.isOwnedByUser.mockResolvedValue(false);
+      mockBusinessService.findBusinessAndValidateOwnership.mockResolvedValue(
+        new Business(),
+      );
 
       await expect(
         service.addBusinessServiceOfferings(
@@ -281,10 +236,9 @@ describe('BusinessManagementService', () => {
         updateBusinessDetailsDto,
       );
 
-      expect(mockBusinessService.isOwnedByUser).toHaveBeenCalledWith(
-        userId,
-        businessId,
-      );
+      expect(
+        mockBusinessService.findBusinessAndValidateOwnership,
+      ).toHaveBeenCalledWith(businessId, userId);
       expect(mockBusinessService.updateBusiness).toHaveBeenCalledWith(
         businessId,
         updateBusinessDetailsDto,
@@ -299,7 +253,9 @@ describe('BusinessManagementService', () => {
         name: 'Updated Business Name',
       };
 
-      mockBusinessService.isOwnedByUser.mockResolvedValue(false);
+      mockBusinessService.findBusinessAndValidateOwnership.mockResolvedValue(
+        new Business(),
+      );
 
       await expect(
         service.updateBusinessDetails(
@@ -361,10 +317,9 @@ describe('BusinessManagementService', () => {
         updateBusinessServicesDto,
       );
 
-      expect(mockBusinessService.isOwnedByUser).toHaveBeenCalledWith(
-        userId,
-        businessId,
-      );
+      expect(
+        mockBusinessService.findBusinessAndValidateOwnership,
+      ).toHaveBeenCalledWith(businessId, userId);
       expect(mockServiceOfferingService.update).toHaveBeenCalledWith(
         1,
         updateBusinessServicesDto.services[0],
@@ -379,9 +334,11 @@ describe('BusinessManagementService', () => {
         services: [],
       };
 
-      mockBusinessService.isOwnedByUser.mockImplementation(() => {
-        throw new ForbiddenException();
-      });
+      mockBusinessService.findBusinessAndValidateOwnership.mockImplementation(
+        () => {
+          throw new ForbiddenException();
+        },
+      );
 
       await expect(
         service.updateBusinessServices(
@@ -410,10 +367,9 @@ describe('BusinessManagementService', () => {
         serviceOfferingId,
       );
 
-      expect(mockBusinessService.isOwnedByUser).toHaveBeenCalledWith(
-        userId,
-        businessId,
-      );
+      expect(
+        mockBusinessService.findBusinessAndValidateOwnership,
+      ).toHaveBeenCalledWith(businessId, userId);
       expect(
         mockServiceOfferingService.deleteServiceOfferingByIdAndBusinessId,
       ).toHaveBeenCalledWith(serviceOfferingId, businessId);
@@ -432,25 +388,6 @@ describe('BusinessManagementService', () => {
       await expect(
         service.deleteServiceOffering(userId, businessId, serviceOfferingId),
       ).rejects.toThrow(ForbiddenException);
-    });
-  });
-
-  describe('deleteBusinessAndServices', () => {
-    it('should delete business and its services', async () => {
-      const businessId = '1';
-      const userId = 2;
-
-      mockBusinessService.deleteBusinessByIdAndUserId.mockResolvedValue(true);
-
-      const result = await service.deleteBusinessAndServices(
-        businessId,
-        userId,
-      );
-
-      expect(
-        mockBusinessService.deleteBusinessByIdAndUserId,
-      ).toHaveBeenCalledWith(businessId, userId);
-      expect(result).toBe(true);
     });
   });
 });

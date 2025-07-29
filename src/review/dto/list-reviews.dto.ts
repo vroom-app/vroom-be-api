@@ -10,7 +10,12 @@ export class ListReviewsDto {
   @Type(() => Number)
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Items per page', minimum: 1, maximum: 100, default: 10 })
+  @ApiPropertyOptional({
+    description: 'Items per page',
+    minimum: 1,
+    maximum: 100,
+    default: 10,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
