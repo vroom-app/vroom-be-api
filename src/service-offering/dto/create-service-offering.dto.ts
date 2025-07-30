@@ -2,67 +2,50 @@ import {
   IsEnum,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
-  IsArray,
-  Min,
-  MaxLength,
+  IsObject,
+  ValidateNested,
 } from 'class-validator';
-import { DurationUnit, PriceType } from '../entities/service-offering.entity';
+import { ACTION_TYPE } from '../entities/service-offering.entity';
+import { ActionDetails } from '../interfaces/action-details.interface';
+import { ServiceDescription } from '../interfaces/service-description.interface';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateServiceOfferingDto {
   @IsString()
-  @MaxLength(255)
   name: string;
 
   @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  description: string;
+  category: string;
 
-  @IsString()
-  @IsOptional()
-  detailedDescription?: string;
+  @IsEnum(ACTION_TYPE)
+  actionType: ACTION_TYPE;
 
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  includedServices?: string[];
+  @IsObject()
+  @ValidateNested()
+  @Type(() => Object)
+  @Transform(({ value, obj }) => {
+    switch (obj.actionType) {
+      case ACTION_TYPE.BOOKING_SYSTEM:
+        return Object.assign(value, { type: 'BOOKING_SYSTEM' });
+      case ACTION_TYPE.EMBEDDED:
+        return Object.assign(value, { type: 'EMBEDDED' });
+      case ACTION_TYPE.CTA:
+        return Object.assign(value, { type: 'CTA' });
+      case ACTION_TYPE.E_COMMERCE:
+        return Object.assign(value, { type: 'E_COMMERCE' });
+      case ACTION_TYPE.CONTACT_FORM:
+        return Object.assign(value, { type: 'CONTACT_FORM' });
+      default:
+        return value;
+    }
+  })
+  actionDetails: ActionDetails;
 
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  benefits?: string[];
+  @IsObject()
+  description: ServiceDescription;
 
+  @IsOptional()
   @IsNumber()
-  @IsPositive()
-  @IsOptional()
-  price: number;
-
-  @IsEnum(PriceType)
-  @IsOptional()
-  priceType: PriceType = PriceType.FIXED;
-
-  @IsNumber()
-  @Min(1)
-  durationMinutes: number;
-
-  @IsEnum(DurationUnit)
-  @IsOptional()
-  durationUnit: DurationUnit = DurationUnit.MINUTES;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  durationNote?: string;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  warranty?: string;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(100)
-  category?: string;
+  capacity?: number;
 }

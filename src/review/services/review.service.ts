@@ -10,7 +10,6 @@ import { CreateReviewDto } from '../dto/create-review.dto';
 import { ReviewResponseDto } from '../dto/review-response.dto';
 import { ListReviewsDto } from '../dto/list-reviews.dto';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
-import { BusinessService } from 'src/business/services/business.service';
 import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 
 @Injectable()
@@ -18,7 +17,6 @@ export class ReviewService {
   constructor(
     @InjectRepository(Review)
     private reviewRepository: Repository<Review>,
-    private readonly businessService: BusinessService,
     private readonly serviceOfferingService: ServiceOfferingService,
   ) {}
 

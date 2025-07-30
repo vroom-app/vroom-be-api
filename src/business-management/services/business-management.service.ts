@@ -10,14 +10,10 @@ import { Business } from 'src/business/entities/business.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
-import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
 import { BusinessMapper } from '../mapper/business.mapper';
-import {
-  UpdateBusinessServicesDto,
-  UpdateServiceOfferingDto,
-} from '../dto/business-offerings-update.dto';
 
 @Injectable()
 export class BusinessManagementService {
@@ -88,17 +84,17 @@ export class BusinessManagementService {
     userId: number,
     businessId: string,
     createServiceOfferingDto: CreateServiceOfferingDto[],
-  ): Promise<FullServiceOfferingDto[]> {
+  ): Promise<ServiceOfferingDto[]> {
     await this.businessService.findBusinessAndValidateOwnership(
       businessId,
       userId,
     );
 
-    const serviceOfferings = await this.serviceOfferingService.createMultiple(
+    const serviceOfferings = await this.serviceOfferingService.createMultipleServices(
       businessId,
       createServiceOfferingDto,
     );
-    return serviceOfferings.map(BusinessMapper.toFullServiceOfferingDto);
+    return serviceOfferings.map(BusinessMapper.toServiceOfferingDto);
   }
 
   /**
@@ -144,27 +140,26 @@ export class BusinessManagementService {
    *
    * @param userId The ID of the user updating the services
    * @param businessId The ID of the business
+   * @param serviceId The ID of the service
    * @param updateBusinessServicesDto The DTO containing service update data
    * @returns The updated service offerings
    * @throws NotFoundException if business/service doesn't exist
    * @throws ForbiddenException if user is not the owner
    */
-  async updateBusinessServices(
+  async updateBusinessService(
     userId: number,
     businessId: string,
-    updateBusinessServicesDto: UpdateBusinessServicesDto,
-  ): Promise<FullServiceOfferingDto[]> {
-    await this.businessService.findBusinessAndValidateOwnership(
+    serviceId: number,
+    updateData: Partial<CreateServiceOfferingDto>,
+  ): Promise<ServiceOfferingDto> {
+    console.debug(`Validate Ownership of service offering ${serviceId} of business ${businessId}`)
+    await this.businessService.findBusinessServiceAndValidateOwnership(
       businessId,
+      serviceId,
       userId,
     );
-    const updatedServices = await Promise.all(
-      updateBusinessServicesDto.services.map(
-        (serviceDto: UpdateServiceOfferingDto) =>
-          this.serviceOfferingService.update(serviceDto.id, serviceDto),
-      ),
-    );
-    return updatedServices.map(BusinessMapper.toFullServiceOfferingDto);
+    console.debug(`Valid Ownership.`)
+    return BusinessMapper.toServiceOfferingDto(await this.serviceOfferingService.update(serviceId, updateData));
   }
 
   /**
@@ -209,15 +204,16 @@ export class BusinessManagementService {
   async deleteServiceOffering(
     userId: number,
     businessId: string,
-    serviceOfferingId: number,
+    serviceId: number,
   ): Promise<boolean> {
-    await this.businessService.findBusinessAndValidateOwnership(
+    await this.businessService.findBusinessServiceAndValidateOwnership(
       businessId,
+      serviceId,
       userId,
     );
-    return await this.serviceOfferingService.deleteServiceOfferingByIdAndBusinessId(
-      serviceOfferingId,
-      businessId,
+
+    return await this.serviceOfferingService.deleteServiceById(
+      serviceId,
     );
   }
 

@@ -22,6 +22,7 @@ export enum ACTION_TYPE {
   CTA = 'CTA',
   E_COMMERCE = 'E_COMMERCE',
   CONTACT_FORM = 'CONTACT_FORM',
+  NONE = "NONE"
 }
 
 @Entity('service_offerings')
@@ -48,7 +49,7 @@ export class ServiceOffering {
   actionType: ACTION_TYPE;
 
   @Column({ type: 'jsonb' })
-  actionDetails: ActionDetails;
+  actionDetails?: ActionDetails;
 
   @Column({ type: 'jsonb' })
   description: ServiceDescription;
@@ -71,7 +72,7 @@ export class ServiceOffering {
   @BeforeInsert()
   @BeforeUpdate()
   validateActionDetails() {
-    if (this.actionDetails.type !== this.actionType) {
+    if (this.actionDetails && this.actionDetails.type !== this.actionType) {
       throw new Error(
         `ActionDetails type "${this.actionDetails.type}" does not match actionType "${this.actionType}"`,
       );

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BusinessCategory } from 'src/business/entities/business.entity';
+import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 
 export class BusinessProfileDto {
   @ApiProperty({ example: 1 })
@@ -63,6 +64,12 @@ export class BusinessProfileDto {
     description: 'List of opening hours per day of week',
   })
   openingHours?: BusinessOpeningHourDto[];
+
+  @ApiProperty({
+    type: () => [ServiceOfferingDto],
+    description: 'List of business services',
+  })
+  services?: ServiceOfferingDto[];
 }
 
 export class BusinessOpeningHourDto {

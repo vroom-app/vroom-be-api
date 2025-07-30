@@ -99,7 +99,6 @@ describe('BusinessService', () => {
 
       // Act
       const result = await service.getBusinessDetails(businessId);
-      console.log(`Result: ${JSON.stringify(result)}`); // Debugging line
       // Assert
       expect(logger.log).toHaveBeenCalledWith(
         `Attempting to fetch Business with ID ${businessId} from database.`,

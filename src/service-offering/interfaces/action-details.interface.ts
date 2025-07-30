@@ -119,9 +119,14 @@ export interface ContactFormActionDetails {
   };
 }
 
+export interface NoneActionDetails {
+  type: ACTION_TYPE.NONE;
+}
+
 export type ActionDetails =
   | BookingSystemActionDetails
   | EmbeddedActionDetails
   | CTAActionDetails
   | ECommerceActionDetails
-  | ContactFormActionDetails;
+  | ContactFormActionDetails
+  | NoneActionDetails;

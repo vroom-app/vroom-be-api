@@ -3,10 +3,9 @@ import {
   BusinessProfileDto,
 } from '../dto/business-profile.dto';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
-import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { Business } from 'src/business/entities/business.entity';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
-import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 
 export class BusinessMapper {
   static toOpeningHourDto(hour: BusinessOpeningHours): BusinessOpeningHourDto {
@@ -14,18 +13,6 @@ export class BusinessMapper {
       dayOfWeek: hour.dayOfWeek,
       opensAt: hour.opensAt,
       closesAt: hour.closesAt,
-    };
-  }
-
-  static toServiceOfferingDto(service: ServiceOffering): ServiceOfferingDto {
-    return {
-      id: service.id,
-      name: service.name,
-      description: service.description,
-      price: Number(service.price),
-      priceType: service.priceType,
-      durationMinutes: service.durationMinutes,
-      category: service.category,
     };
   }
 
@@ -63,25 +50,19 @@ export class BusinessMapper {
         tiktok: business.tiktok,
       },
       openingHours: business.openingHours?.map(this.toOpeningHourDto),
+      services: business.serviceOfferings?.map(this.toServiceOfferingDto)
     };
   }
-  static toFullServiceOfferingDto(
-    service: ServiceOffering,
-  ): FullServiceOfferingDto {
+
+  static toServiceOfferingDto(service: ServiceOffering): ServiceOfferingDto {
     return {
       id: service.id,
+      businessId: service.businessId,
       name: service.name,
-      description: service.description,
-      detailedDescription: service.detailedDescription,
-      includedServices: service.includedServices,
-      benefits: service.benefits,
-      price: Number(service.price),
-      priceType: service.priceType,
-      durationMinutes: service.durationMinutes,
-      durationUnit: service.durationUnit,
-      durationNote: service.durationNote,
-      warranty: service.warranty,
       category: service.category,
+      actionType: service.actionType,
+      actionDetails: service.actionDetails,
+      description: service.description,
       capacity: service.capacity,
       createdAt: service.createdAt,
     };

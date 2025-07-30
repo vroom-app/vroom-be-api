@@ -11,6 +11,7 @@ import { BusinessRepository } from '../repositories/business.repository';
 import { assertEntityPresent } from 'src/common/utils/assertEntity';
 import { assertOwnership } from 'src/common/utils/assertOwnership';
 import { assertAffected } from 'src/common/utils/assertAffected';
+import { assertServiceOwnership } from 'src/common/utils/assertServiceownership';
 
 @Injectable()
 export class BusinessService {
@@ -204,7 +205,34 @@ export class BusinessService {
     assertOwnership(
       business.ownerId,
       userId,
-      'User with ID ${userId} is not the owner of business ${businessId}.',
+      `User with ID ${userId} is not the owner of business ${businessId}.`,
+    );
+
+    return business;
+  }
+
+  /**
+   * Find a business service and validate ownership
+   * @param businessId The ID of the business
+   * @param serviceId The ID of the service
+   * @param userId The ID of the user
+   * @returns The found business with services and opening hours
+   * @throws NotFoundException if business doesn't exist
+   * @throws ForbiddenException if business is not the owner
+   */
+  async findBusinessServiceAndValidateOwnership(
+    businessId: string,
+    serviceId: number,
+    userId: number,
+  ): Promise<Business> {
+    const business = assertEntityPresent(
+      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById(businessId),
+      `Business with ID ${businessId} not found for user ${userId}`,
+    );
+    assertServiceOwnership(
+      business,
+      serviceId,
+      `User with ID ${userId} is not the owner of business ${businessId}.`,
     );
 
     return business;

@@ -15,7 +15,6 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
-import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
 import {
   CreateBusinessDto,
   UpdateBusinessDto,
@@ -26,7 +25,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { BusinessManagementService } from '../services/business-management.service';
 
 @ApiTags('Business Management')
@@ -96,11 +95,11 @@ export class BusinessManagementController {
     status: 201,
     description: 'Service offerings added successfully',
   })
-  async addServices(
+  async addServiceOfferings(
     @Param('businessId') businessId: string,
     @Body() createServiceOfferingDto: CreateServiceOfferingDto[],
     @Request() req,
-  ): Promise<FullServiceOfferingDto[]> {
+  ): Promise<ServiceOfferingDto[]> {
     console.log('Adding service offerings for business ID:', businessId);
     return this.businessManagementService.addBusinessServiceOfferings(
       req.user.id,
@@ -110,20 +109,22 @@ export class BusinessManagementController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':businessId/services')
+  @Patch(':businessId/:serviceId')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update service offerings for a business' })
   @ApiResponse({ status: 200, description: 'Services updated successfully' })
-  async updateBusinessServices(
+  async updateServiceOfferings(
     @Param('businessId') businessId: string,
-    @Body() updateBusinessServicesDto: UpdateBusinessServicesDto,
+    @Param('serviceId') serviceId: number,
+    @Body() updateData: Partial<CreateServiceOfferingDto>,
     @Request() req,
-  ): Promise<FullServiceOfferingDto[]> {
+  ): Promise<ServiceOfferingDto> {
     console.log('Updating business services for business ID:', businessId);
-    return this.businessManagementService.updateBusinessServices(
+    return this.businessManagementService.updateBusinessService(
       req.user.id,
       businessId,
-      updateBusinessServicesDto,
+      serviceId,
+      updateData,
     );
   }
 

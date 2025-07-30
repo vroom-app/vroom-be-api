@@ -28,8 +28,8 @@ export class BookingMapper {
           ? {
               id: booking.serviceOffering.id,
               name: booking.serviceOffering.name,
-              duration: booking.serviceOffering.durationMinutes,
-              price: booking.serviceOffering.price,
+              duration: undefined, //TODO 
+              price: undefined, //TODO 
               businessId: booking.serviceOffering.businessId,
             }
           : undefined,

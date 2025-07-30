@@ -5,12 +5,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { BusinessService } from 'src/business/services/business.service';
-import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Business } from 'src/business/entities/business.entity';
 import {
-  DurationUnit,
-  PriceType,
+  ACTION_TYPE,
   ServiceOffering,
 } from 'src/service-offering/entities/service-offering.entity';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
@@ -25,10 +23,12 @@ import { Review } from 'src/review/entities/review.entity';
 import { BusinessModule } from 'src/business/business.module';
 import { ServiceOfferingModule } from 'src/service-offering/service-offering.module';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
-import { FullServiceOfferingDto } from 'src/service-offering/dto/full-service-offering.dto';
+import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { BusinessManagementModule } from '../business-manager.module';
 import { BusinessManagementService } from './business-management.service';
-import { UpdateBusinessServicesDto } from '../dto/business-offerings-update.dto';
+import { ActionDetails } from 'src/service-offering/interfaces/action-details.interface';
+import { ServiceDescription } from 'src/service-offering/interfaces/service-description.interface';
+import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 
 describe('BusinessManagementService Integration Tests', () => {
   let moduleRef: TestingModule;
@@ -253,25 +253,23 @@ describe('BusinessManagementService Integration Tests', () => {
   });
 
   describe('Service Offerings Management', () => {
-    let serviceOfferings: FullServiceOfferingDto[];
+    let serviceOfferings: ServiceOfferingDto[];
 
     it('should allow business owner to add service offerings', async () => {
       const createServiceOfferingDto: CreateServiceOfferingDto[] = [
         {
           name: 'Service 1',
-          description: 'First service description',
-          price: 100,
-          priceType: PriceType.FIXED,
-          durationUnit: DurationUnit.MINUTES,
-          durationMinutes: 60,
+          category: "category",
+          actionType: ACTION_TYPE.NONE,
+          actionDetails: {} as ActionDetails,
+          description: {} as ServiceDescription
         },
         {
           name: 'Service 2',
-          description: 'Second service description',
-          price: 150,
-          priceType: PriceType.FIXED,
-          durationUnit: DurationUnit.MINUTES,
-          durationMinutes: 120,
+          category: "category",
+          actionType: ACTION_TYPE.NONE,
+          actionDetails: {} as ActionDetails,
+          description: {} as ServiceDescription
         },
       ];
 
@@ -293,11 +291,10 @@ describe('BusinessManagementService Integration Tests', () => {
       const createServiceOfferingDto: CreateServiceOfferingDto[] = [
         {
           name: 'Unauthorized Service',
-          description: 'Unauthorized service description',
-          price: 50,
-          priceType: PriceType.FIXED,
-          durationUnit: DurationUnit.MINUTES,
-          durationMinutes: 30,
+          category: "category",
+          actionType: ACTION_TYPE.NONE,
+          actionDetails: {} as ActionDetails,
+          description: {} as ServiceDescription
         },
       ];
 
@@ -311,48 +308,42 @@ describe('BusinessManagementService Integration Tests', () => {
     });
 
     it('should allow business owner to update service offerings', async () => {
-      const updateBusinessServicesDto: UpdateBusinessServicesDto = {
-        services: [
+      const serviceId = serviceOfferings[0].id;
+      const updateBusinessServicesDto: Partial<CreateServiceOfferingDto> = 
           {
-            id: serviceOfferings[0].id,
             name: 'Updated Service 1',
-            price: 120,
-          },
-        ],
-      };
+          }
+        
 
       const updatedServices =
-        await businessManagementService.updateBusinessServices(
+        await businessManagementService.updateBusinessService(
           businessOwner.id,
           testBusiness.id,
+          serviceId,
           updateBusinessServicesDto,
         );
 
       // Verify
       expect(updatedServices).toBeDefined();
-      expect(updatedServices.length).toBe(1);
-      expect(updatedServices[0].name).toBe(
-        updateBusinessServicesDto.services[0].name,
-      );
-      expect(updatedServices[0].price).toBe(
-        updateBusinessServicesDto.services[0].price,
+      expect(updatedServices.name).toBe(
+        updateBusinessServicesDto.name,
       );
     });
 
     it('should not allow regular user to update service offerings', async () => {
-      const updateBusinessServicesDto: UpdateBusinessServicesDto = {
-        services: [
+      const serviceId = serviceOfferings[0].id;
+      const updateBusinessServicesDto: Partial<CreateServiceOfferingDto> = 
+        
           {
-            id: serviceOfferings[0].id,
             name: 'Unauthorized Update',
-          },
-        ],
-      };
+          }
+        
 
       await expect(
-        businessManagementService.updateBusinessServices(
+        businessManagementService.updateBusinessService(
           regularUser.id,
           testBusiness.id,
+          serviceId,
           updateBusinessServicesDto,
         ),
       ).rejects.toThrow(ForbiddenException);

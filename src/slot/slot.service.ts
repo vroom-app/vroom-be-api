@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AvailableSlotsResponse } from './dtos/available-slots.dto';
-import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
+import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import {
@@ -41,63 +41,8 @@ export class SlotService {
     startDate: string,
     days: number,
   ): Promise<AvailableSlotsResponse[]> {
-    const serviceOffering: ServiceOffering =
-      await this.serviceOfferingService.findById(serviceOfferingId);
-    const searchDates: Date[] = getDatesBetween(startDate, days);
-
-    const results: AvailableSlotsResponse[] = [];
-
-    for (const date of searchDates) {
-      const dayOfWeek: number = date.getDay();
-      const openingHours: BusinessOpeningHours | null =
-        await this.openingHoursService.findBusinessWorktimeForWeekday(
-          businessId,
-          dayOfWeek,
-        );
-
-      if (!openingHours) {
-        this.logger.warn(
-          `No opening hours found for business ${businessId} on ${format(date, 'yyyy-MM-dd')}`,
-        );
-        continue;
-      }
-
-      const opensAt: number = parseTime(openingHours.opensAt);
-      const closesAt: number = parseTime(openingHours.closesAt);
-      let availableIntervals: Interval[] = [{ start: opensAt, end: closesAt }];
-
-      // Fetch all blocked/booked slots for the day
-      const blockedSlots = await this.getBlockedSlotsForDay(
-        businessId,
-        serviceOfferingId,
-        format(date, 'yyyy-MM-dd'),
-        serviceOffering.capacity,
-      );
-
-      // Subtract blocked intervals from free slots
-      availableIntervals = this.subtractBlockedIntervals(
-        availableIntervals,
-        blockedSlots,
-      );
-
-      // Generate concrete slot times based on offering duration
-      const duration = serviceOffering.durationMinutes;
-      const availableSlots = this.generateTimeSlots(
-        availableIntervals,
-        duration,
-      );
-
-      if (availableSlots.length > 0) {
-        results.push({
-          date: format(date, 'yyyy-MM-dd'),
-          business_id: businessId,
-          service_offering_id: serviceOfferingId,
-          available_slots: availableSlots,
-        });
-      }
-    }
-
-    return results;
+    // TODO: Implement logic to check availability and book a slot
+    throw new Error('Method not implemented.');
   }
 
   public async checkAvailabilityAndBook(
