@@ -57,7 +57,6 @@ export class BusinessManagementController {
     @Body() createBusinessDto: CreateBusinessDto,
     @Request() req,
   ): Promise<BusinessProfileDto> {
-    console.log('Creating business for user ID:', req.user.id);
     return this.businessManagementService.createBusiness(
       req.user.id,
       createBusinessDto,
@@ -77,7 +76,6 @@ export class BusinessManagementController {
     @Body() updateBusinessDto: UpdateBusinessDto,
     @Request() req,
   ): Promise<BusinessProfileDto> {
-    console.log('Updating business details for business ID:', businessId);
     return this.businessManagementService.updateBusinessDetails(
       req.user.id,
       businessId,
@@ -100,7 +98,6 @@ export class BusinessManagementController {
     @Body() createServiceOfferingDto: CreateServiceOfferingDto[],
     @Request() req,
   ): Promise<ServiceOfferingDto[]> {
-    console.log('Adding service offerings for business ID:', businessId);
     return this.businessManagementService.addBusinessServiceOfferings(
       req.user.id,
       businessId,
@@ -119,7 +116,6 @@ export class BusinessManagementController {
     @Body() updateData: Partial<CreateServiceOfferingDto>,
     @Request() req,
   ): Promise<ServiceOfferingDto> {
-    console.log('Updating business services for business ID:', businessId);
     return this.businessManagementService.updateBusinessService(
       req.user.id,
       businessId,
@@ -138,7 +134,6 @@ export class BusinessManagementController {
     @Param('businessId') businessId: string,
     @Request() req,
   ): Promise<void> {
-    console.log('Deleting business with ID:', businessId);
     await this.businessManagementService.deleteBusinessAndServices(
       businessId,
       req.user.id,
@@ -161,7 +156,6 @@ export class BusinessManagementController {
     @Param('serviceId', ParseIntPipe) serviceId: number,
     @Request() req,
   ): Promise<void> {
-    console.log('Deleting service with ID:', serviceId);
     await this.businessManagementService.deleteServiceOffering(
       req.user.id,
       businessId,

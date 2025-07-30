@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SlotService } from './slot.service';
-import { ServiceOfferingService } from '../service-offering/service-offering.service';
 import { BusinessOpeningHoursService } from '../business/services/business-opening-hours.service';
 import { Slot } from './entities/slot.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -8,6 +7,7 @@ import { Repository } from 'typeorm';
 import { ServiceOffering } from '../service-offering/entities/service-offering.entity';
 import { BusinessOpeningHours } from '../business/entities/business-opening-hours.entity';
 import { AvailableSlotsResponse } from './dtos/available-slots.dto';
+import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 
 describe('SlotService', () => {
   let service: SlotService;
@@ -47,9 +47,7 @@ describe('SlotService', () => {
   });
 
   it('should return available slots for given days', async () => {
-    serviceOfferingService.findById.mockResolvedValue({
-      durationMinutes: 30,
-    } as ServiceOffering);
+    serviceOfferingService.findById.mockResolvedValue({} as ServiceOffering);
 
     openingHoursService.findBusinessWorktimeForWeekday.mockResolvedValue({
       opensAt: '09:00',
@@ -67,9 +65,7 @@ describe('SlotService', () => {
   });
 
   it('should return empty slots if business is closed on that day', async () => {
-    serviceOfferingService.findById.mockResolvedValue({
-      durationMinutes: 30,
-    } as ServiceOffering);
+    serviceOfferingService.findById.mockResolvedValue({} as ServiceOffering);
 
     openingHoursService.findBusinessWorktimeForWeekday.mockResolvedValue(null);
 
@@ -79,15 +75,12 @@ describe('SlotService', () => {
       '2025-06-09',
       1,
     );
-    console.log(result);
     expect(result).toHaveLength(0);
   });
 
   // should return slots only for the days when there business is open
   it('should return slots only for the days when business is open', async () => {
-    serviceOfferingService.findById.mockResolvedValue({
-      durationMinutes: 30,
-    } as ServiceOffering);
+    serviceOfferingService.findById.mockResolvedValue({} as ServiceOffering);
 
     openingHoursService.findBusinessWorktimeForWeekday
       .mockResolvedValueOnce({
@@ -116,9 +109,7 @@ describe('SlotService', () => {
   });
 
   it('should return no slots if service duration is longer than business hours', async () => {
-    serviceOfferingService.findById.mockResolvedValue({
-      durationMinutes: 600,
-    } as ServiceOffering);
+    serviceOfferingService.findById.mockResolvedValue({} as ServiceOffering);
 
     openingHoursService.findBusinessWorktimeForWeekday.mockResolvedValue({
       opensAt: '09:00',
@@ -131,9 +122,7 @@ describe('SlotService', () => {
   });
 
   it('should return slots for multiple days if daysCount > 1', async () => {
-    serviceOfferingService.findById.mockResolvedValue({
-      durationMinutes: 60,
-    } as ServiceOffering);
+    serviceOfferingService.findById.mockResolvedValue({} as ServiceOffering);
 
     openingHoursService.findBusinessWorktimeForWeekday.mockResolvedValue({
       opensAt: '09:00',

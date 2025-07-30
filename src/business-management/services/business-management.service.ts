@@ -152,13 +152,12 @@ export class BusinessManagementService {
     serviceId: number,
     updateData: Partial<CreateServiceOfferingDto>,
   ): Promise<ServiceOfferingDto> {
-    console.debug(`Validate Ownership of service offering ${serviceId} of business ${businessId}`)
+    this.logger.debug(`Update service offering ${serviceId} for business ${businessId}`)
     await this.businessService.findBusinessServiceAndValidateOwnership(
       businessId,
       serviceId,
       userId,
     );
-    console.debug(`Valid Ownership.`)
     return BusinessMapper.toServiceOfferingDto(await this.serviceOfferingService.update(serviceId, updateData));
   }
 

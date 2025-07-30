@@ -282,10 +282,6 @@ export class BusinessService {
     updateData: Partial<Business>,
   ) {
     if (Object.keys(updateData).length > 0) {
-      console.log(
-        `Updating business with ID ${businessId} with data:`,
-        updateData,
-      );
       const result = await this.businessRepository.updateBusiness(
         businessId,
         updateData,

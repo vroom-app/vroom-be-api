@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Booking, BookingStatus } from '../entities/booking.entity';
+import { Booking } from '../entities/booking.entity';
 import { Repository } from 'typeorm';
 import { SlotService } from 'src/slot/slot.service';
 import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
