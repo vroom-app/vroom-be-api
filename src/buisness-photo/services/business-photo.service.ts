@@ -44,7 +44,7 @@ export class BusinessPhotoService {
       const url = await this.s3Service.uploadFile(
         file.buffer,
         file.originalName,
-        business.name.replace(" ", "") + '/business-photos',
+        business.name.replace(' ', '') + '/business-photos',
       );
       uploadedUrls.push(url);
     }

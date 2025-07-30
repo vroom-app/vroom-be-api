@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReviewService } from './review.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BusinessService } from 'src/business/services/business.service';
-import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
+import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 import { BadRequestException } from '@nestjs/common';
 import { Review } from '../entities/review.entity';
 

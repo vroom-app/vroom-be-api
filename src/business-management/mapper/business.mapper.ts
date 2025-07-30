@@ -15,7 +15,7 @@ export class BusinessMapper {
       opensAt: hour.opensAt,
       closesAt: hour.closesAt,
     };
-  };
+  }
 
   static toServiceOfferingDto(service: ServiceOffering): ServiceOfferingDto {
     return {

@@ -33,7 +33,7 @@ export class BusinessLogoService {
     const logoUrl = await this.s3Service.uploadFile(
       buffer,
       originalName,
-      business.name.replace(" ", "") + '/business-logos',
+      business.name.replace(' ', '') + '/business-logos',
     );
 
     let logoMapUrl = business.logoMapUrl;
@@ -84,7 +84,7 @@ export class BusinessLogoService {
     const logoMapUrl = await this.s3Service.uploadFile(
       buffer,
       originalName,
-      business.name.replace(" ", "") + '/business-map-logos',
+      business.name.replace(' ', '') + '/business-map-logos',
     );
     await this.businessService.updateBusinessPhotos(businessId, { logoMapUrl });
     await this.searchClientService.upsertBusiness({

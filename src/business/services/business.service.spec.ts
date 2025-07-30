@@ -1,13 +1,13 @@
-import { ForbiddenException, Logger, NotFoundException } from "@nestjs/common";
-import { CreateBusinessDto, UpdateBusinessDto } from "../dto/business.dto";
-import { DeleteResult, UpdateResult } from "typeorm";
-import { Business, BusinessCategory } from "../entities/business.entity";
-import { BusinessService } from "./business.service";
-import { Test, TestingModule } from "@nestjs/testing";
-import { BusinessRepository } from "../repositories/business.repository";
-import { BusinessProfileDto } from "src/business-management/dto/business-profile.dto";
-import { User } from "src/users/entities/user.entity";
-import { BusinessMapper } from "src/business-management/mapper/business.mapper";
+import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
+import { CreateBusinessDto, UpdateBusinessDto } from '../dto/business.dto';
+import { DeleteResult, UpdateResult } from 'typeorm';
+import { Business, BusinessCategory } from '../entities/business.entity';
+import { BusinessService } from './business.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { BusinessRepository } from '../repositories/business.repository';
+import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
+import { User } from 'src/users/entities/user.entity';
+import { BusinessMapper } from 'src/business-management/mapper/business.mapper';
 
 describe('BusinessService', () => {
   let service: BusinessService;
@@ -26,7 +26,7 @@ describe('BusinessService', () => {
     address: '123 Test St',
     city: 'Test City',
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: -74.006,
     facebook: 'facebook.com/test',
     instagram: 'instagram.com/test',
     youtube: 'youtube.com/test',
@@ -49,7 +49,8 @@ describe('BusinessService', () => {
     reviews: [],
   };
 
-  const businessProfileDto: BusinessProfileDto = BusinessMapper.toBusinessProfileDto(mockBusiness);
+  const businessProfileDto: BusinessProfileDto =
+    BusinessMapper.toBusinessProfileDto(mockBusiness);
 
   beforeEach(async () => {
     const mockBusinessRepository = {
@@ -72,7 +73,7 @@ describe('BusinessService', () => {
 
     service = module.get<BusinessService>(BusinessService);
     businessRepository = module.get(BusinessRepository);
-    
+
     logger = {
       log: jest.fn(),
       warn: jest.fn(),
@@ -80,7 +81,7 @@ describe('BusinessService', () => {
       debug: jest.fn(),
       verbose: jest.fn(),
     } as any;
-    
+
     (service as any).logger = logger;
   });
 
@@ -92,27 +93,37 @@ describe('BusinessService', () => {
     it('should return business profile when business exists', async () => {
       // Arrange
       const businessId = 'business-123';
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(mockBusiness);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        mockBusiness,
+      );
 
       // Act
       const result = await service.getBusinessDetails(businessId);
-        console.log(`Result: ${JSON.stringify(result)}`); // Debugging line
+      console.log(`Result: ${JSON.stringify(result)}`); // Debugging line
       // Assert
-      expect(logger.log).toHaveBeenCalledWith(`Attempting to fetch Business with ID ${businessId} from database.`);
-      expect(businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById).toHaveBeenCalledWith(businessId);
+      expect(logger.log).toHaveBeenCalledWith(
+        `Attempting to fetch Business with ID ${businessId} from database.`,
+      );
+      expect(
+        businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById,
+      ).toHaveBeenCalledWith(businessId);
       expect(result).toEqual(businessProfileDto);
     });
 
     it('should throw NotFoundException when business does not exist', async () => {
       // Arrange
       const businessId = 'non-existent';
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(null);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        null,
+      );
 
       // Act & Assert
       await expect(service.getBusinessDetails(businessId)).rejects.toThrow(
-        new NotFoundException(`Business with ID ${businessId} not found.`)
+        new NotFoundException(`Business with ID ${businessId} not found.`),
       );
-      expect(businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById).toHaveBeenCalledWith(businessId);
+      expect(
+        businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById,
+      ).toHaveBeenCalledWith(businessId);
     });
   });
 
@@ -167,8 +178,12 @@ describe('BusinessService', () => {
       const result = await service.createBusiness(ownerId, createBusinessDto);
 
       // Assert
-      expect(logger.log).toHaveBeenCalledWith(`Creating business for user ID: ${ownerId}`);
-      expect(businessRepository.createBusiness).toHaveBeenCalledWith(expectedBusinessData);
+      expect(logger.log).toHaveBeenCalledWith(
+        `Creating business for user ID: ${ownerId}`,
+      );
+      expect(businessRepository.createBusiness).toHaveBeenCalledWith(
+        expectedBusinessData,
+      );
       expect(result).toBe(mockBusiness);
     });
 
@@ -203,10 +218,15 @@ describe('BusinessService', () => {
       businessRepository.createBusiness.mockResolvedValue(mockBusiness);
 
       // Act
-      const result = await service.createBusiness(ownerId, dtoWithSearchEngineId);
+      const result = await service.createBusiness(
+        ownerId,
+        dtoWithSearchEngineId,
+      );
 
       // Assert
-      expect(businessRepository.createBusiness).toHaveBeenCalledWith(expectedBusinessData);
+      expect(businessRepository.createBusiness).toHaveBeenCalledWith(
+        expectedBusinessData,
+      );
       expect(result).toBe(mockBusiness);
     });
   });
@@ -228,36 +248,58 @@ describe('BusinessService', () => {
     it('should update business successfully', async () => {
       // Arrange
       const businessId = 'business-123';
-      const updateResult: UpdateResult = { affected: 1, generatedMaps: [], raw: {} };
+      const updateResult: UpdateResult = {
+        affected: 1,
+        generatedMaps: [],
+        raw: {},
+      };
       businessRepository.updateBusiness.mockResolvedValue(updateResult);
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(mockBusiness);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        mockBusiness,
+      );
 
       // Act
-      const result = await service.updateBusiness(businessId, updateBusinessDto);
+      const result = await service.updateBusiness(
+        businessId,
+        updateBusinessDto,
+      );
 
       // Assert
-      expect(logger.log).toHaveBeenCalledWith(`Updating business with ID: ${businessId}`);
-      expect(businessRepository.updateBusiness).toHaveBeenCalledWith(businessId, {
-        name: 'Updated Business',
-        description: 'Updated Description',
-        logoUrl: 'https://new-logo.com',
-        logoMapUrl: 'https://new-logo-map.com',
-        acceptBookings: true,
-        isVerified: true,
-      });
-      expect(businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById).toHaveBeenCalledWith(businessId);
+      expect(logger.log).toHaveBeenCalledWith(
+        `Updating business with ID: ${businessId}`,
+      );
+      expect(businessRepository.updateBusiness).toHaveBeenCalledWith(
+        businessId,
+        {
+          name: 'Updated Business',
+          description: 'Updated Description',
+          logoUrl: 'https://new-logo.com',
+          logoMapUrl: 'https://new-logo-map.com',
+          acceptBookings: true,
+          isVerified: true,
+        },
+      );
+      expect(
+        businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById,
+      ).toHaveBeenCalledWith(businessId);
       expect(result).toBe(mockBusiness);
     });
 
     it('should throw NotFoundException when update affects no rows', async () => {
       // Arrange
       const businessId = 'business-123';
-      const updateResult: UpdateResult = { affected: 0, generatedMaps: [], raw: {} };
+      const updateResult: UpdateResult = {
+        affected: 0,
+        generatedMaps: [],
+        raw: {},
+      };
       businessRepository.updateBusiness.mockResolvedValue(updateResult);
 
       // Act & Assert
-      await expect(service.updateBusiness(businessId, updateBusinessDto)).rejects.toThrow(
-        new NotFoundException(`Business with ID ${businessId} not found`)
+      await expect(
+        service.updateBusiness(businessId, updateBusinessDto),
+      ).rejects.toThrow(
+        new NotFoundException(`Business with ID ${businessId} not found`),
       );
     });
 
@@ -265,13 +307,17 @@ describe('BusinessService', () => {
       // Arrange
       const businessId = 'business-123';
       const emptyUpdateDto: UpdateBusinessDto = {};
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(mockBusiness);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        mockBusiness,
+      );
 
       // Act
       const result = await service.updateBusiness(businessId, emptyUpdateDto);
 
       // Assert
-      expect(logger.warn).toHaveBeenCalledWith(`No valid fields to update for business ID ${businessId}`);
+      expect(logger.warn).toHaveBeenCalledWith(
+        `No valid fields to update for business ID ${businessId}`,
+      );
       expect(businessRepository.updateBusiness).not.toHaveBeenCalled();
       expect(result).toBe(mockBusiness);
     });
@@ -279,13 +325,23 @@ describe('BusinessService', () => {
     it('should throw NotFoundException when business not found after update', async () => {
       // Arrange
       const businessId = 'business-123';
-      const updateResult: UpdateResult = { affected: 1, generatedMaps: [], raw: {} };
+      const updateResult: UpdateResult = {
+        affected: 1,
+        generatedMaps: [],
+        raw: {},
+      };
       businessRepository.updateBusiness.mockResolvedValue(updateResult);
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(null);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        null,
+      );
 
       // Act & Assert
-      await expect(service.updateBusiness(businessId, updateBusinessDto)).rejects.toThrow(
-        new NotFoundException(`Business with ID ${businessId} not found after update.`)
+      await expect(
+        service.updateBusiness(businessId, updateBusinessDto),
+      ).rejects.toThrow(
+        new NotFoundException(
+          `Business with ID ${businessId} not found after update.`,
+        ),
       );
     });
   });
@@ -301,8 +357,12 @@ describe('BusinessService', () => {
       const result = await service.deleteBusinessById(businessId);
 
       // Assert
-      expect(logger.log).toHaveBeenCalledWith(`Deleting business with ID: ${businessId}`);
-      expect(businessRepository.deleteBusiness).toHaveBeenCalledWith(businessId);
+      expect(logger.log).toHaveBeenCalledWith(
+        `Deleting business with ID: ${businessId}`,
+      );
+      expect(businessRepository.deleteBusiness).toHaveBeenCalledWith(
+        businessId,
+      );
       expect(result).toBe(true);
     });
 
@@ -314,7 +374,7 @@ describe('BusinessService', () => {
 
       // Act & Assert
       await expect(service.deleteBusinessById(businessId)).rejects.toThrow(
-        new NotFoundException(`Business with ID ${businessId} not found`)
+        new NotFoundException(`Business with ID ${businessId} not found`),
       );
     });
   });
@@ -328,10 +388,15 @@ describe('BusinessService', () => {
       businessRepository.findBusinessById.mockResolvedValue(business);
 
       // Act
-      const result = await service.findBusinessAndValidateOwnership(businessId, userId);
+      const result = await service.findBusinessAndValidateOwnership(
+        businessId,
+        userId,
+      );
 
       // Assert
-      expect(businessRepository.findBusinessById).toHaveBeenCalledWith(businessId);
+      expect(businessRepository.findBusinessById).toHaveBeenCalledWith(
+        businessId,
+      );
       expect(result).toBe(business);
     });
 
@@ -342,8 +407,12 @@ describe('BusinessService', () => {
       businessRepository.findBusinessById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.findBusinessAndValidateOwnership(businessId, userId)).rejects.toThrow(
-        new NotFoundException(`Business with ID ${businessId} not found for user ${userId}`)
+      await expect(
+        service.findBusinessAndValidateOwnership(businessId, userId),
+      ).rejects.toThrow(
+        new NotFoundException(
+          `Business with ID ${businessId} not found for user ${userId}`,
+        ),
       );
     });
 
@@ -355,9 +424,9 @@ describe('BusinessService', () => {
       businessRepository.findBusinessById.mockResolvedValue(business);
 
       // Act & Assert
-      await expect(service.findBusinessAndValidateOwnership(businessId, userId)).rejects.toThrow(
-        ForbiddenException
-      );
+      await expect(
+        service.findBusinessAndValidateOwnership(businessId, userId),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 

@@ -10,17 +10,18 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
+import { ServiceDescription } from '../interfaces/service-description.interface';
+import { ActionDetails } from '../interfaces/action-details.interface';
 
-export enum PriceType {
-  FIXED = 'fixed',
-  VARIABLE = 'variable',
-  STARTING = 'starting',
-}
-
-export enum DurationUnit {
-  MINUTES = 'minutes',
-  HOURS = 'hours',
+export enum ACTION_TYPE {
+  BOOKING_SYSTEM = 'BOOKING_SYSTEM',
+  EMBEDDED = 'EMBEDDED',
+  CTA = 'CTA',
+  E_COMMERCE = 'E_COMMERCE',
+  CONTACT_FORM = 'CONTACT_FORM',
 }
 
 @Entity('service_offerings')
@@ -40,47 +41,17 @@ export class ServiceOffering {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  description: string;
-
-  @Column('text', { nullable: true })
-  detailedDescription: string;
-
-  @Column('simple-array', { nullable: true })
-  includedServices: string[];
-
-  @Column('simple-array', { nullable: true })
-  benefits: string[];
-
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
-  price: number;
-
-  @Column({
-    type: 'enum',
-    enum: PriceType,
-    default: PriceType.FIXED,
-  })
-  priceType: PriceType;
-
-  @Column('integer')
-  durationMinutes: number;
-
-  @Column({
-    type: 'enum',
-    enum: DurationUnit,
-    default: DurationUnit.MINUTES,
-    nullable: true,
-  })
-  durationUnit: DurationUnit;
-
-  @Column({ type: 'text', nullable: true })
-  durationNote: string;
-
-  @Column({ type: 'text', nullable: true })
-  warranty: string;
-
-  @Column({ type: 'text', nullable: true })
+  @Column()
   category: string;
+
+  @Column({ type: 'enum', enum: ACTION_TYPE })
+  actionType: ACTION_TYPE;
+
+  @Column({ type: 'jsonb' })
+  actionDetails: ActionDetails;
+
+  @Column({ type: 'jsonb' })
+  description: ServiceDescription;
 
   @Column('integer', { default: 1 })
   capacity: number;
@@ -96,4 +67,14 @@ export class ServiceOffering {
 
   @OneToMany(() => Booking, (booking) => booking.serviceOffering)
   bookings: Booking[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  validateActionDetails() {
+    if (this.actionDetails.type !== this.actionType) {
+      throw new Error(
+        `ActionDetails type "${this.actionDetails.type}" does not match actionType "${this.actionType}"`,
+      );
+    }
+  }
 }

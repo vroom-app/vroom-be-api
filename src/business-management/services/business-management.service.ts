@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BusinessService } from 'src/business/services/business.service';
-import { ServiceOfferingService } from 'src/service-offering/service-offering.service';
+import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 import {
   CreateBusinessDto,
   UpdateBusinessDto,

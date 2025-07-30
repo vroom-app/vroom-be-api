@@ -18,10 +18,20 @@ export class S3ClientService {
   private readonly logger = new Logger(S3ClientService.name);
 
   constructor(private readonly configService: ConfigService) {
-    const region = this.configService.get<string>('aws.region', { infer: true });
-    const accessKeyId = this.configService.getOrThrow<string>('aws.credentials.accessKeyId', { infer: true });
-    const secretAccessKey = this.configService.getOrThrow<string>('aws.credentials.secretAccessKey', { infer: true });
-    this.bucketName = this.configService.get<string>('aws.bucketName', { infer: true });
+    const region = this.configService.get<string>('aws.region', {
+      infer: true,
+    });
+    const accessKeyId = this.configService.getOrThrow<string>(
+      'aws.credentials.accessKeyId',
+      { infer: true },
+    );
+    const secretAccessKey = this.configService.getOrThrow<string>(
+      'aws.credentials.secretAccessKey',
+      { infer: true },
+    );
+    this.bucketName = this.configService.get<string>('aws.bucketName', {
+      infer: true,
+    });
 
     this.s3 = new S3Client({
       region,

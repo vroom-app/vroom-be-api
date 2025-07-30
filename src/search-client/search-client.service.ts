@@ -16,11 +16,13 @@ export class SearchClientService {
    */
   async upsertBusiness(payload: SearchBusinessPayload): Promise<void> {
     console.log('upsertBusiness payload', payload);
-    try{ 
+    try {
       await this.http.put('/search/businesses/sync', payload);
     } catch (error) {
-      this.logger.error(`Failed to upsert business ${payload.id} in search engine`)
-    };
+      this.logger.error(
+        `Failed to upsert business ${payload.id} in search engine`,
+      );
+    }
     this.logger.debug(`Upserted business ${payload.id}`);
   }
 }

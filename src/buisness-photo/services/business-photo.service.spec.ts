@@ -1,11 +1,14 @@
-import { BusinessService } from "src/business/services/business.service";
-import { BusinessPhotoService } from "./business-photo.service";
-import { S3Service } from "src/s3/services/s3.service";
-import { FileUpload } from "../interfaces/business-photo.interface";
-import { Logger } from "@nestjs/common";
-import { Test, TestingModule } from "@nestjs/testing";
-import { User } from "src/users/entities/user.entity";
-import { Business, BusinessCategory } from "src/business/entities/business.entity";
+import { BusinessService } from 'src/business/services/business.service';
+import { BusinessPhotoService } from './business-photo.service';
+import { S3Service } from 'src/s3/services/s3.service';
+import { FileUpload } from '../interfaces/business-photo.interface';
+import { Logger } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { User } from 'src/users/entities/user.entity';
+import {
+  Business,
+  BusinessCategory,
+} from 'src/business/entities/business.entity';
 
 describe('BusinessPhotoService', () => {
   let service: BusinessPhotoService;
@@ -77,7 +80,9 @@ describe('BusinessPhotoService', () => {
     }).compile();
 
     service = module.get(BusinessPhotoService);
-    businessService = module.get(BusinessService) as jest.Mocked<BusinessService>;
+    businessService = module.get(
+      BusinessService,
+    ) as jest.Mocked<BusinessService>;
     s3Service = module.get(S3Service) as jest.Mocked<S3Service>;
 
     logger = {
@@ -109,13 +114,16 @@ describe('BusinessPhotoService', () => {
 
       businessService.updateBusinessPhotos.mockResolvedValue({} as Business);
 
-      const result = await service.uploadPictures(businessId, userId, mockFiles);
-
-      expect(s3Service.uploadFile).toHaveBeenCalledTimes(2);
-      expect(businessService.findBusinessAndValidateOwnership).toHaveBeenCalledWith(
+      const result = await service.uploadPictures(
         businessId,
         userId,
+        mockFiles,
       );
+
+      expect(s3Service.uploadFile).toHaveBeenCalledTimes(2);
+      expect(
+        businessService.findBusinessAndValidateOwnership,
+      ).toHaveBeenCalledWith(businessId, userId);
       expect(businessService.updateBusinessPhotos).toHaveBeenCalledWith(
         businessId,
         {
@@ -143,7 +151,11 @@ describe('BusinessPhotoService', () => {
 
       businessService.updateBusinessPhotos.mockResolvedValue({} as Business);
 
-      const result = await service.uploadPictures(businessId, userId, mockFiles);
+      const result = await service.uploadPictures(
+        businessId,
+        userId,
+        mockFiles,
+      );
 
       expect(businessService.updateBusinessPhotos).toHaveBeenCalledWith(
         businessId,
@@ -166,9 +178,9 @@ describe('BusinessPhotoService', () => {
         additionalPhotos: [],
       });
 
-      await expect(service.uploadPictures(businessId, userId, [])).rejects.toThrow(
-            new Error('At least one picture file is required')
-            );
+      await expect(
+        service.uploadPictures(businessId, userId, []),
+      ).rejects.toThrow(new Error('At least one picture file is required'));
 
       expect(s3Service.uploadFile).not.toHaveBeenCalled();
       expect(businessService.updateBusinessPhotos).not.toHaveBeenCalled();
