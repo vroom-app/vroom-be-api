@@ -10,15 +10,19 @@ import { ACTION_TYPE } from '../entities/service-offering.entity';
 import { ActionDetails } from '../interfaces/action-details.interface';
 import { ServiceDescription } from '../interfaces/service-description.interface';
 import { Transform, Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateServiceOfferingDto {
   @IsString()
+  @ApiProperty()
   name: string;
 
   @IsString()
+    @ApiProperty()
   category: string;
 
   @IsEnum(ACTION_TYPE)
+  @ApiProperty()
   actionType: ACTION_TYPE;
 
   @IsObject()
@@ -40,12 +44,15 @@ export class CreateServiceOfferingDto {
         return value;
     }
   })
+  @ApiProperty()
   actionDetails: ActionDetails;
 
   @IsObject()
+  @ApiProperty()
   description: ServiceDescription;
 
   @IsOptional()
   @IsNumber()
+  @ApiProperty()
   capacity?: number;
 }

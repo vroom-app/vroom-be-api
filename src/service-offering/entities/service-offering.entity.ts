@@ -49,7 +49,7 @@ export class ServiceOffering {
   actionType: ACTION_TYPE;
 
   @Column({ type: 'jsonb' })
-  actionDetails?: ActionDetails;
+  actionDetails: ActionDetails;
 
   @Column({ type: 'jsonb' })
   description: ServiceDescription;

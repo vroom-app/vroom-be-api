@@ -3,7 +3,7 @@ import { BusinessCategory } from 'src/business/entities/business.entity';
 import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 
 export class BusinessProfileDto {
-  @ApiProperty({ example: 1 })
+  @ApiProperty()
   id: string;
 
   @ApiProperty({ example: 'Service Name' })
