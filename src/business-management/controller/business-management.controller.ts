@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Request,
@@ -14,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
-import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import {
   CreateBusinessDto,
   UpdateBusinessDto,
@@ -25,7 +23,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { BusinessManagementService } from '../services/business-management.service';
 
 @ApiTags('Business Management')
@@ -34,8 +31,6 @@ export class BusinessManagementController {
   constructor(
     private readonly businessManagementService: BusinessManagementService,
   ) {}
-
-  // ── BUSINESS ──────────────────────────────────────────────────────
 
   @Get(':businessId')
   @ApiOperation({ summary: 'Get a business profile by ID' })
@@ -83,47 +78,6 @@ export class BusinessManagementController {
     );
   }
 
-  // ── SERVICES ──────────────────────────────────────────────────────
-
-  @UseGuards(JwtAuthGuard)
-  @Post(':businessId')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Add service offerings to a business' })
-  @ApiResponse({
-    status: 201,
-    description: 'Service offerings added successfully',
-  })
-  async addServiceOfferings(
-    @Param('businessId') businessId: string,
-    @Body() createServiceOfferingDto: CreateServiceOfferingDto[],
-    @Request() req,
-  ): Promise<ServiceOfferingDto[]> {
-    return this.businessManagementService.addBusinessServiceOfferings(
-      req.user.id,
-      businessId,
-      createServiceOfferingDto,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch(':businessId/:serviceId')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update service offerings for a business' })
-  @ApiResponse({ status: 200, description: 'Services updated successfully' })
-  async updateServiceOfferings(
-    @Param('businessId') businessId: string,
-    @Param('serviceId') serviceId: number,
-    @Body() updateData: Partial<CreateServiceOfferingDto>,
-    @Request() req,
-  ): Promise<ServiceOfferingDto> {
-    return this.businessManagementService.updateBusinessService(
-      req.user.id,
-      businessId,
-      serviceId,
-      updateData,
-    );
-  }
-
   @UseGuards(JwtAuthGuard)
   @Delete(':businessId')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -137,29 +91,6 @@ export class BusinessManagementController {
     await this.businessManagementService.deleteBusinessAndServices(
       businessId,
       req.user.id,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete(':businessId/:serviceId')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Delete a specific service offering from a business',
-  })
-  @ApiResponse({
-    status: 204,
-    description: 'Service offering deleted successfully',
-  })
-  async deleteService(
-    @Param('businessId') businessId: string,
-    @Param('serviceId', ParseIntPipe) serviceId: number,
-    @Request() req,
-  ): Promise<void> {
-    await this.businessManagementService.deleteServiceOffering(
-      req.user.id,
-      businessId,
-      serviceId,
     );
   }
 }

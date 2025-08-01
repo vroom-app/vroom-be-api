@@ -21,6 +21,6 @@ export class BookingCreationService {
     createBookingDto: CreateBookingDto,
     userId?: number,
   ): Promise<Booking> {
-    throw Error("not implemented");
+    throw Error('not implemented');
   }
 }

@@ -9,6 +9,13 @@ export class S3Service {
 
   constructor(private readonly s3Client: S3ClientService) {}
 
+  /**
+   *
+   * @param buffer
+   * @param originalName
+   * @param folder
+   * @returns
+   */
   async uploadFile(
     buffer: Buffer,
     originalName: string,
@@ -36,6 +43,6 @@ export class S3Service {
 
   private extractKeyFromUrl(url: string): string {
     const urlParts = url.split('/');
-    return urlParts.slice(-2).join('/'); // Get the last two parts (folder/filename)
+    return urlParts.slice(-2).join('/'); // get (folder/filename)
   }
 }

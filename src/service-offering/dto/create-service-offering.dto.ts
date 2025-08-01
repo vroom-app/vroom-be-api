@@ -18,7 +18,7 @@ export class CreateServiceOfferingDto {
   name: string;
 
   @IsString()
-    @ApiProperty()
+  @ApiProperty()
   category: string;
 
   @IsEnum(ACTION_TYPE)
@@ -48,8 +48,9 @@ export class CreateServiceOfferingDto {
   actionDetails: ActionDetails;
 
   @IsObject()
+  @IsOptional()
   @ApiProperty()
-  description: ServiceDescription;
+  description?: ServiceDescription;
 
   @IsOptional()
   @IsNumber()

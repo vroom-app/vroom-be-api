@@ -12,6 +12,7 @@ export class SearchClientService {
 
   /**
    * Upsert a business in the search engine. The service api ensures that payload includes the id of the business.
+   * // TODO add retry on specific error (check error)
    * @param payload
    */
   async upsertBusiness(payload: SearchBusinessPayload): Promise<void> {

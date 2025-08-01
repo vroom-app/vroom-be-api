@@ -75,6 +75,10 @@ export class S3ClientService {
     }
   }
 
+  /**
+   *
+   * @param key
+   */
   async deleteFile(key: string): Promise<void> {
     try {
       await this.s3.send(
@@ -89,7 +93,12 @@ export class S3ClientService {
     }
   }
 
-  getPublicUrl(key: string): string {
+  /**
+   *
+   * @param key
+   * @returns
+   */
+  public getPublicUrl(key: string): string {
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
   }
 }

@@ -22,7 +22,7 @@ export enum ACTION_TYPE {
   CTA = 'CTA',
   E_COMMERCE = 'E_COMMERCE',
   CONTACT_FORM = 'CONTACT_FORM',
-  NONE = "NONE"
+  NONE = 'NONE',
 }
 
 @Entity('service_offerings')

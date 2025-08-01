@@ -1,19 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BusinessService } from 'src/business/services/business.service';
-import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 import {
   CreateBusinessDto,
   UpdateBusinessDto,
 } from 'src/business/dto/business.dto';
-import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { Business } from 'src/business/entities/business.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { BusinessOpeningHoursService } from 'src/business/services/business-opening-hours.service';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
-import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
 import { BusinessMapper } from '../mapper/business.mapper';
+import { SearchBusinessPayload } from 'src/search-client/search-client.interface';
 
 @Injectable()
 export class BusinessManagementService {
@@ -21,7 +19,6 @@ export class BusinessManagementService {
 
   constructor(
     private readonly businessService: BusinessService,
-    private readonly serviceOfferingService: ServiceOfferingService,
     private readonly openingHoursService: BusinessOpeningHoursService,
     private readonly searchClient: SearchClientService,
   ) {}
@@ -65,36 +62,9 @@ export class BusinessManagementService {
         );
     }
 
-    await this.syncBusinessWithSearchEngine(savedBusiness, dto);
+    await this.syncBusinessWithSearchEngine(savedBusiness);
 
     return BusinessMapper.toBusinessProfileDto(savedBusiness);
-  }
-
-  /**
-   * Update a business and its associated services
-   *
-   * @param userId The ID of the user updating the business
-   * @param businessId The ID of the business to update
-   * @param createServiceOfferingDto The DTO containing service data
-   * @returns The updated business
-   * @throws NotFoundException if business doesn't exist
-   * @throws ForbiddenException if user is not the owner
-   */
-  async addBusinessServiceOfferings(
-    userId: number,
-    businessId: string,
-    createServiceOfferingDto: CreateServiceOfferingDto[],
-  ): Promise<ServiceOfferingDto[]> {
-    await this.businessService.findBusinessAndValidateOwnership(
-      businessId,
-      userId,
-    );
-
-    const serviceOfferings = await this.serviceOfferingService.createMultipleServices(
-      businessId,
-      createServiceOfferingDto,
-    );
-    return serviceOfferings.map(BusinessMapper.toServiceOfferingDto);
   }
 
   /**
@@ -124,6 +94,8 @@ export class BusinessManagementService {
       businessData,
     );
 
+    await this.syncBusinessWithSearchEngine(updatedBusiness);
+
     if (openingHours && openingHours.length > 0) {
       updatedBusiness.openingHours =
         await this.openingHoursService.updateForBusiness(
@@ -133,32 +105,6 @@ export class BusinessManagementService {
     }
 
     return BusinessMapper.toBusinessProfileDto(updatedBusiness);
-  }
-
-  /**
-   * Update multiple service offerings for a business
-   *
-   * @param userId The ID of the user updating the services
-   * @param businessId The ID of the business
-   * @param serviceId The ID of the service
-   * @param updateBusinessServicesDto The DTO containing service update data
-   * @returns The updated service offerings
-   * @throws NotFoundException if business/service doesn't exist
-   * @throws ForbiddenException if user is not the owner
-   */
-  async updateBusinessService(
-    userId: number,
-    businessId: string,
-    serviceId: number,
-    updateData: Partial<CreateServiceOfferingDto>,
-  ): Promise<ServiceOfferingDto> {
-    this.logger.debug(`Update service offering ${serviceId} for business ${businessId}`)
-    await this.businessService.findBusinessServiceAndValidateOwnership(
-      businessId,
-      serviceId,
-      userId,
-    );
-    return BusinessMapper.toServiceOfferingDto(await this.serviceOfferingService.update(serviceId, updateData));
   }
 
   /**
@@ -191,32 +137,6 @@ export class BusinessManagementService {
   }
 
   /**
-   * Delete a {@link ServiceOffering}
-   *
-   * @param userId The ID of the user
-   * @param businessId The ID of the business to which the service offering belongs
-   * @param serviceOfferingId The ID of the service offering to delete
-   * @param updateServiceOfferingDto The DTO containing updated service data
-   * @throws NotFoundException if business doesn't exist
-   * @returns The updated service offering
-   */
-  async deleteServiceOffering(
-    userId: number,
-    businessId: string,
-    serviceId: number,
-  ): Promise<boolean> {
-    await this.businessService.findBusinessServiceAndValidateOwnership(
-      businessId,
-      serviceId,
-      userId,
-    );
-
-    return await this.serviceOfferingService.deleteServiceById(
-      serviceId,
-    );
-  }
-
-  /**
    * Delete {@link Business} and its {@link ServiceOffering} and {@link BusinessOpeningHours}
    *
    * @param id The ID of the business to delete
@@ -233,20 +153,17 @@ export class BusinessManagementService {
     return await this.businessService.deleteBusinessById(businessId);
   }
 
-  private async syncBusinessWithSearchEngine(
-    savedBusiness: Business,
-    dto: CreateBusinessDto,
-  ) {
-    const payload = {
-      id: dto.searchEngineId ?? savedBusiness.id,
-      name: dto.name,
-      name_en: dto.nameEn,
-      address: dto.address,
-      latitude: dto.latitude,
-      longitude: dto.longitude,
-      categories: dto.categories ?? [],
-      specializations: dto.specializations ?? [],
-      city: dto.city,
+  private async syncBusinessWithSearchEngine(savedBusiness: Business) {
+    const payload: SearchBusinessPayload = {
+      id: savedBusiness.id,
+      name: savedBusiness.name,
+      name_en: savedBusiness.name,
+      address: savedBusiness.address,
+      latitude: savedBusiness.latitude,
+      longitude: savedBusiness.longitude,
+      categories: savedBusiness.categories ?? [],
+      specializations: savedBusiness.specializations ?? [],
+      city: savedBusiness.city,
     };
     await this.searchClient.upsertBusiness(payload);
   }

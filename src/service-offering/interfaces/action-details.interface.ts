@@ -60,8 +60,7 @@ export interface EmbeddedActionDetails {
 
 export interface CTAActionDetails {
   type: ACTION_TYPE.CTA;
-  buttonText: string;
-  buttonColor?: string;
+  buttonText: string; // handle in FE
   redirectUrl: string;
   openInNewTab: boolean;
   trackingParameters?: Record<string, string>;

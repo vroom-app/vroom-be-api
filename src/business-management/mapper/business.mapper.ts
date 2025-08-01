@@ -50,7 +50,7 @@ export class BusinessMapper {
         tiktok: business.tiktok,
       },
       openingHours: business.openingHours?.map(this.toOpeningHourDto),
-      services: business.serviceOfferings?.map(this.toServiceOfferingDto)
+      services: business.serviceOfferings?.map(this.toServiceOfferingDto),
     };
   }
 

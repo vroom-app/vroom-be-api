@@ -226,7 +226,9 @@ export class BusinessService {
     userId: number,
   ): Promise<Business> {
     const business = assertEntityPresent(
-      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById(businessId),
+      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById(
+        businessId,
+      ),
       `Business with ID ${businessId} not found for user ${userId}`,
     );
     assertServiceOwnership(

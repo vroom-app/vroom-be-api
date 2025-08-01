@@ -29,7 +29,7 @@ export class ServiceOfferingDto {
 
   @ApiProperty()
   capacity: number;
-  
+
   @ApiProperty()
   createdAt: Date;
 }

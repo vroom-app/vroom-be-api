@@ -17,3 +17,6 @@ import { BusinessRepository } from './repositories/business.repository';
   exports: [BusinessService, BusinessOpeningHoursService],
 })
 export class BusinessModule {}
+
+// user -> n business -> n service oferings -> n slot -> 1 booking // biz
+// user -> n cars -> vignete,
