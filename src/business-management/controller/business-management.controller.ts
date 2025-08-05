@@ -19,7 +19,9 @@ import {
 } from 'src/business/dto/business.dto';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -34,7 +36,16 @@ export class BusinessManagementController {
 
   @Get(':businessId')
   @ApiOperation({ summary: 'Get a business profile by ID' })
-  @ApiResponse({ status: 200, description: 'Business profile returned' })
+  @ApiParam({
+    name: 'businessId',
+    description: 'The UUID of the business',
+    example: 'eb9a85b0-ae52-4b4a-9d72-9cfc80b3138c',
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Business profile returned',
+    type: [BusinessProfileDto],
+  })
   async getBusinessDetails(
     @Param('businessId') businessId: string,
   ): Promise<BusinessProfileDto> {
@@ -47,7 +58,15 @@ export class BusinessManagementController {
   @ApiOperation({
     summary: 'Create a new business.',
   })
-  @ApiResponse({ status: 201, description: 'Business created successfully' })
+  @ApiBody({
+    type: [CreateBusinessDto],
+    description: 'Business data to be created',
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Business created successfully',
+    type: [BusinessProfileDto],
+  })
   async CreateBusiness(
     @Body() createBusinessDto: CreateBusinessDto,
     @Request() req,
@@ -62,9 +81,19 @@ export class BusinessManagementController {
   @Patch(':businessId/details')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update business details' })
+  @ApiParam({
+    name: 'businessId',
+    description: 'The UUID of the business',
+    example: 'eb9a85b0-ae52-4b4a-9d72-9cfc80b3138c',
+  })
+  @ApiBody({
+    type: [UpdateBusinessDto],
+    description: 'Business data to be updated',
+  })
   @ApiResponse({
     status: 200,
     description: 'Business details updated successfully',
+    type: [BusinessProfileDto],
   })
   async updateBusinessDetails(
     @Param('businessId') businessId: string,
@@ -83,7 +112,15 @@ export class BusinessManagementController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a business and its services' })
-  @ApiResponse({ status: 204, description: 'Business deleted successfully' })
+  @ApiParam({
+    name: 'businessId',
+    description: 'The UUID of the business',
+    example: 'eb9a85b0-ae52-4b4a-9d72-9cfc80b3138c',
+  })
+  @ApiResponse({ 
+    status: 204, 
+    description: 'Business deleted successfully'
+  })
   async deleteBusiness(
     @Param('businessId') businessId: string,
     @Request() req,

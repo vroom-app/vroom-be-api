@@ -19,7 +19,6 @@ import { BusinessOpeningHours } from './business/entities/business-opening-hours
 import { BusinessManagementModule } from './business-management/business-manager.module';
 import { Car } from './car/entities/car.entity';
 import { CarModule } from './car/car.module';
-import { BusinessPhotoController } from './buisness-photo/controllers/business-photo.controller';
 import { BusinessPhotoModule } from './buisness-photo/business-photo.module';
 
 @Module({

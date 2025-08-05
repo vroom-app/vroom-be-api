@@ -4,4 +4,5 @@ export interface ServiceDescription {
   detailedDescription?: string;
   includedServices?: string[];
   warranty?: string;
+  price?: string; 
 }
