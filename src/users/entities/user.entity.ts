@@ -9,6 +9,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 
 export enum UserRole {
@@ -81,7 +82,7 @@ export class User {
   @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
 
-  @OneToMany(() => Car, (car) => car.user)
+  @ManyToMany(() => Car, (car) => car.users)
   cars: Car[];
 
   @CreateDateColumn({ name: 'created_at' })

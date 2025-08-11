@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CreateCarDto } from './dto/create-car.dto';
 import { Car } from './entities/car.entity';
-import { CarService } from './services/car.service';
+import { CarService } from './car.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   ApiBearerAuth,
@@ -27,6 +27,18 @@ import { CarResponseDto } from './dto/car.dto';
 export class CarController {
   constructor(private readonly carService: CarService) {}
 
+  @Get()
+  @ApiOperation({ summary: 'Get all cars for the logged-in user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of user cars',
+    type: [CarResponseDto],
+  })
+  async findAllUserCars(@Request() req): Promise<CarResponseDto[]> {
+    const userId = req.user.userId;
+    return this.carService.findAllByUser(userId);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create a new car for the logged-in user' })
   @ApiResponse({
@@ -40,18 +52,6 @@ export class CarController {
   ): Promise<CarResponseDto> {
     const userId = req.user.userId;
     return this.carService.create(createCarDto, userId);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get all cars for the logged-in user' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of user cars',
-    type: [CarResponseDto],
-  })
-  async findAllUserCars(@Request() req): Promise<CarResponseDto[]> {
-    const userId = req.user.userId;
-    return this.carService.findAllByUser(userId);
   }
 
   @Delete(':id')
