@@ -1,5 +1,4 @@
 import { User } from 'src/users/entities/user.entity';
-import { CarFuel } from './car-fuel';
 
 import {
   Entity,
@@ -15,6 +14,7 @@ import { ExpenseHistory } from '../expense-history/entities/expense-history.enti
 import { TireHistory } from '../tire-history/entities/tire-history.entity';
 import { ServiceHistory } from '../service-history/entities/service-history.entity';
 import { CarReminder } from '../reminders/entities/reminder.entity';
+import { CarFuel, CarType } from './car.enums';
 
 @Entity('cars')
 export class Car {
@@ -32,12 +32,11 @@ export class Car {
 
   // ── OPTIONAL ────────────────────────────────────────────────────────
 
-
   @Column({ nullable: true })
   year?: number;
 
-  @Column({ nullable: true })
-  type?: string;
+  @Column({ type: 'enum', enum: CarType, default: CarType.Other })
+  type: CarType;
 
   @Column({ nullable: true, unique: true })
   vin?: string;

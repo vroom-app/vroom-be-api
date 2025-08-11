@@ -4,11 +4,12 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { CreateCarDto } from './dto/create-car.dto';
+import { CreateCarDto, UpdateCarDto } from './dto/create-car.dto';
 import { Car } from './entities/car.entity';
 import { CarService } from './car.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -51,7 +52,23 @@ export class CarController {
     @Body() createCarDto: CreateCarDto,
   ): Promise<CarResponseDto> {
     const userId = req.user.userId;
-    return this.carService.create(createCarDto, userId);
+    return this.carService.createCar(userId, createCarDto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a car by ID for the logged-in user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Car updated successfully',
+    type: CarResponseDto,
+  })
+  async update(
+    @Request() req,
+    @Param('id') carId: string,
+    @Body() updateCarDto: UpdateCarDto,
+  ): Promise<CarResponseDto> {
+    const userId = req.user.userId;
+    return this.carService.update(carId, userId, updateCarDto);
   }
 
   @Delete(':id')

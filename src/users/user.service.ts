@@ -22,7 +22,7 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findOne(id: number): Promise<User> {
+  async findById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -88,6 +88,6 @@ export class UserService {
 
   async update(id: number, updateData: Partial<User>): Promise<User> {
     await this.usersRepository.update(id, updateData);
-    return this.findOne(id);
+    return this.findById(id);
   }
 }

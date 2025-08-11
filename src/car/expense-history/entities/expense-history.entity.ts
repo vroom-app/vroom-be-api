@@ -1,4 +1,5 @@
 import { Car } from "src/car/entities/car.entity";
+import { ExpenseType } from "src/car/entities/car.enums";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('expense_history')
@@ -9,8 +10,8 @@ export class ExpenseHistory {
   @Column({ type: 'date' })
   date: Date;
 
-  @Column()
-  type: string;
+  @Column({ type: 'enum', enum: ExpenseType, default: ExpenseType.Other })
+  type: ExpenseType;
 
   @Column('decimal', { precision: 10, scale: 2 })
   amount: number;

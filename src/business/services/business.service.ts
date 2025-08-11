@@ -127,7 +127,6 @@ export class BusinessService {
     photosDto: UpdateBusinessPhotosDto,
   ): Promise<Business> {
     this.logger.log(`Updating photos for business ID: ${businessId}`);
-    this.logger.debug(`Photos DTO: ${JSON.stringify(photosDto)}`);
     // Update only photo fields
     const updateData: Partial<Business> = {};
     if (photosDto.logoUrl !== undefined) updateData.logoUrl = photosDto.logoUrl;
