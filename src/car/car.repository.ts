@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Car } from "./entities/car.entity";
 import { DeleteResult, Repository, UpdateResult } from "typeorm";
-import { CreateCarDto } from "./dto/create-car.dto";
 import { assertEntityPresent } from "src/common/utils/assertEntity";
 
 @Injectable()
@@ -22,17 +21,22 @@ export class CarRepository {
     /**
      * Finds a car entity by its ID and owner ID.
      * @param id - The ID of the car to be found.
-     * @param ownerId - The ID of the owner to check ownership.
+     * @param userId - The ID of the owner to check ownership.
      * @returns A promise that resolves to the found car entity or null if not found.
      * @throws NotFoundException if the car does not exist for the given owner.
      */
-    async findUserCarById(id: string, ownerId: number): Promise<Car | null> {
+    async findUserCarById(id: string, userId: number): Promise<Car | null> {
         return await this.carRepository
             .createQueryBuilder('car')
-            .innerJoin('car.users', 'user', 'user.id = :ownerId', { ownerId })
+            .leftJoinAndSelect('car.users', 'users')
+            .leftJoinAndSelect('car.reminders', 'reminders')
+            .leftJoinAndSelect('car.serviceHistory', 'serviceHistory')
+            .leftJoinAndSelect('car.tireHistory', 'tireHistory')
+            .leftJoinAndSelect('car.expenseHistory', 'expenseHistory')
             .where('car.id = :id', { id })
+            .andWhere('EXISTS (SELECT 1 FROM car_users cu WHERE cu.car_id = car.id AND cu.user_id = :userId)', { userId })
             .getOne();
-    }   
+    }
 
     /**
      * Finds all cars associated with a specific user.
@@ -40,9 +44,14 @@ export class CarRepository {
      * @returns A promise that resolves to an array of car entities.
      */
     async findAllByUser(userId: number): Promise<Car[]> {
-        return await this.carRepository
+        return this.carRepository
             .createQueryBuilder('car')
             .innerJoin('car.users', 'user', 'user.id = :userId', { userId })
+            .leftJoinAndSelect('car.users', 'users')
+            .leftJoinAndSelect('car.reminders', 'reminders')
+            .leftJoinAndSelect('car.serviceHistory', 'serviceHistory')
+            .leftJoinAndSelect('car.tireHistory', 'tireHistory')
+            .leftJoinAndSelect('car.expenseHistory', 'expenseHistory')
             .getMany();
     }
 
@@ -69,5 +78,12 @@ export class CarRepository {
      */
     async updateCar(id: string, car: Partial<Car>): Promise<UpdateResult> {
         return await this.carRepository.update(id, car);
+    }
+
+    async countByUserId(ownerId: number) {
+        return await this.carRepository
+            .createQueryBuilder('car')
+            .innerJoin('car.users', 'user', 'user.id = :ownerId', { ownerId })
+            .getCount();
     }
 }

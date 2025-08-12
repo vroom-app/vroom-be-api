@@ -36,7 +36,7 @@ export class CarController {
     type: [CarResponseDto],
   })
   async findAllUserCars(@Request() req): Promise<CarResponseDto[]> {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     return this.carService.findAllByUser(userId);
   }
 
@@ -51,7 +51,7 @@ export class CarController {
     @Request() req,
     @Body() createCarDto: CreateCarDto,
   ): Promise<CarResponseDto> {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     return this.carService.createCar(userId, createCarDto);
   }
 
@@ -67,7 +67,7 @@ export class CarController {
     @Param('id') carId: string,
     @Body() updateCarDto: UpdateCarDto,
   ): Promise<CarResponseDto> {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     return this.carService.update(carId, userId, updateCarDto);
   }
 
@@ -75,7 +75,7 @@ export class CarController {
   @ApiOperation({ summary: 'Delete a car by ID for the logged-in user' })
   @ApiResponse({ status: 200, description: 'Car deleted successfully' })
   async deleteById(@Request() req, @Param('id') carId: string): Promise<void> {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     await this.carService.deleteById(carId, userId);
   }
 }

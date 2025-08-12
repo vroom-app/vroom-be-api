@@ -4,10 +4,12 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ErrorDto } from '../dto/error.dto';
 import { ApiResponse } from '../interfaces/api-response.interface';
+import { Not } from 'typeorm';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -18,7 +20,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let status: number;
     let errorDto: ErrorDto;
 
-    if (exception instanceof HttpException) {
+    if (exception instanceof HttpException || exception instanceof NotFoundException) {
       status = exception.getStatus();
       const res = exception.getResponse() as
         | string
@@ -38,7 +40,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       errorDto = {
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'An unexpected error occurred.',
+        message: `An unexpected error occurred}`,
       };
     }
 
