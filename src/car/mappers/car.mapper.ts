@@ -1,4 +1,4 @@
-import { CarResponseDto } from "../dto/car.dto";
+import { CarResponseDto } from "../dto/car-response.dto";
 import { Car } from '../entities/car.entity';
 
 export class CarMapper {

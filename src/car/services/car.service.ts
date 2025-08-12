@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 import { Car } from '../entities/car.entity';
 import { CarRepository } from '../car.repository';
-import { CreateCarDto, UpdateCarDto } from '../dto/create-car.dto';
+import { CreateCarDto, UpdateCarDto } from '../dto/car-management.dto';
 import { UserService } from 'src/users/user.service';
 import { assertEntityPresent } from 'src/common/utils/assertEntity';
 import { assertAffected } from 'src/common/utils/assertAffected';
 import { CarMapper } from '../mappers/car.mapper';
-import { CarResponseDto } from '../dto/car.dto';
+import { CarResponseDto } from '../dto/car-response.dto';
 import { AppException } from 'src/common/dto/error.dto';
 
 @Injectable()

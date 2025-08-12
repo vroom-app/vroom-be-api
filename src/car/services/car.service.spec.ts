@@ -5,7 +5,7 @@ import { UserService } from 'src/users/user.service';
 import { AppException } from 'src/common/dto/error.dto';
 import { CarMapper } from '../mappers/car.mapper';
 import { Car } from '../entities/car.entity';
-import { CreateCarDto, UpdateCarDto } from '../dto/create-car.dto';
+import { CreateCarDto, UpdateCarDto } from '../dto/car-management.dto';
 import { assertEntityPresent } from 'src/common/utils/assertEntity';
 import { assertAffected } from 'src/common/utils/assertAffected';
 import { UpdateResult } from 'typeorm';
