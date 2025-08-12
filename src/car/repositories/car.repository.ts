@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Car } from "./entities/car.entity";
+import { Car } from "../entities/car.entity";
 import { DeleteResult, Repository, UpdateResult } from "typeorm";
 import { assertEntityPresent } from "src/common/utils/assertEntity";
 

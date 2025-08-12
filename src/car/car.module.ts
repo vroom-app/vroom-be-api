@@ -8,7 +8,7 @@ import { TireHistoryModule } from './tire-history/tire-history.module';
 import { ServiceHistoryModule } from './service-history/service-history.module';
 import { CarReminderModule } from './reminders/reminders.module';
 import { ExpenseHistoryModule } from './expense-history/expense-history.module';
-import { CarRepository } from './car.repository';
+import { CarRepository } from './repositories/car.repository';
 
 @Module({
   imports: [

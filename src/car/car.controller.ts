@@ -14,10 +14,16 @@ import { Car } from './entities/car.entity';
 import { CarService } from './services/car.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CarResponseDto } from './dto/car-response.dto';
 
@@ -30,11 +36,12 @@ export class CarController {
 
   @Get()
   @ApiOperation({ summary: 'Get all cars for the logged-in user' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of user cars',
-    type: [CarResponseDto],
+  @ApiOkResponse({
+    description: 'List of cars owned by the authenticated user',
+    type: CarResponseDto,
+    isArray: true,
   })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async findAllUserCars(@Request() req): Promise<CarResponseDto[]> {
     const userId = req.user.id;
     return this.carService.findAllByUser(userId);
@@ -42,11 +49,13 @@ export class CarController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new car for the logged-in user' })
-  @ApiResponse({
-    status: 201,
+  @ApiBody({ type: CreateCarDto, description: 'Car update payload' })
+  @ApiCreatedResponse({
     description: 'Car created successfully',
-    type: Car,
+    type: CarResponseDto,
   })
+  @ApiBadRequestResponse({ description: 'Invalid car data' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(
     @Request() req,
     @Body() createCarDto: CreateCarDto,
@@ -57,11 +66,14 @@ export class CarController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a car by ID for the logged-in user' })
-  @ApiResponse({
-    status: 200,
+  @ApiBody({ type: UpdateCarDto, description: 'Car update payload' })
+  @ApiOkResponse({
     description: 'Car updated successfully',
     type: CarResponseDto,
   })
+  @ApiNotFoundResponse({ description: 'Car not found' })
+  @ApiBadRequestResponse({ description: 'Invalid update data' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async update(
     @Request() req,
     @Param('id') carId: string,
@@ -73,7 +85,9 @@ export class CarController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a car by ID for the logged-in user' })
-  @ApiResponse({ status: 200, description: 'Car deleted successfully' })
+  @ApiOkResponse({ description: 'Car deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Car not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteById(@Request() req, @Param('id') carId: string): Promise<void> {
     const userId = req.user.id;
     await this.carService.deleteById(carId, userId);

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CarService } from './car.service';
-import { CarRepository } from '../car.repository';
+import { CarRepository } from '../repositories/car.repository';
 import { UserService } from 'src/users/user.service';
 import { AppException } from 'src/common/dto/error.dto';
 import { CarMapper } from '../mappers/car.mapper';

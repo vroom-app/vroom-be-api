@@ -4,7 +4,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Car } from '../entities/car.entity';
-import { CarRepository } from '../car.repository';
+import { CarRepository } from '../repositories/car.repository';
 import { CreateCarDto, UpdateCarDto } from '../dto/car-management.dto';
 import { UserService } from 'src/users/user.service';
 import { assertEntityPresent } from 'src/common/utils/assertEntity';
