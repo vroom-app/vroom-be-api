@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { CreateCarDto, UpdateCarDto } from './dto/create-car.dto';
 import { Car } from './entities/car.entity';
-import { CarService } from './car.service';
+import { CarService } from './services/car.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   ApiBearerAuth,

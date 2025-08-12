@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Car } from './entities/car.entity';
 import { CarController } from './car.controller';
-import { CarService } from './car.service';
+import { CarService } from './services/car.service';
 import { UsersModule } from 'src/users/users.module';
 import { TireHistoryModule } from './tire-history/tire-history.module';
 import { ServiceHistoryModule } from './service-history/service-history.module';

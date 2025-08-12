@@ -3,14 +3,14 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { Car } from './entities/car.entity';
-import { CarRepository } from './car.repository';
-import { CreateCarDto, UpdateCarDto } from './dto/create-car.dto';
+import { Car } from '../entities/car.entity';
+import { CarRepository } from '../car.repository';
+import { CreateCarDto, UpdateCarDto } from '../dto/create-car.dto';
 import { UserService } from 'src/users/user.service';
 import { assertEntityPresent } from 'src/common/utils/assertEntity';
 import { assertAffected } from 'src/common/utils/assertAffected';
-import { CarMapper } from './car.mapper';
-import { CarResponseDto } from './dto/car.dto';
+import { CarMapper } from '../mappers/car.mapper';
+import { CarResponseDto } from '../dto/car.dto';
 import { AppException } from 'src/common/dto/error.dto';
 
 @Injectable()
