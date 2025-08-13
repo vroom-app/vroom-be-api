@@ -1,7 +1,7 @@
 import { Controller, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { TireHistoryService } from "./tire-history.service";
+import { TireHistoryService } from "./services/tire-history.service";
 
 @ApiTags('Tire History')
 @ApiBearerAuth()

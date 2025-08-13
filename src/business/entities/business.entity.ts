@@ -16,6 +16,7 @@ import { Review } from 'src/review/entities/review.entity';
 
 export enum BusinessCategory {
   CarWash = 'CarWash',
+  Mobile = 'Mobile',
   CarRepair = 'CarRepair',
   Parking = 'Parking',
   GasStation = 'GasStation',

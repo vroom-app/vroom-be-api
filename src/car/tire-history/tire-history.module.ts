@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TireHistory } from "./entities/tire-history.entity";
-import { TireHistoryService } from "./tire-history.service";
+import { TireHistoryService } from "./services/tire-history.service";
 import { TireHistoryController } from "./tire-history.controller";
 import { TireHistoryRepository } from "./tire-history.repository";
 

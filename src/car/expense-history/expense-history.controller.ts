@@ -1,7 +1,7 @@
 import { Controller, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { ExpenseHistoryService } from "./expense-history.service";
+import { ExpenseHistoryService } from "./services/expense-history.service";
 
 @ApiTags('Expense History')
 @ApiBearerAuth()

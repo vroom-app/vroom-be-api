@@ -10,12 +10,7 @@ export class CarMapper {
   static toCarResponseDto(car: Car): CarResponseDto {
     return {
       id: car.id,
-      owners: car.users.map(user => ({
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      })),
+      owners: this.mapOwners(car),
       brand: car.brand,
       model: car.model,
       year: car.year,
@@ -28,31 +23,16 @@ export class CarMapper {
       photo: car.photo,
       licensePlate: car.licensePlate,
       oilType: car.oilType,
-      vignetteExpiry: car.vignetteExpiry ? car.vignetteExpiry.toISOString() : undefined,
-      gtpExpiry: car.gtpExpiry ? car.gtpExpiry.toISOString() : undefined,
-      civilInsuranceExpiry: car.civilInsuranceExpiry ? car.civilInsuranceExpiry.toISOString() : undefined,
-      cascoExpiry: car.cascoExpiry ? car.cascoExpiry.toISOString() : undefined,
-      taxExpiry: car.taxExpiry ? car.taxExpiry.toISOString() : undefined,
+      vignetteExpiry: this.mapDate(car.vignetteExpiry),
+      gtpExpiry: this.mapDate(car.gtpExpiry),
+      civilInsuranceExpiry: this.mapDate(car.civilInsuranceExpiry),
+      cascoExpiry: this.mapDate(car.cascoExpiry),
+      taxExpiry: this.mapDate(car.taxExpiry),
       mileage: car.mileage,
-      reminders: car.reminders ? car.reminders.map(reminder => ({
-        type: reminder.type,
-        dueDate: reminder.dueDate.toISOString(),
-      })) : [],
-      serviceHistory: car.serviceHistory ? car.serviceHistory.map(service => ({
-        date: service.date.toISOString(),
-        mileage: service.mileage,
-        description: service.description,
-      })) : [],
-      tireHistory: car.tireHistory ? car.tireHistory.map(tire => ({
-        date: tire.date.toISOString(),
-        size: tire.size,
-        type: tire.type,
-      })) : [],
-      expenseHistory: car.expenseHistory ? car.expenseHistory.map(expense => ({
-        date: expense.date.toISOString(),
-        type: expense.type,
-        amount: expense.amount,
-      })) : [],
+      reminders: this.mapReminders(car),
+      serviceHistory: this.mapServiceHistory(car),
+      tireHistory: this.mapTireHistory(car),
+      expenseHistory: this.mapExpenseHistory(car),
     };
   }
 
@@ -63,5 +43,51 @@ export class CarMapper {
    */
   static toCarResponseDtoArray(cars: Car[]): CarResponseDto[] {
     return cars.map((car) => this.toCarResponseDto(car));
+  }
+
+  // ---------- Private mapping helpers ----------
+
+  private static mapOwners(car: Car) {
+    return car.users.map(user => ({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    }));
+  }
+
+  private static mapDate(date?: Date) {
+    return date ? date.toISOString() : undefined;
+  }
+
+  private static mapReminders(car: Car) {
+    return car.reminders?.map(reminder => ({
+      type: reminder.type,
+      dueDate: this.mapDate(reminder.dueDate),
+    })) ?? [];
+  }
+
+  private static mapServiceHistory(car: Car) {
+    return car.serviceHistory?.map(service => ({
+      date: this.mapDate(service.date)!,
+      mileage: service.mileage,
+      description: service.description,
+    })) ?? [];
+  }
+
+  private static mapTireHistory(car: Car) {
+    return car.tireHistory?.map(tire => ({
+      date: this.mapDate(tire.date)!,
+      size: tire.size,
+      type: tire.type,
+    })) ?? [];
+  }
+
+  private static mapExpenseHistory(car: Car) {
+    return car.expenseHistory?.map(expense => ({
+      date: this.mapDate(expense.date)!,
+      type: expense.type,
+      amount: expense.amount,
+    })) ?? [];
   }
 }

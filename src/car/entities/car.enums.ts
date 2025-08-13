@@ -20,24 +20,24 @@ export enum CarFuel {
 }
 
 export enum ReminderType {
-  Oil = 'Масло',
-  Filters = 'Филтри',
-  TireChange = 'Смяна на гуми',
-  Inspection = 'Технически преглед',
-  Other = 'Други',
+  Oil = 'Oil',
+  Filters = 'Filters',
+  TireChange = 'TireChange',
+  Inspection = 'Inspection',
+  Other = 'Other',
 }
 
 export enum ExpenseType {
-  Fuel = 'Гориво',
-  Repair = 'Ремонт',
-  Maintenance = 'Поддръжка',
-  Insurance = 'Застраховка',
-  Tax = 'Данък',
-  Other = 'Други',
+  Fuel = 'Fuel',
+  Repair = 'Repair',
+  Maintenance = 'Maintenance',
+  Insurance = 'Insurance',
+  Tax = 'Tax',
+  Other = 'Other',
 }
 
 export enum TireType {
-  Summer = 'Летни',
-  Winter = 'Зимни',
-  AllSeason = 'Всесезонни',
+  Summer = 'Summer',
+  Winter = 'Winter',
+  AllSeason = 'AllSeason',
 }

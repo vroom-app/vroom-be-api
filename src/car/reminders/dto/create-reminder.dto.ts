@@ -1,4 +1,6 @@
+import { ReminderType } from "src/car/entities/car.enums";
+
 export class CarReminderDto {
-  type: string;
-  dueDate: string;
+  type: ReminderType;
+  dueDate?: string;
 }
