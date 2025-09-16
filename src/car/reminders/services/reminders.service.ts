@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { CarReminderRepository } from "./reminders.repository";
+import { CarReminderRepository } from "../repositories/reminders.repository";
 
 @Injectable()
 export class CarReminderService {

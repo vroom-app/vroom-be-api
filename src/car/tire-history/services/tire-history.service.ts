@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { TireHistoryRepository } from "./tire-history.repository";
+import { TireHistoryRepository } from "../repositories/tire-history.repository";
 
 @Injectable()
 export class TireHistoryService {

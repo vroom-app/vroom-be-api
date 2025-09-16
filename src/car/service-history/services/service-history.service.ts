@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ServiceHistoryRepository } from "./service-history.repository";
+import { ServiceHistoryRepository } from "../repositories/service-history.repository";
 
 @Injectable()
 export class ServiceHistoryService {

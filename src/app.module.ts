@@ -20,10 +20,6 @@ import { BusinessManagementModule } from './business-management/business-manager
 import { Car } from './car/entities/car.entity';
 import { CarModule } from './car/car.module';
 import { BusinessPhotoModule } from './buisness-photo/business-photo.module';
-import { CarReminder } from './car/reminders/entities/reminder.entity';
-import { ExpenseHistory } from './car/expense-history/entities/expense-history.entity';
-import { ServiceHistory } from './car/service-history/entities/service-history.entity';
-import { TireHistory } from './car/tire-history/entities/tire-history.entity';
 
 @Module({
   imports: [
@@ -39,9 +35,13 @@ import { TireHistory } from './car/tire-history/entities/tire-history.entity';
         type: 'postgres',
         host: configService.get('database.host'),
         port: configService.get<number>('database.port'),
+
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
         entities: [
           Booking,
           BusinessOpeningHours,
@@ -51,10 +51,6 @@ import { TireHistory } from './car/tire-history/entities/tire-history.entity';
           Slot,
           User,
           Car,
-          CarReminder,
-          ExpenseHistory,
-          ServiceHistory,
-          TireHistory
         ],
         synchronize: process.env.NODE_ENV !== 'prod',
       }),
