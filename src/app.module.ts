@@ -20,6 +20,10 @@ import { BusinessManagementModule } from './business-management/business-manager
 import { Car } from './car/entities/car.entity';
 import { CarModule } from './car/car.module';
 import { BusinessPhotoModule } from './buisness-photo/business-photo.module';
+import { CarReminder } from './car/reminders/entities/reminder.entity';
+import { ServiceHistory } from './car/service-history/entities/service-history.entity';
+import { TireHistory } from './car/tire-history/entities/tire-history.entity';
+import { ExpenseHistory } from './car/expense-history/entities/expense-history.entity';
 
 @Module({
   imports: [
@@ -50,6 +54,10 @@ import { BusinessPhotoModule } from './buisness-photo/business-photo.module';
           ServiceOffering,
           Slot,
           User,
+          CarReminder,
+          ServiceHistory,
+          TireHistory,
+          ExpenseHistory,
           Car,
         ],
         synchronize: process.env.NODE_ENV !== 'prod',
