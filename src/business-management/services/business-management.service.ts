@@ -93,7 +93,6 @@ export class BusinessManagementService {
       businessId,
       businessData,
     );
-
     await this.syncBusinessWithSearchEngine(updatedBusiness);
 
     if (openingHours && openingHours.length > 0) {
@@ -164,6 +163,7 @@ export class BusinessManagementService {
       categories: savedBusiness.categories ?? [],
       specializations: savedBusiness.specializations ?? [],
       city: savedBusiness.city,
+      logo_map_url: savedBusiness.logoMapUrl,
     };
     await this.searchClient.upsertBusiness(payload);
   }
