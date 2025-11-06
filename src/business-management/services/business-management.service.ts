@@ -153,6 +153,7 @@ export class BusinessManagementService {
   }
 
   private async syncBusinessWithSearchEngine(savedBusiness: Business) {
+    console.log(`Syncing business with search engine ${savedBusiness}`);
     const payload: SearchBusinessPayload = {
       id: savedBusiness.id,
       name: savedBusiness.name,

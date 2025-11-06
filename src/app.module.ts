@@ -43,9 +43,9 @@ import { ExpenseHistory } from './car/expense-history/entities/expense-history.e
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        // ssl: {
+        //   rejectUnauthorized: false,
+        // },
         entities: [
           Booking,
           BusinessOpeningHours,

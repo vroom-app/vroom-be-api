@@ -105,7 +105,7 @@ export class BusinessService {
   ): Promise<Business> {
     this.logger.log(`Updating business with ID: ${businessId}`);
     const updateData = await this.prepareUpdateData(updateBusinessDto);
-
+    console.log(`Update data: ${JSON.stringify(updateData)}`);
     await this.updateIfNotEmpty(businessId, updateData.businessData);
 
     return assertEntityPresent(
