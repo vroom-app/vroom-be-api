@@ -6,15 +6,18 @@ import { UsersModule } from 'src/users/users.module';
 import { BusinessService } from './services/business.service';
 import { BusinessOpeningHoursService } from './services/business-opening-hours.service';
 import { BusinessRepository } from './repositories/business.repository';
+import { BusinessReviewService } from './services/business-review.service';
+import { SearchClientModule } from 'src/search-client/search-client.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Business, BusinessOpeningHours]),
     UsersModule,
+    SearchClientModule
   ],
   controllers: [],
-  providers: [BusinessService, BusinessRepository, BusinessOpeningHoursService],
-  exports: [BusinessService, BusinessOpeningHoursService],
+  providers: [BusinessService, BusinessReviewService, BusinessOpeningHoursService, BusinessRepository],
+  exports: [BusinessService, BusinessReviewService, BusinessOpeningHoursService],
 })
 export class BusinessModule {}
 

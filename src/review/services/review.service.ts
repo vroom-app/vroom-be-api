@@ -1,20 +1,17 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Review } from '../entities/review.entity';
 import { CreateReviewDto } from '../dto/create-review.dto';
-import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
 import { PaginatedBusinessReviewsResponseDto, ReviewedServiceDto, ReviewResponseDto, UserSummaryDto } from '../dto/review-response.dto';
 import { BusinessService } from 'src/business/services/business.service';
 import { ReviewRepository } from '../repositories/review.repository';
 import { ReviewServiceRepository } from '../repositories/review-service.repository';
 import { User } from 'src/users/entities/user.entity';
 import { ReviewedService } from '../entities/review-service.entity';
+import { BusinessReviewService } from 'src/business/services/business-review.service';
 
 @Injectable()
 export class ReviewService {
@@ -24,6 +21,7 @@ export class ReviewService {
     private readonly reviewRepository: ReviewRepository,
     private readonly reviewServiceRepository: ReviewServiceRepository,
     private readonly businessService: BusinessService,
+    private readonly businessReviewService: BusinessReviewService,
   ) {}
 
   async createReview(
@@ -36,7 +34,6 @@ export class ReviewService {
       // Validate business exists
       await this.businessService.findBusinessAndValidateExistance(createReviewDto.businessId);
 
-      // Create review - fix the ratings type issue
       const reviewData = {
         businessId: createReviewDto.businessId,
         userId: userId,
@@ -47,7 +44,6 @@ export class ReviewService {
 
       review = await this.reviewRepository.create(reviewData);
 
-      // Create review-service relationships
       const reviewServicesData = createReviewDto.serviceIds.map(serviceId => ({
         reviewId: review.id,
         serviceId,
@@ -55,8 +51,7 @@ export class ReviewService {
 
       await this.reviewServiceRepository.createMultiple(reviewServicesData);
 
-      // Update business rating async
-      this.businessService.updateBusinessRating(createReviewDto.businessId);
+      this.businessReviewService.updateBusinessRating(createReviewDto.businessId);
 
       // Return the complete review with relations
       const completeReview = await this.reviewRepository.findById(review.id);

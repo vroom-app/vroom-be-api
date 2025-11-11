@@ -89,4 +89,27 @@ export class BusinessRepository {
   ): Promise<UpdateResult> {
     return await this.businessRepository.update(businessId, updateData);
   }
+
+  /**
+   * Update the average rating and review count for a business.
+   * @param businessId  The ID of the business to update
+   */
+  async updateBusinessRating(businessId: string): Promise<void> {
+    try {
+      await this.businessRepository.query(
+        `UPDATE businesses 
+         SET average_rating = (
+           SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE business_id = $1
+         ),
+         review_count = (
+           SELECT COUNT(*) FROM reviews WHERE business_id = $1
+         )
+         WHERE id = $1`,
+        [businessId]
+      );
+    }
+    catch (error) {
+      throw new Error(`Failed to update business rating: ${error.message}`);
+    }
+  }
 }

@@ -12,21 +12,21 @@ export class BusinessOpeningHours {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'business_id' })
   businessId: string;
 
   @ManyToOne(() => Business, (business) => business.openingHours, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'businessId' })
+  @JoinColumn({ name: 'business_id' })
   business: Business;
 
-  @Column('smallint')
+  @Column('smallint', { name: 'day_of_week' })
   dayOfWeek: number;
 
-  @Column('time')
+  @Column('time', { name: 'opens_at' })
   opensAt: string;
 
-  @Column('time')
+  @Column('time', { name: 'closes_at' })
   closesAt: string;
 }

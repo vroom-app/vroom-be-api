@@ -8,16 +8,16 @@ export class ReviewedService {
   id: number;
 
   @ManyToOne(() => Review, (review) => review.reviewServices, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'reviewId' })
+  @JoinColumn({ name: 'review_id' })
   review: Review;
 
-  @Column()
+  @Column({ name: 'review_id' })
   reviewId: number;
 
   @ManyToOne(() => ServiceOffering, (service) => service.reviewServices)
-  @JoinColumn({ name: 'serviceId' })
+  @JoinColumn({ name: 'service_id' })
   serviceOffering: ServiceOffering;
 
-  @Column()
+  @Column({ name: 'service_id' })
   serviceId: number;
 }

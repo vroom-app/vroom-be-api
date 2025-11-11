@@ -30,11 +30,11 @@ export class ServiceOffering {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({name: 'business_id'})
   businessId: string;
 
   @ManyToOne(() => Business, (business) => business.serviceOfferings, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'businessId' })
+  @JoinColumn({ name: 'business_id' })
   business: Business;
 
   @Column()
@@ -43,10 +43,10 @@ export class ServiceOffering {
   @Column()
   category: string;
 
-  @Column({ type: 'enum', enum: ACTION_TYPE })
+  @Column({ type: 'enum', enum: ACTION_TYPE, name: 'action_type' })
   actionType: ACTION_TYPE;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', name: 'action_details' })
   actionDetails: ActionDetails;
 
   @Column({ type: 'jsonb' })
@@ -55,7 +55,7 @@ export class ServiceOffering {
   @Column('integer', { default: 1 })
   capacity: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({name: 'created_at'})
   createdAt: Date;
 
   @OneToMany(() => Slot, (slot) => slot.serviceOffering)

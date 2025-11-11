@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BusinessRepository } from '../repositories/business.repository';
 import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
 import { User } from 'src/users/entities/user.entity';
-import { BusinessMapper } from 'src/business-management/mapper/business.mapper';
+import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 
 describe('BusinessService', () => {
   let service: BusinessService;
@@ -32,6 +32,8 @@ describe('BusinessService', () => {
     youtube: 'youtube.com/test',
     linkedin: 'linkedin.com/test',
     tiktok: 'tiktok.com/test',
+    averageRating: 4.2,
+    reviewCount: 5,
     isVerified: false,
     isSponsored: false,
     acceptBookings: false,

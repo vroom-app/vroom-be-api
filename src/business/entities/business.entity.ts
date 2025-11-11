@@ -37,11 +37,11 @@ export class Business {
 
   // ── BASIC INFO ──────────────────────────────────────────────────────
 
-  @Column()
+  @Column({ name: 'owner_id' })
   ownerId: number;
 
   @ManyToOne(() => User, (user) => user.ownedBusinesses)
-  @JoinColumn({ name: 'ownerId' })
+  @JoinColumn({ name: 'owner_id' })
   owner: User;
 
   @Column()
@@ -77,6 +77,14 @@ export class Business {
 
   @Column({ nullable: true })
   phone?: string;
+
+  // ── Rating ──────────────────────────────────────────────────────────
+
+  @Column({ name: 'average_rating', type: 'decimal', precision: 3, scale: 2, default: 0 })
+  averageRating: number;
+
+  @Column({ name: 'review_count', default: 0 })
+  reviewCount: number;
 
   // ── LOCATION ────────────────────────────────────────────────────────
 
@@ -150,9 +158,9 @@ export class Business {
 
   // ── AUDIT ───────────────────────────────────────────────────────────
 
-  @CreateDateColumn()
+  @CreateDateColumn({name: 'created_at'})
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({name: 'updated_at'})
   updatedAt: Date;
 }

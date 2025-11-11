@@ -18,21 +18,21 @@ export class Review {
   id: number;
 
   @ManyToOne(() => Business, (business) => business.reviews, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'businessId' })
+  @JoinColumn({ name: 'business_id' })
   @Index()
   business: Business;
 
-  @Column()
+  @Column({ name: 'business_id' })
   businessId: string;
 
   @ManyToOne(() => User, (user) => user.reviews)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   @Index()
   user: User;
 
-  @Column()
+  @Column({ name: 'user_id' })
   userId: number;
-
+  
   @Column('integer')
   rating: number;
 
@@ -47,9 +47,9 @@ export class Review {
     [key: string]: number | undefined;
   };
 
-  @CreateDateColumn()
-  createdAt: Date;
-
   @OneToMany(() => ReviewedService, (rs) => rs.review, { cascade: true })
   reviewServices: ReviewedService[];
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 }

@@ -10,8 +10,8 @@ import { BusinessOpeningHoursService } from 'src/business/services/business-open
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
-import { BusinessMapper } from '../mapper/business.mapper';
 import { SearchBusinessPayload } from 'src/search-client/search-client.interface';
+import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 
 @Injectable()
 export class BusinessManagementService {
@@ -153,19 +153,7 @@ export class BusinessManagementService {
   }
 
   private async syncBusinessWithSearchEngine(savedBusiness: Business) {
-    console.log(`Syncing business with search engine ${savedBusiness}`);
-    const payload: SearchBusinessPayload = {
-      id: savedBusiness.id,
-      name: savedBusiness.name,
-      name_en: savedBusiness.name,
-      address: savedBusiness.address,
-      latitude: savedBusiness.latitude,
-      longitude: savedBusiness.longitude,
-      categories: savedBusiness.categories ?? [],
-      specializations: savedBusiness.specializations ?? [],
-      city: savedBusiness.city,
-      logo_map_url: savedBusiness.logoMapUrl,
-    };
-    await this.searchClient.upsertBusiness(payload);
+    this.logger.log(`Syncing business with search engine ${savedBusiness}`);
+    await this.searchClient.upsertBusiness(BusinessMapper.toSearchPayload(savedBusiness));
   }
 }

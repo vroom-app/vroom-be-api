@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BusinessService } from 'src/business/services/business.service';
+import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 import { CreateServiceOfferingDto } from 'src/service-offering/dto/create-service-offering.dto';
 import { ServiceOfferingDto } from 'src/service-offering/dto/service-offering.dto';
 import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
-import { BusinessMapper } from '../mapper/business.mapper';
 
 @Injectable()
 export class ServiceOfferingManagementService {

@@ -10,12 +10,14 @@ import { ReviewResponseDto } from '../dto/review-response.dto';
 import { User } from 'src/users/entities/user.entity';
 import { ReviewedService } from '../entities/review-service.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
+import { BusinessReviewService } from 'src/business/services/business-review.service';
 
 describe('ReviewService', () => {
   let service: ReviewService;
   let reviewRepository: jest.Mocked<ReviewRepository>;
   let reviewServiceRepository: jest.Mocked<ReviewServiceRepository>;
   let businessService: jest.Mocked<BusinessService>;
+  let businessReviewService: jest.Mocked<BusinessReviewService>;
 
   const mockUser: User = {
     id: 1,
@@ -88,6 +90,9 @@ describe('ReviewService', () => {
 
   const createMockBusinessService = () => ({
     findBusinessAndValidateExistance: jest.fn(),
+  });
+
+  const createMockBusinessReviewService = () => ({
     updateBusinessRating: jest.fn(),
   });
 
@@ -107,6 +112,10 @@ describe('ReviewService', () => {
           provide: BusinessService,
           useValue: createMockBusinessService(),
         },
+        {
+            provide: BusinessReviewService,
+            useValue: createMockBusinessReviewService(),
+        }
       ],
     }).compile();
 
@@ -114,6 +123,7 @@ describe('ReviewService', () => {
     reviewRepository = module.get(ReviewRepository);
     reviewServiceRepository = module.get(ReviewServiceRepository);
     businessService = module.get(BusinessService);
+    businessReviewService = module.get(BusinessReviewService);
 
     (service as any).logger = {
       log: jest.fn(),
@@ -158,7 +168,7 @@ describe('ReviewService', () => {
         { reviewId: mockReview.id, serviceId: 1 },
         { reviewId: mockReview.id, serviceId: 2 },
       ]);
-      expect(businessService.updateBusinessRating).toHaveBeenCalledWith(createReviewDto.businessId);
+      expect(businessReviewService.updateBusinessRating).toHaveBeenCalledWith(createReviewDto.businessId);
       expect(reviewRepository.findById).toHaveBeenCalledWith(mockReview.id);
       expect(result).toEqual(mockReviewResponseDto);
     });

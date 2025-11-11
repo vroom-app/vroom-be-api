@@ -6,12 +6,12 @@ import {
 } from '../dto/business.dto';
 import { Business, BusinessCategory } from '../entities/business.entity';
 import { BusinessProfileDto } from 'src/business-management/dto/business-profile.dto';
-import { BusinessMapper } from 'src/business-management/mapper/business.mapper';
 import { BusinessRepository } from '../repositories/business.repository';
 import { assertEntityPresent } from 'src/common/utils/assertEntity';
 import { assertOwnership } from 'src/common/utils/assertOwnership';
 import { assertAffected } from 'src/common/utils/assertAffected';
 import { assertServiceOwnership } from 'src/common/utils/assertServiceownership';
+import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 
 @Injectable()
 export class BusinessService {
@@ -239,10 +239,6 @@ export class BusinessService {
     );
 
     return business;
-  }
-
-  async updateBusinessRating(businessId: string) {
-    console.log(`Updating rating for business ID: ${businessId}`);
   }
 
   async findBusinessAndValidateExistance(businessId: string) {

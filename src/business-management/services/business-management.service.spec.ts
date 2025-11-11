@@ -7,7 +7,7 @@ import {
   BusinessCategory,
 } from 'src/business/entities/business.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BusinessMapper } from '../mapper/business.mapper';
+import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 
 describe('BusinessManagementService', () => {
