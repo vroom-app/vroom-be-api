@@ -108,7 +108,7 @@ export class ReviewService {
       rating: review.rating,
       comment: review.comment,
       ratings: review.ratings as Record<string, number>,
-      services: review.reviewServices?.map(rs => this.mapToReviewedServiceDto(rs)),
+      services: review.reviewServices?.map(rs => this.mapToReviewedServiceDto(rs)) ?? [],
       user: this.mapToUserSummaryDto(review.user),
       createdAt: review.createdAt,
     };

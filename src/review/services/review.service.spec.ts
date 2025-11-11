@@ -1,205 +1,375 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { ReviewService } from './review.service';
-// import { getRepositoryToken } from '@nestjs/typeorm';
-// import { BusinessService } from 'src/business/services/business.service';
-// import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
-// import { BadRequestException } from '@nestjs/common';
-// import { Review } from '../entities/review.entity';
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
+import { ReviewService } from './review.service';
+import { ReviewRepository } from '../repositories/review.repository';
+import { ReviewServiceRepository } from '../repositories/review-service.repository';
+import { BusinessService } from 'src/business/services/business.service';
+import { Review } from '../entities/review.entity';
+import { CreateReviewDto } from '../dto/create-review.dto';
+import { ReviewResponseDto } from '../dto/review-response.dto';
+import { User } from 'src/users/entities/user.entity';
+import { ReviewedService } from '../entities/review-service.entity';
+import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 
-// const mockReviewRepository = () => ({
-//   findOne: jest.fn(),
-//   findAndCount: jest.fn(),
-//   create: jest.fn(),
-//   save: jest.fn(),
-//   find: jest.fn(),
-//   createQueryBuilder: jest.fn(() => ({
-//     select: jest.fn().mockReturnThis(),
-//     addSelect: jest.fn().mockReturnThis(),
-//     where: jest.fn().mockReturnThis(),
-//     andWhere: jest.fn().mockReturnThis(),
-//     getRawOne: jest.fn().mockResolvedValue({
-//       avgCommunication: '4.5',
-//       avgQuality: '4.2',
-//       avgPunctuality: '4.8',
-//     }),
-//   })),
-// });
+describe('ReviewService', () => {
+  let service: ReviewService;
+  let reviewRepository: jest.Mocked<ReviewRepository>;
+  let reviewServiceRepository: jest.Mocked<ReviewServiceRepository>;
+  let businessService: jest.Mocked<BusinessService>;
 
-// const mockBusinessService = () => ({
-//   findById: jest.fn(),
-// });
+  const mockUser: User = {
+    id: 1,
+    firstName: 'John',
+    lastName: 'Doe',
+    avatarUrl: 'avatar.jpg',
+    email: 'john@example.com',
+  } as User;
 
-// const mockServiceOfferingService = () => ({
-//   findById: jest.fn(),
-// });
+  const mockServiceOffering: ServiceOffering = {
+    id: 1,
+    name: 'Test Service',
+  } as ServiceOffering;
 
-// describe('createReview', () => {
-//   let service: ReviewService;
-//   let reviewRepo: ReturnType<typeof mockReviewRepository>;
+  const mockReviewedService: ReviewedService = {
+    id: 1,
+    reviewId: 1,
+    serviceId: 1,
+    serviceOffering: mockServiceOffering,
+  } as ReviewedService;
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [
-//         ReviewService,
-//         {
-//           provide: getRepositoryToken(Review),
-//           useFactory: mockReviewRepository,
-//         },
-//         { provide: BusinessService, useFactory: mockBusinessService },
-//         {
-//           provide: ServiceOfferingService,
-//           useFactory: mockServiceOfferingService,
-//         },
-//       ],
-//     }).compile();
+  const mockReview: Review = {
+    id: 1,
+    businessId: 'business-123',
+    userId: 1,
+    rating: 4.5,
+    comment: 'Great service!',
+    ratings: { communication: 5, quality: 4, punctuality: 4 },
+    createdAt: new Date(),
+    user: mockUser,
+    reviewServices: [mockReviewedService],
+  } as Review;
 
-//     service = module.get<ReviewService>(ReviewService);
-//     reviewRepo = module.get(getRepositoryToken(Review));
-//   });
+  const createReviewDto: CreateReviewDto = {
+    businessId: 'business-123',
+    rating: 4.5,
+    comment: 'Great service!',
+    serviceIds: [1, 2],
+    ratings: {
+      communication: 5,
+      quality: 4,
+      punctuality: 4,
+    },
+  };
 
-//   it('should create a review successfully (without serviceId)', async () => {
-//     const dto = {
-//       businessId: 'biz-123',
-//       rating: 4,
-//       comment: 'Good',
-//       serviceId: undefined,
-//     };
-//     const userId = 1;
+  const mockReviewResponseDto: ReviewResponseDto = {
+    id: 1,
+    businessId: 'business-123',
+    rating: 4.5,
+    comment: 'Great service!',
+    ratings: { communication: 5, quality: 4, punctuality: 4 },
+    services: [{ id: 1, name: 'Test Service' }],
+    user: {
+      id: 1,
+      username: 'John Doe',
+      avatarUrl: 'avatar.jpg',
+    },
+    createdAt: mockReview.createdAt,
+  };
 
-//     // (service['businessService'].findById as jest.Mock).mockResolvedValue({
-//     //   id: 'biz-123',
-//     //   name: 'Test Biz',
-//     // });
-//     reviewRepo.findOne.mockResolvedValue(null);
-//     reviewRepo.create.mockReturnValue({ ...dto, userId });
-//     reviewRepo.save.mockResolvedValue({ id: 1 });
-//     jest
-//       .spyOn(service as any, 'getReviewWithRelations')
-//       .mockResolvedValue({ id: 1 } as any);
+  const createMockReviewRepository = () => ({
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByBusinessIdPaginated: jest.fn(),
+  });
 
-//     const result = await service.createReview(dto as any, userId);
+  const createMockReviewServiceRepository = () => ({
+    createMultiple: jest.fn(),
+  });
 
-//     expect(reviewRepo.create).toBeCalledWith({ ...dto, userId });
-//     expect(result).toEqual({ id: 1 });
-//   });
+  const createMockBusinessService = () => ({
+    findBusinessAndValidateExistance: jest.fn(),
+    updateBusinessRating: jest.fn(),
+  });
 
-//   it('should throw BadRequestException if user already reviewed business', async () => {
-//     const dto = { businessId: 'biz-123', rating: 5, comment: 'Repeat' };
-//     // (service['businessService'].findById as jest.Mock).mockResolvedValue({});
-//     reviewRepo.findOne.mockResolvedValue({ id: 99 });
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ReviewService,
+        {
+          provide: ReviewRepository,
+          useValue: createMockReviewRepository(),
+        },
+        {
+          provide: ReviewServiceRepository,
+          useValue: createMockReviewServiceRepository(),
+        },
+        {
+          provide: BusinessService,
+          useValue: createMockBusinessService(),
+        },
+      ],
+    }).compile();
 
-//     await expect(service.createReview(dto as any, 1)).rejects.toThrow(
-//       BadRequestException,
-//     );
-//   });
+    service = module.get<ReviewService>(ReviewService);
+    reviewRepository = module.get(ReviewRepository);
+    reviewServiceRepository = module.get(ReviewServiceRepository);
+    businessService = module.get(BusinessService);
 
-//   it('should call serviceOfferingService.findById if serviceId is provided', async () => {
-//     const dto = {
-//       businessId: 'biz-123',
-//       rating: 5,
-//       comment: 'Service Review',
-//       serviceId: 42,
-//     };
-//     // (service['businessService'].findById as jest.Mock).mockResolvedValue({});
-//     (service['serviceOfferingService'].findById as jest.Mock).mockResolvedValue(
-//       {},
-//     );
-//     reviewRepo.findOne.mockResolvedValue(null);
-//     reviewRepo.create.mockReturnValue({ ...dto, userId: 1 });
-//     reviewRepo.save.mockResolvedValue({ id: 2 });
-//     jest
-//       .spyOn(service as any, 'getReviewWithRelations')
-//       .mockResolvedValue({ id: 2 } as any);
+    (service as any).logger = {
+      log: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      debug: jest.fn(),
+      verbose: jest.fn(),
+    };
+  });
 
-//     await service.createReview(dto as any, 1);
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-//     expect(service['serviceOfferingService'].findById).toHaveBeenCalledWith(42);
-//   });
-// });
+  describe('createReview', () => {
+    it('should successfully create a review', async () => {
+      // Arrange
+      const userId = 1;
+      const createdReviewedServices: ReviewedService[] = [
+        { ...mockReviewedService, serviceId: 1 },
+        { ...mockReviewedService, serviceId: 2, id: 2 }
+      ];
 
-// describe('getBusinessReviews', () => {
-//   it('should return paginated reviews for a business', async () => {
-//     const review = {
-//       id: 1,
-//       businessId: 'biz-123',
-//       userId: 1,
-//       rating: 5,
-//       comment: 'Great!',
-//       createdAt: new Date(),
-//       user: { id: 1, firstName: 'John', lastName: 'Doe' },
-//       business: { id: 'biz-123', name: 'Biz' },
-//       serviceOffering: null,
-//     };
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      reviewRepository.create.mockResolvedValue(mockReview);
+      reviewServiceRepository.createMultiple.mockResolvedValue(createdReviewedServices);
+      reviewRepository.findById.mockResolvedValue(mockReview);
 
-//     const service = await createService(); // same setup as above
-//     // (service['businessService'].findById as jest.Mock).mockResolvedValue({});
-//     service['reviewRepository'].findAndCount = jest
-//       .fn()
-//       .mockResolvedValue([[review], 1]);
+      // Act
+      const result = await service.createReview(createReviewDto, userId);
 
-//     const result = await service.getBusinessReviews('biz-123', {
-//       page: 1,
-//       limit: 10,
-//     });
+      // Assert
+      expect(businessService.findBusinessAndValidateExistance).toHaveBeenCalledWith(createReviewDto.businessId);
+      expect(reviewRepository.create).toHaveBeenCalledWith({
+        businessId: createReviewDto.businessId,
+        userId: userId,
+        rating: createReviewDto.rating,
+        comment: createReviewDto.comment,
+        ratings: { communication: 5, quality: 4, punctuality: 4 },
+      });
+      expect(reviewServiceRepository.createMultiple).toHaveBeenCalledWith([
+        { reviewId: mockReview.id, serviceId: 1 },
+        { reviewId: mockReview.id, serviceId: 2 },
+      ]);
+      expect(businessService.updateBusinessRating).toHaveBeenCalledWith(createReviewDto.businessId);
+      expect(reviewRepository.findById).toHaveBeenCalledWith(mockReview.id);
+      expect(result).toEqual(mockReviewResponseDto);
+    });
 
-//     expect(result.reviews).toHaveLength(1);
-//     expect(result.total).toBe(1);
-//     expect(result.page).toBe(1);
-//   });
-// });
+    it('should create review without ratings when ratings are not provided', async () => {
+      // Arrange
+      const userId = 1;
+      const createReviewDtoWithoutRatings = { ...createReviewDto, ratings: undefined };
+      const createdReviewedServices: ReviewedService[] = [
+        { ...mockReviewedService, serviceId: 1 },
+        { ...mockReviewedService, serviceId: 2, id: 2 }
+      ];
 
-// describe('getBusinessAverageRating', () => {
-//   it('should return average rating and total reviews', async () => {
-//     const service = await createService();
-//     const qbMock = {
-//       select: jest.fn().mockReturnThis(),
-//       addSelect: jest.fn().mockReturnThis(),
-//       where: jest.fn().mockReturnThis(),
-//       getRawOne: jest
-//         .fn()
-//         .mockResolvedValue({ averageRating: '4.25', totalReviews: '12' }),
-//     };
-//     service['reviewRepository'].createQueryBuilder = jest
-//       .fn()
-//       .mockReturnValue(qbMock);
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      reviewRepository.create.mockResolvedValue(mockReview);
+      reviewServiceRepository.createMultiple.mockResolvedValue(createdReviewedServices);
+      reviewRepository.findById.mockResolvedValue(mockReview);
 
-//     const result = await service.getBusinessAverageRating('biz-1');
+      // Act
+      await service.createReview(createReviewDtoWithoutRatings, userId);
 
-//     expect(result).toEqual({ averageRating: 4.25, totalReviews: 12 });
-//   });
+      // Assert
+      expect(reviewRepository.create).toHaveBeenCalledWith({
+        businessId: createReviewDto.businessId,
+        userId: userId,
+        rating: createReviewDto.rating,
+        comment: createReviewDto.comment,
+        ratings: undefined,
+      });
+    });
 
-//   it('should return 0 values if no reviews exist', async () => {
-//     const service = await createService();
-//     const qbMock = {
-//       select: jest.fn().mockReturnThis(),
-//       addSelect: jest.fn().mockReturnThis(),
-//       where: jest.fn().mockReturnThis(),
-//       getRawOne: jest
-//         .fn()
-//         .mockResolvedValue({ averageRating: null, totalReviews: null }),
-//     };
-//     service['reviewRepository'].createQueryBuilder = jest
-//       .fn()
-//       .mockReturnValue(qbMock);
+    it('should throw NotFoundException when business does not exist', async () => {
+      // Arrange
+      const userId = 1;
+      businessService.findBusinessAndValidateExistance.mockRejectedValue(
+        new NotFoundException('Business not found')
+      );
 
-//     const result = await service.getBusinessAverageRating('biz-1');
+      // Act & Assert
+      await expect(service.createReview(createReviewDto, userId)).rejects.toThrow(NotFoundException);
+      expect(reviewRepository.create).not.toHaveBeenCalled();
+      expect(reviewServiceRepository.createMultiple).not.toHaveBeenCalled();
+    });
 
-//     expect(result).toEqual({ averageRating: 0, totalReviews: 0 });
-//   });
-// });
+    it('should throw error when review creation fails', async () => {
+      // Arrange
+      const userId = 1;
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      reviewRepository.create.mockRejectedValue(new Error('Database error'));
 
-// async function createService(): Promise<ReviewService> {
-//   const module: TestingModule = await Test.createTestingModule({
-//     providers: [
-//       ReviewService,
-//       { provide: getRepositoryToken(Review), useFactory: mockReviewRepository },
-//       { provide: BusinessService, useFactory: mockBusinessService },
-//       {
-//         provide: ServiceOfferingService,
-//         useFactory: mockServiceOfferingService,
-//       },
-//     ],
-//   }).compile();
+      // Act & Assert
+      await expect(service.createReview(createReviewDto, userId)).rejects.toThrow('Database error');
+      expect(reviewServiceRepository.createMultiple).not.toHaveBeenCalled();
+    });
 
-//   return module.get<ReviewService>(ReviewService);
-// }
+    it('should throw NotFoundException when review not found after creation', async () => {
+      // Arrange
+      const userId = 1;
+      const createdReviewedServices: ReviewedService[] = [
+        { ...mockReviewedService, serviceId: 1 },
+        { ...mockReviewedService, serviceId: 2, id: 2 }
+      ];
+
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      reviewRepository.create.mockResolvedValue(mockReview);
+      reviewServiceRepository.createMultiple.mockResolvedValue(createdReviewedServices);
+      reviewRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.createReview(createReviewDto, userId)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should handle empty serviceIds array', async () => {
+      // Arrange
+      const userId = 1;
+      const createReviewDtoWithoutServices = { ...createReviewDto, serviceIds: [] };
+      const emptyReviewedServices: ReviewedService[] = [];
+
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      reviewRepository.create.mockResolvedValue(mockReview);
+      reviewServiceRepository.createMultiple.mockResolvedValue(emptyReviewedServices);
+      reviewRepository.findById.mockResolvedValue(mockReview);
+
+      // Act
+      await service.createReview(createReviewDtoWithoutServices, userId);
+
+      // Assert
+      expect(reviewServiceRepository.createMultiple).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe('getBusinessReviews', () => {
+    it('should return paginated business reviews', async () => {
+      // Arrange
+      const businessId = 'business-123';
+      const page = 1;
+      const limit = 5;
+      const total = 1;
+      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([[mockReview], total]);
+
+      // Act
+      const result = await service.getBusinessReviews(businessId, page, limit);
+
+      // Assert
+      expect(reviewRepository.findByBusinessIdPaginated).toHaveBeenCalledWith(businessId, page, limit);
+      expect(result).toEqual({
+        reviews: [mockReviewResponseDto],
+        total,
+        page,
+        limit,
+      });
+    });
+
+    it('should use default pagination values when not provided', async () => {
+      // Arrange
+      const businessId = 'business-123';
+      const total = 1;
+      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([[mockReview], total]);
+
+      // Act
+      await service.getBusinessReviews(businessId);
+
+      // Assert
+      expect(reviewRepository.findByBusinessIdPaginated).toHaveBeenCalledWith(businessId, 1, 5);
+    });
+
+    it('should handle empty reviews list', async () => {
+      // Arrange
+      const businessId = 'business-123';
+      const page = 1;
+      const limit = 5;
+      const total = 0;
+      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([[], total]);
+
+      // Act
+      const result = await service.getBusinessReviews(businessId, page, limit);
+
+      // Assert
+      expect(result).toEqual({
+        reviews: [],
+        total: 0,
+        page: 1,
+        limit: 5,
+      });
+    });
+
+    it('should throw error when repository fails', async () => {
+      // Arrange
+      const businessId = 'business-123';
+      reviewRepository.findByBusinessIdPaginated.mockRejectedValue(new Error('Database error'));
+
+      // Act & Assert
+      await expect(service.getBusinessReviews(businessId)).rejects.toThrow('Database error');
+    });
+  });
+
+  describe('transformRatings', () => {
+    it('should transform ratings correctly', () => {
+      // Arrange
+      const ratings = {
+        communication: 5,
+        quality: 4,
+        punctuality: 3,
+      };
+
+      // Act
+      const result = (service as any).transformRatings(ratings);
+
+      // Assert
+      expect(result).toEqual({
+        communication: 5,
+        quality: 4,
+        punctuality: 3,
+      });
+    });
+
+    it('should return undefined when ratings are null', () => {
+      // Act
+      const result = (service as any).transformRatings(null);
+
+      // Assert
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when ratings are undefined', () => {
+      // Act
+      const result = (service as any).transformRatings(undefined);
+
+      // Assert
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('mapToReviewResponseDto', () => {
+    it('should map review to response DTO correctly', () => {
+      // Act
+      const result = (service as any).mapToReviewResponseDto(mockReview);
+
+      // Assert
+      expect(result).toEqual(mockReviewResponseDto);
+    });
+
+    it('should handle review without reviewServices', () => {
+      // Arrange
+      const reviewWithoutServices = { ...mockReview, reviewServices: undefined };
+
+      // Act
+      const result = (service as any).mapToReviewResponseDto(reviewWithoutServices);
+
+      // Assert
+      expect(result.services).toEqual([]);
+    });
+  });
+});
