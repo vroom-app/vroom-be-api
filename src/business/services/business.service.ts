@@ -17,9 +17,7 @@ import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 export class BusinessService {
   private readonly logger = new Logger(BusinessService.name);
 
-  constructor(
-    private readonly businessRepository: BusinessRepository
-  ) {}
+  constructor(private readonly businessRepository: BusinessRepository) {}
 
   /**
    * Get a business profile by ID

@@ -47,8 +47,10 @@ import { ReviewModule } from './review/review.module';
         // },
         entities: [
           Booking,
-          BusinessOpeningHours, Business,
-          Review, ReviewedService,
+          BusinessOpeningHours,
+          Business,
+          Review,
+          ReviewedService,
           ServiceOffering,
           Slot,
           User,

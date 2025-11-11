@@ -1,8 +1,4 @@
-import {
-  HttpStatus,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Car } from '../entities/car.entity';
 import { CarRepository } from '../repositories/car.repository';
 import { CreateCarDto, UpdateCarDto } from '../dto/car-management.dto';
@@ -16,7 +12,7 @@ import { AppException } from 'src/common/dto/error.dto';
 @Injectable()
 export class CarService {
   private readonly logger = new Logger(CarService.name);
-  
+
   constructor(
     private readonly userService: UserService,
     private readonly carRepository: CarRepository,
@@ -40,14 +36,16 @@ export class CarService {
       };
 
       const car = assertEntityPresent(
-        await this.carRepository.create(carData), 
-        `Car creation failed for user ID ${ownerId}`
+        await this.carRepository.create(carData),
+        `Car creation failed for user ID ${ownerId}`,
       );
       return CarMapper.toCarResponseDto(car);
     } catch (error) {
-      this.logger.error(`Error creating car for user ID ${ownerId}: ${error.message}`);
+      this.logger.error(
+        `Error creating car for user ID ${ownerId}: ${error.message}`,
+      );
       throw new AppException(
-        "CAR_CREATION_FAILED",
+        'CAR_CREATION_FAILED',
         `Failed to create car for user ID ${ownerId}: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -65,11 +63,18 @@ export class CarService {
     this.logger.log(`Finding car with ID: ${id} for user ID: ${ownerId}`);
     try {
       const car = await this.carRepository.findUserCarById(id, ownerId);
-      return CarMapper.toCarResponseDto(assertEntityPresent(car, `Car with ID ${id} not found for user ${ownerId}`));
+      return CarMapper.toCarResponseDto(
+        assertEntityPresent(
+          car,
+          `Car with ID ${id} not found for user ${ownerId}`,
+        ),
+      );
     } catch (error) {
-      this.logger.error(`Error finding car with ID ${id} for user ID ${ownerId}: ${error.message}`);
+      this.logger.error(
+        `Error finding car with ID ${id} for user ID ${ownerId}: ${error.message}`,
+      );
       throw new AppException(
-        "CAR_NOT_FOUND",
+        'CAR_NOT_FOUND',
         `Car with ID ${id} not found for user ID ${ownerId}`,
         HttpStatus.NOT_FOUND,
       );
@@ -89,9 +94,11 @@ export class CarService {
         this.logger.warn(`No cars found for user ID: ${userId}`);
         return [];
       }
-      return CarMapper.toCarResponseDtoArray(cars)
+      return CarMapper.toCarResponseDtoArray(cars);
     } catch (error) {
-      this.logger.error(`Error finding cars for user ID ${userId}: ${error.message}`);
+      this.logger.error(
+        `Error finding cars for user ID ${userId}: ${error.message}`,
+      );
       throw error;
     }
   }
@@ -106,12 +113,12 @@ export class CarService {
   async deleteById(id: string, ownerId: number): Promise<boolean> {
     this.logger.log(`Deleting car with ID: ${id} for user ID: ${ownerId}`);
     assertAffected(
-      await this.carRepository.deleteByOwnerIdAndCarId(id, ownerId), 
-      `Car with ID ${id} not found`
+      await this.carRepository.deleteByOwnerIdAndCarId(id, ownerId),
+      `Car with ID ${id} not found`,
     );
     return true;
   }
-  
+
   /**
    * Updates a car entity by its ID
    * @param carId - The ID of the car to be updated.
@@ -120,11 +127,18 @@ export class CarService {
    * @returns A promise that resolves when the update is complete.
    * @throws NotFoundException if the car does not exist for the given owner.
    */
-  async update(carId: string, ownerId: number, dto: UpdateCarDto): Promise<CarResponseDto> {
+  async update(
+    carId: string,
+    ownerId: number,
+    dto: UpdateCarDto,
+  ): Promise<CarResponseDto> {
     this.logger.log(`Updating car with ID: ${carId} for user ID: ${ownerId}`);
     let car = await this.carRepository.findUserCarById(carId, ownerId);
-    
-    car = assertEntityPresent(car, `Car with ID ${carId} not found for user ${ownerId}`);
+
+    car = assertEntityPresent(
+      car,
+      `Car with ID ${carId} not found for user ${ownerId}`,
+    );
 
     try {
       Object.assign(car, {
@@ -144,14 +158,16 @@ export class CarService {
       });
 
       assertAffected(
-        await this.carRepository.updateCar(carId, car), 
-        `Car with ID ${carId} not found`
+        await this.carRepository.updateCar(carId, car),
+        `Car with ID ${carId} not found`,
       );
       return CarMapper.toCarResponseDto(car);
     } catch (error) {
-      this.logger.error(`Error updating car with ID ${carId} for user ID ${ownerId}: ${error.message}`);
+      this.logger.error(
+        `Error updating car with ID ${carId} for user ID ${ownerId}: ${error.message}`,
+      );
       throw new AppException(
-        "CAR_UPDATE_FAILED",
+        'CAR_UPDATE_FAILED',
         `Failed to update car with ID ${carId} for user ID ${ownerId}: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -167,12 +183,15 @@ export class CarService {
   private async userCanCreateCar(ownerId: number): Promise<void> {
     this.logger.log(`Checking if user ID ${ownerId} can create a new car`);
     const carNumber = await this.carRepository.countByUserId(ownerId);
-    if(!(carNumber <= 3)){
-      this.logger.warn(`User ID ${ownerId} has reached the maximum number of cars`);
+    if (!(carNumber <= 3)) {
+      this.logger.warn(
+        `User ID ${ownerId} has reached the maximum number of cars`,
+      );
       throw new AppException(
-        "CAR_QUOTA_REACHED",
+        'CAR_QUOTA_REACHED',
         `User with ID ${ownerId} has reached the maximum number of cars (${3}).`,
-        HttpStatus.BAD_REQUEST);
+        HttpStatus.BAD_REQUEST,
+      );
     } // Assuming a limit of 3 cars per user TODO: Make this configurable
   }
 }

@@ -17,7 +17,9 @@ export class Review {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Business, (business) => business.reviews, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Business, (business) => business.reviews, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'business_id' })
   @Index()
   business: Business;
@@ -32,7 +34,7 @@ export class Review {
 
   @Column({ name: 'user_id' })
   userId: number;
-  
+
   @Column('integer')
   rating: number;
 

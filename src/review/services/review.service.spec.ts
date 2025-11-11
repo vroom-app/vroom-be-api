@@ -113,9 +113,9 @@ describe('ReviewService', () => {
           useValue: createMockBusinessService(),
         },
         {
-            provide: BusinessReviewService,
-            useValue: createMockBusinessReviewService(),
-        }
+          provide: BusinessReviewService,
+          useValue: createMockBusinessReviewService(),
+        },
       ],
     }).compile();
 
@@ -144,19 +144,25 @@ describe('ReviewService', () => {
       const userId = 1;
       const createdReviewedServices: ReviewedService[] = [
         { ...mockReviewedService, serviceId: 1 },
-        { ...mockReviewedService, serviceId: 2, id: 2 }
+        { ...mockReviewedService, serviceId: 2, id: 2 },
       ];
 
-      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(
+        undefined,
+      );
       reviewRepository.create.mockResolvedValue(mockReview);
-      reviewServiceRepository.createMultiple.mockResolvedValue(createdReviewedServices);
+      reviewServiceRepository.createMultiple.mockResolvedValue(
+        createdReviewedServices,
+      );
       reviewRepository.findById.mockResolvedValue(mockReview);
 
       // Act
       const result = await service.createReview(createReviewDto, userId);
 
       // Assert
-      expect(businessService.findBusinessAndValidateExistance).toHaveBeenCalledWith(createReviewDto.businessId);
+      expect(
+        businessService.findBusinessAndValidateExistance,
+      ).toHaveBeenCalledWith(createReviewDto.businessId);
       expect(reviewRepository.create).toHaveBeenCalledWith({
         businessId: createReviewDto.businessId,
         userId: userId,
@@ -168,7 +174,9 @@ describe('ReviewService', () => {
         { reviewId: mockReview.id, serviceId: 1 },
         { reviewId: mockReview.id, serviceId: 2 },
       ]);
-      expect(businessReviewService.updateBusinessRating).toHaveBeenCalledWith(createReviewDto.businessId);
+      expect(businessReviewService.updateBusinessRating).toHaveBeenCalledWith(
+        createReviewDto.businessId,
+      );
       expect(reviewRepository.findById).toHaveBeenCalledWith(mockReview.id);
       expect(result).toEqual(mockReviewResponseDto);
     });
@@ -176,15 +184,22 @@ describe('ReviewService', () => {
     it('should create review without ratings when ratings are not provided', async () => {
       // Arrange
       const userId = 1;
-      const createReviewDtoWithoutRatings = { ...createReviewDto, ratings: undefined };
+      const createReviewDtoWithoutRatings = {
+        ...createReviewDto,
+        ratings: undefined,
+      };
       const createdReviewedServices: ReviewedService[] = [
         { ...mockReviewedService, serviceId: 1 },
-        { ...mockReviewedService, serviceId: 2, id: 2 }
+        { ...mockReviewedService, serviceId: 2, id: 2 },
       ];
 
-      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(
+        undefined,
+      );
       reviewRepository.create.mockResolvedValue(mockReview);
-      reviewServiceRepository.createMultiple.mockResolvedValue(createdReviewedServices);
+      reviewServiceRepository.createMultiple.mockResolvedValue(
+        createdReviewedServices,
+      );
       reviewRepository.findById.mockResolvedValue(mockReview);
 
       // Act
@@ -204,11 +219,13 @@ describe('ReviewService', () => {
       // Arrange
       const userId = 1;
       businessService.findBusinessAndValidateExistance.mockRejectedValue(
-        new NotFoundException('Business not found')
+        new NotFoundException('Business not found'),
       );
 
       // Act & Assert
-      await expect(service.createReview(createReviewDto, userId)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.createReview(createReviewDto, userId),
+      ).rejects.toThrow(NotFoundException);
       expect(reviewRepository.create).not.toHaveBeenCalled();
       expect(reviewServiceRepository.createMultiple).not.toHaveBeenCalled();
     });
@@ -216,11 +233,15 @@ describe('ReviewService', () => {
     it('should throw error when review creation fails', async () => {
       // Arrange
       const userId = 1;
-      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(
+        undefined,
+      );
       reviewRepository.create.mockRejectedValue(new Error('Database error'));
 
       // Act & Assert
-      await expect(service.createReview(createReviewDto, userId)).rejects.toThrow('Database error');
+      await expect(
+        service.createReview(createReviewDto, userId),
+      ).rejects.toThrow('Database error');
       expect(reviewServiceRepository.createMultiple).not.toHaveBeenCalled();
     });
 
@@ -229,27 +250,40 @@ describe('ReviewService', () => {
       const userId = 1;
       const createdReviewedServices: ReviewedService[] = [
         { ...mockReviewedService, serviceId: 1 },
-        { ...mockReviewedService, serviceId: 2, id: 2 }
+        { ...mockReviewedService, serviceId: 2, id: 2 },
       ];
 
-      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(
+        undefined,
+      );
       reviewRepository.create.mockResolvedValue(mockReview);
-      reviewServiceRepository.createMultiple.mockResolvedValue(createdReviewedServices);
+      reviewServiceRepository.createMultiple.mockResolvedValue(
+        createdReviewedServices,
+      );
       reviewRepository.findById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.createReview(createReviewDto, userId)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.createReview(createReviewDto, userId),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should handle empty serviceIds array', async () => {
       // Arrange
       const userId = 1;
-      const createReviewDtoWithoutServices = { ...createReviewDto, serviceIds: [] };
+      const createReviewDtoWithoutServices = {
+        ...createReviewDto,
+        serviceIds: [],
+      };
       const emptyReviewedServices: ReviewedService[] = [];
 
-      businessService.findBusinessAndValidateExistance.mockResolvedValue(undefined);
+      businessService.findBusinessAndValidateExistance.mockResolvedValue(
+        undefined,
+      );
       reviewRepository.create.mockResolvedValue(mockReview);
-      reviewServiceRepository.createMultiple.mockResolvedValue(emptyReviewedServices);
+      reviewServiceRepository.createMultiple.mockResolvedValue(
+        emptyReviewedServices,
+      );
       reviewRepository.findById.mockResolvedValue(mockReview);
 
       // Act
@@ -267,13 +301,20 @@ describe('ReviewService', () => {
       const page = 1;
       const limit = 5;
       const total = 1;
-      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([[mockReview], total]);
+      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([
+        [mockReview],
+        total,
+      ]);
 
       // Act
       const result = await service.getBusinessReviews(businessId, page, limit);
 
       // Assert
-      expect(reviewRepository.findByBusinessIdPaginated).toHaveBeenCalledWith(businessId, page, limit);
+      expect(reviewRepository.findByBusinessIdPaginated).toHaveBeenCalledWith(
+        businessId,
+        page,
+        limit,
+      );
       expect(result).toEqual({
         reviews: [mockReviewResponseDto],
         total,
@@ -286,13 +327,20 @@ describe('ReviewService', () => {
       // Arrange
       const businessId = 'business-123';
       const total = 1;
-      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([[mockReview], total]);
+      reviewRepository.findByBusinessIdPaginated.mockResolvedValue([
+        [mockReview],
+        total,
+      ]);
 
       // Act
       await service.getBusinessReviews(businessId);
 
       // Assert
-      expect(reviewRepository.findByBusinessIdPaginated).toHaveBeenCalledWith(businessId, 1, 5);
+      expect(reviewRepository.findByBusinessIdPaginated).toHaveBeenCalledWith(
+        businessId,
+        1,
+        5,
+      );
     });
 
     it('should handle empty reviews list', async () => {
@@ -318,10 +366,14 @@ describe('ReviewService', () => {
     it('should throw error when repository fails', async () => {
       // Arrange
       const businessId = 'business-123';
-      reviewRepository.findByBusinessIdPaginated.mockRejectedValue(new Error('Database error'));
+      reviewRepository.findByBusinessIdPaginated.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       // Act & Assert
-      await expect(service.getBusinessReviews(businessId)).rejects.toThrow('Database error');
+      await expect(service.getBusinessReviews(businessId)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -373,10 +425,15 @@ describe('ReviewService', () => {
 
     it('should handle review without reviewServices', () => {
       // Arrange
-      const reviewWithoutServices = { ...mockReview, reviewServices: undefined };
+      const reviewWithoutServices = {
+        ...mockReview,
+        reviewServices: undefined,
+      };
 
       // Act
-      const result = (service as any).mapToReviewResponseDto(reviewWithoutServices);
+      const result = (service as any).mapToReviewResponseDto(
+        reviewWithoutServices,
+      );
 
       // Assert
       expect(result.services).toEqual([]);

@@ -154,6 +154,8 @@ export class BusinessManagementService {
 
   private async syncBusinessWithSearchEngine(savedBusiness: Business) {
     this.logger.log(`Syncing business with search engine ${savedBusiness}`);
-    await this.searchClient.upsertBusiness(BusinessMapper.toSearchPayload(savedBusiness));
+    await this.searchClient.upsertBusiness(
+      BusinessMapper.toSearchPayload(savedBusiness),
+    );
   }
 }

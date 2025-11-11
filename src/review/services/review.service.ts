@@ -1,11 +1,12 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { Review } from '../entities/review.entity';
 import { CreateReviewDto } from '../dto/create-review.dto';
-import { PaginatedBusinessReviewsResponseDto, ReviewedServiceDto, ReviewResponseDto, UserSummaryDto } from '../dto/review-response.dto';
+import {
+  PaginatedBusinessReviewsResponseDto,
+  ReviewedServiceDto,
+  ReviewResponseDto,
+  UserSummaryDto,
+} from '../dto/review-response.dto';
 import { BusinessService } from 'src/business/services/business.service';
 import { ReviewRepository } from '../repositories/review.repository';
 import { ReviewServiceRepository } from '../repositories/review-service.repository';
@@ -25,33 +26,41 @@ export class ReviewService {
   ) {}
 
   async createReview(
-    createReviewDto: CreateReviewDto, 
-    userId: number
+    createReviewDto: CreateReviewDto,
+    userId: number,
   ): Promise<ReviewResponseDto> {
     let review: Review;
 
     try {
       // Validate business exists
-      await this.businessService.findBusinessAndValidateExistance(createReviewDto.businessId);
+      await this.businessService.findBusinessAndValidateExistance(
+        createReviewDto.businessId,
+      );
 
       const reviewData = {
         businessId: createReviewDto.businessId,
         userId: userId,
         rating: createReviewDto.rating,
         comment: createReviewDto.comment,
-        ratings: createReviewDto.ratings ? this.transformRatings(createReviewDto.ratings) : undefined,
+        ratings: createReviewDto.ratings
+          ? this.transformRatings(createReviewDto.ratings)
+          : undefined,
       };
 
       review = await this.reviewRepository.create(reviewData);
 
-      const reviewServicesData = createReviewDto.serviceIds.map(serviceId => ({
-        reviewId: review.id,
-        serviceId,
-      }));
+      const reviewServicesData = createReviewDto.serviceIds.map(
+        (serviceId) => ({
+          reviewId: review.id,
+          serviceId,
+        }),
+      );
 
       await this.reviewServiceRepository.createMultiple(reviewServicesData);
 
-      this.businessReviewService.updateBusinessRating(createReviewDto.businessId);
+      this.businessReviewService.updateBusinessRating(
+        createReviewDto.businessId,
+      );
 
       // Return the complete review with relations
       const completeReview = await this.reviewRepository.findById(review.id);
@@ -60,25 +69,30 @@ export class ReviewService {
         throw new NotFoundException('Review not found after creation');
       }
       return this.mapToReviewResponseDto(completeReview);
-
     } catch (error) {
-      this.logger.error(`Failed to create review: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create review: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
 
   async getBusinessReviews(
-    businessId: string, 
-    page: number = 1, 
-    limit: number = 5
+    businessId: string,
+    page: number = 1,
+    limit: number = 5,
   ): Promise<PaginatedBusinessReviewsResponseDto> {
     try {
-      const [reviews, total] = await this.reviewRepository.findByBusinessIdPaginated(
-        businessId, 
-        page, 
-        limit
+      const [reviews, total] =
+        await this.reviewRepository.findByBusinessIdPaginated(
+          businessId,
+          page,
+          limit,
+        );
+      const reviewDtos = reviews.map((review) =>
+        this.mapToReviewResponseDto(review),
       );
-      const reviewDtos = reviews.map(review => this.mapToReviewResponseDto(review));
 
       return {
         reviews: reviewDtos,
@@ -86,11 +100,10 @@ export class ReviewService {
         page,
         limit,
       };
-
     } catch (error) {
       this.logger.error(
         `Failed to get reviews for business ${businessId}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -103,16 +116,20 @@ export class ReviewService {
       rating: review.rating,
       comment: review.comment,
       ratings: review.ratings as Record<string, number>,
-      services: review.reviewServices?.map(rs => this.mapToReviewedServiceDto(rs)) ?? [],
+      services:
+        review.reviewServices?.map((rs) => this.mapToReviewedServiceDto(rs)) ??
+        [],
       user: this.mapToUserSummaryDto(review.user),
       createdAt: review.createdAt,
     };
   }
 
-  private mapToReviewedServiceDto(reviewService: ReviewedService): ReviewedServiceDto {
+  private mapToReviewedServiceDto(
+    reviewService: ReviewedService,
+  ): ReviewedServiceDto {
     return {
       id: reviewService.serviceOffering.id,
-      name: reviewService.serviceOffering.name
+      name: reviewService.serviceOffering.name,
     };
   }
 
@@ -127,9 +144,11 @@ export class ReviewService {
   /**
    * Transform RatingDetailsDto to the expected ratings format
    */
-  private transformRatings(ratings: any): { [key: string]: number} | undefined  {
+  private transformRatings(
+    ratings: any,
+  ): { [key: string]: number } | undefined {
     if (!ratings) return undefined;
-    
+
     return {
       communication: ratings.communication,
       quality: ratings.quality,

@@ -16,7 +16,10 @@ export class UserSummaryDto {
   @ApiProperty({ example: 'john_doe' })
   username: string;
 
-  @ApiProperty({ example: 'https://cdn.app.com/avatar/john.jpg', required: false })
+  @ApiProperty({
+    example: 'https://cdn.app.com/avatar/john.jpg',
+    required: false,
+  })
   avatarUrl?: string;
 }
 

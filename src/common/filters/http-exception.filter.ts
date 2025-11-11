@@ -20,7 +20,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let status: number;
     let errorDto: ErrorDto;
 
-    if (exception instanceof HttpException || exception instanceof NotFoundException) {
+    if (
+      exception instanceof HttpException ||
+      exception instanceof NotFoundException
+    ) {
       status = exception.getStatus();
       const res = exception.getResponse() as
         | string

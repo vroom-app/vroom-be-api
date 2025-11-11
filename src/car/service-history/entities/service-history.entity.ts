@@ -1,5 +1,11 @@
-import { Car } from "src/car/entities/car.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Car } from 'src/car/entities/car.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('service_history')
 export class ServiceHistory {

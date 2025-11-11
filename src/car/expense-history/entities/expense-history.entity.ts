@@ -1,6 +1,12 @@
-import { Car } from "src/car/entities/car.entity";
-import { ExpenseType } from "src/car/entities/car.enums";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Car } from 'src/car/entities/car.entity';
+import { ExpenseType } from 'src/car/entities/car.enums';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('expense_history')
 export class ExpenseHistory {

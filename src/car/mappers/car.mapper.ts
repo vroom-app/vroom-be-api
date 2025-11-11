@@ -1,4 +1,4 @@
-import { CarResponseDto } from "../dto/car-response.dto";
+import { CarResponseDto } from '../dto/car-response.dto';
 import { Car } from '../entities/car.entity';
 
 export class CarMapper {
@@ -48,7 +48,7 @@ export class CarMapper {
   // ---------- Private mapping helpers ----------
 
   private static mapOwners(car: Car) {
-    return car.users.map(user => ({
+    return car.users.map((user) => ({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -61,33 +61,41 @@ export class CarMapper {
   }
 
   private static mapReminders(car: Car) {
-    return car.reminders?.map(reminder => ({
-      type: reminder.type,
-      dueDate: this.mapDate(reminder.dueDate),
-    })) ?? [];
+    return (
+      car.reminders?.map((reminder) => ({
+        type: reminder.type,
+        dueDate: this.mapDate(reminder.dueDate),
+      })) ?? []
+    );
   }
 
   private static mapServiceHistory(car: Car) {
-    return car.serviceHistory?.map(service => ({
-      date: this.mapDate(service.date)!,
-      mileage: service.mileage,
-      description: service.description,
-    })) ?? [];
+    return (
+      car.serviceHistory?.map((service) => ({
+        date: this.mapDate(service.date)!,
+        mileage: service.mileage,
+        description: service.description,
+      })) ?? []
+    );
   }
 
   private static mapTireHistory(car: Car) {
-    return car.tireHistory?.map(tire => ({
-      date: this.mapDate(tire.date)!,
-      size: tire.size,
-      type: tire.type,
-    })) ?? [];
+    return (
+      car.tireHistory?.map((tire) => ({
+        date: this.mapDate(tire.date)!,
+        size: tire.size,
+        type: tire.type,
+      })) ?? []
+    );
   }
 
   private static mapExpenseHistory(car: Car) {
-    return car.expenseHistory?.map(expense => ({
-      date: this.mapDate(expense.date)!,
-      type: expense.type,
-      amount: expense.amount,
-    })) ?? [];
+    return (
+      car.expenseHistory?.map((expense) => ({
+        date: this.mapDate(expense.date)!,
+        type: expense.type,
+        amount: expense.amount,
+      })) ?? []
+    );
   }
 }

@@ -16,7 +16,10 @@ import {
 import { Type } from 'class-transformer';
 
 class RatingDetailsDto {
-  @ApiPropertyOptional({ example: 5, description: 'Communication rating (1-5)' })
+  @ApiPropertyOptional({
+    example: 5,
+    description: 'Communication rating (1-5)',
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -39,7 +42,10 @@ class RatingDetailsDto {
 }
 
 export class CreateReviewDto {
-  @ApiProperty({ example: '3f8a3b5a-4a2e-4c19-95d7-2b41a8f612c4', description: 'Business UUID' })
+  @ApiProperty({
+    example: '3f8a3b5a-4a2e-4c19-95d7-2b41a8f612c4',
+    description: 'Business UUID',
+  })
   @IsUUID()
   businessId: string;
 
@@ -49,12 +55,18 @@ export class CreateReviewDto {
   @Max(5)
   rating: number;
 
-  @ApiProperty({ example: 'Great service and communication.', description: 'Main review comment' })
+  @ApiProperty({
+    example: 'Great service and communication.',
+    description: 'Main review comment',
+  })
   @IsString()
   @IsNotEmpty()
   comment: string;
 
-  @ApiPropertyOptional({ type: RatingDetailsDto, description: 'Detailed sub-ratings (optional)' })
+  @ApiPropertyOptional({
+    type: RatingDetailsDto,
+    description: 'Detailed sub-ratings (optional)',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => RatingDetailsDto)

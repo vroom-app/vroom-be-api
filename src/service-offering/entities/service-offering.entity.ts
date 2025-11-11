@@ -30,10 +30,12 @@ export class ServiceOffering {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({name: 'business_id'})
+  @Column({ name: 'business_id' })
   businessId: string;
 
-  @ManyToOne(() => Business, (business) => business.serviceOfferings, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Business, (business) => business.serviceOfferings, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'business_id' })
   business: Business;
 
@@ -55,7 +57,7 @@ export class ServiceOffering {
   @Column('integer', { default: 1 })
   capacity: number;
 
-  @CreateDateColumn({name: 'created_at'})
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @OneToMany(() => Slot, (slot) => slot.serviceOffering)

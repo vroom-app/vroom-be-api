@@ -63,7 +63,9 @@ describe('BusinessReviewService', () => {
     };
 
     // Mock BusinessMapper
-    jest.spyOn(BusinessMapper, 'toSearchPayload').mockReturnValue(mockSearchPayload);
+    jest
+      .spyOn(BusinessMapper, 'toSearchPayload')
+      .mockReturnValue(mockSearchPayload);
   });
 
   afterEach(() => {
@@ -75,19 +77,27 @@ describe('BusinessReviewService', () => {
       // Arrange
       const businessId = 'business-123';
       businessRepository.updateBusinessRating.mockResolvedValue(undefined);
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(mockBusiness);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        mockBusiness,
+      );
       searchClient.upsertBusiness.mockResolvedValue(undefined);
 
       // Act
       await service.updateBusinessRating(businessId);
 
       // Assert
-      expect(businessRepository.updateBusinessRating).toHaveBeenCalledWith(businessId);
-      expect(businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById).toHaveBeenCalledWith(businessId);
+      expect(businessRepository.updateBusinessRating).toHaveBeenCalledWith(
+        businessId,
+      );
+      expect(
+        businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById,
+      ).toHaveBeenCalledWith(businessId);
       expect(BusinessMapper.toSearchPayload).toHaveBeenCalledWith(mockBusiness);
-      expect(searchClient.upsertBusiness).toHaveBeenCalledWith(mockSearchPayload);
+      expect(searchClient.upsertBusiness).toHaveBeenCalledWith(
+        mockSearchPayload,
+      );
       expect((service as any).logger.log).toHaveBeenCalledWith(
-        `Business rating updated for business ID: ${businessId}, new average rating: ${mockBusiness.averageRating}, review count: ${mockBusiness.reviewCount}`
+        `Business rating updated for business ID: ${businessId}, new average rating: ${mockBusiness.averageRating}, review count: ${mockBusiness.reviewCount}`,
       );
     });
 
@@ -95,13 +105,17 @@ describe('BusinessReviewService', () => {
       // Arrange
       const businessId = 'non-existent-business';
       businessRepository.updateBusinessRating.mockResolvedValue(undefined);
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(null);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        null,
+      );
 
       // Act & Assert
       await expect(service.updateBusinessRating(businessId)).rejects.toThrow(
-        `Business with ID ${businessId} not found after rating update`
+        `Business with ID ${businessId} not found after rating update`,
       );
-      expect(businessRepository.updateBusinessRating).toHaveBeenCalledWith(businessId);
+      expect(businessRepository.updateBusinessRating).toHaveBeenCalledWith(
+        businessId,
+      );
       expect(searchClient.upsertBusiness).not.toHaveBeenCalled();
     });
 
@@ -109,7 +123,9 @@ describe('BusinessReviewService', () => {
       // Arrange
       const businessId = 'business-123';
       businessRepository.updateBusinessRating.mockResolvedValue(undefined);
-      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(mockBusiness);
+      businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsById.mockResolvedValue(
+        mockBusiness,
+      );
       searchClient.upsertBusiness.mockResolvedValue(undefined);
 
       // Act
@@ -117,10 +133,10 @@ describe('BusinessReviewService', () => {
 
       // Assert
       expect((service as any).logger.log).toHaveBeenCalledWith(
-        `Syncing business ratings with search engine ${mockBusiness}`
+        `Syncing business ratings with search engine ${mockBusiness}`,
       );
       expect((service as any).logger.log).toHaveBeenCalledWith(
-        `Business rating updated for business ID: ${businessId}, new average rating: ${mockBusiness.averageRating}, review count: ${mockBusiness.reviewCount}`
+        `Business rating updated for business ID: ${businessId}, new average rating: ${mockBusiness.averageRating}, review count: ${mockBusiness.reviewCount}`,
       );
     });
   });
@@ -135,9 +151,11 @@ describe('BusinessReviewService', () => {
 
       // Assert
       expect(BusinessMapper.toSearchPayload).toHaveBeenCalledWith(mockBusiness);
-      expect(searchClient.upsertBusiness).toHaveBeenCalledWith(mockSearchPayload);
+      expect(searchClient.upsertBusiness).toHaveBeenCalledWith(
+        mockSearchPayload,
+      );
       expect((service as any).logger.log).toHaveBeenCalledWith(
-        `Syncing business ratings with search engine ${mockBusiness}`
+        `Syncing business ratings with search engine ${mockBusiness}`,
       );
     });
   });

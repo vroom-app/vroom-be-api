@@ -13,11 +13,20 @@ import { SearchClientModule } from 'src/search-client/search-client.module';
   imports: [
     TypeOrmModule.forFeature([Business, BusinessOpeningHours]),
     UsersModule,
-    SearchClientModule
+    SearchClientModule,
   ],
   controllers: [],
-  providers: [BusinessService, BusinessReviewService, BusinessOpeningHoursService, BusinessRepository],
-  exports: [BusinessService, BusinessReviewService, BusinessOpeningHoursService],
+  providers: [
+    BusinessService,
+    BusinessReviewService,
+    BusinessOpeningHoursService,
+    BusinessRepository,
+  ],
+  exports: [
+    BusinessService,
+    BusinessReviewService,
+    BusinessOpeningHoursService,
+  ],
 })
 export class BusinessModule {}
 

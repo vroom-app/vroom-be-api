@@ -80,7 +80,13 @@ export class Business {
 
   // ── Rating ──────────────────────────────────────────────────────────
 
-  @Column({ name: 'average_rating', type: 'decimal', precision: 3, scale: 2, default: 0 })
+  @Column({
+    name: 'average_rating',
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    default: 0,
+  })
   averageRating: number;
 
   @Column({ name: 'review_count', default: 0 })
@@ -158,9 +164,9 @@ export class Business {
 
   // ── AUDIT ───────────────────────────────────────────────────────────
 
-  @CreateDateColumn({name: 'created_at'})
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn({name: 'updated_at'})
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

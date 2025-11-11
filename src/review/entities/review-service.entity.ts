@@ -1,13 +1,21 @@
 import { Review } from './review.entity';
 import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('review_services')
 export class ReviewedService {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Review, (review) => review.reviewServices, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Review, (review) => review.reviewServices, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'review_id' })
   review: Review;
 

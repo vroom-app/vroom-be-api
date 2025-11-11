@@ -60,8 +60,8 @@ export class ServiceOfferingManagementController {
   @UseGuards(JwtAuthGuard)
   @Patch(':businessId/:serviceId')
   @ApiBearerAuth()
-  @ApiOperation({ 
-    summary: 'Update service offerings for a business' 
+  @ApiOperation({
+    summary: 'Update service offerings for a business',
   })
   @ApiParam({
     name: 'businessId',

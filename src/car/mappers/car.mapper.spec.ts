@@ -8,7 +8,14 @@ describe('CarMapper', () => {
       id: 'car-123',
       brand: 'BMW',
       model: '320d',
-      users: [{ id: 1, firstName: 'John', lastName: 'Doe', email: 'test@example.com' }],
+      users: [
+        {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com',
+        },
+      ],
       vignetteExpiry: date,
       reminders: [{ type: 'Масло', dueDate: date }],
       serviceHistory: [{ date, mileage: 120000, description: 'Oil change' }],

@@ -105,10 +105,9 @@ export class BusinessRepository {
            SELECT COUNT(*) FROM reviews WHERE business_id = $1
          )
          WHERE id = $1`,
-        [businessId]
+        [businessId],
       );
-    }
-    catch (error) {
+    } catch (error) {
       throw new Error(`Failed to update business rating: ${error.message}`);
     }
   }

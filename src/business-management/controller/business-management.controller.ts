@@ -41,8 +41,8 @@ export class BusinessManagementController {
     description: 'The UUID of the business',
     example: 'eb9a85b0-ae52-4b4a-9d72-9cfc80b3138c',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Business profile returned',
     type: [BusinessProfileDto],
   })
@@ -62,8 +62,8 @@ export class BusinessManagementController {
     type: [CreateBusinessDto],
     description: 'Business data to be created',
   })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'Business created successfully',
     type: [BusinessProfileDto],
   })
@@ -117,9 +117,9 @@ export class BusinessManagementController {
     description: 'The UUID of the business',
     example: 'eb9a85b0-ae52-4b4a-9d72-9cfc80b3138c',
   })
-  @ApiResponse({ 
-    status: 204, 
-    description: 'Business deleted successfully'
+  @ApiResponse({
+    status: 204,
+    description: 'Business deleted successfully',
   })
   async deleteBusiness(
     @Param('businessId') businessId: string,

@@ -17,15 +17,18 @@ export class ReviewRepository {
       const review = this.reviewRepository.create(reviewData);
       return await this.reviewRepository.save(review);
     } catch (error) {
-      this.logger.error(`Failed to create review: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create review: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
 
   async findByBusinessIdPaginated(
-    businessId: string, 
-    page: number, 
-    limit: number
+    businessId: string,
+    page: number,
+    limit: number,
   ): Promise<[Review[], number]> {
     try {
       return await this.reviewRepository.findAndCount({
@@ -38,7 +41,7 @@ export class ReviewRepository {
     } catch (error) {
       this.logger.error(
         `Failed to find reviews for business ${businessId}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -51,7 +54,10 @@ export class ReviewRepository {
         relations: ['user', 'reviewServices', 'reviewServices.serviceOffering'],
       });
     } catch (error) {
-      this.logger.error(`Failed to find review by id ${id}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find review by id ${id}: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
