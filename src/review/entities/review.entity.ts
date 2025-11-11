@@ -1,6 +1,6 @@
 import { Business } from 'src/business/entities/business.entity';
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { User } from 'src/users/entities/user.entity';
+import { ReviewedService } from './review-service.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +8,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -16,46 +17,39 @@ export class Review {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @Index()
-  businessId: string;
-
-  @ManyToOne(() => Business, (business) => business.reviews, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Business, (business) => business.reviews, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'businessId' })
+  @Index()
   business: Business;
 
-  @Column({ nullable: true })
-  @Index()
-  serviceId: number;
+  @Column()
+  businessId: string;
 
-  @ManyToOne(() => ServiceOffering, (offering) => offering.reviews)
-  @JoinColumn({ name: 'serviceId' })
-  serviceOffering: ServiceOffering;
+  @ManyToOne(() => User, (user) => user.reviews)
+  @JoinColumn({ name: 'userId' })
+  @Index()
+  user: User;
 
   @Column()
   userId: number;
 
-  @ManyToOne(() => User, (user) => user.reviews)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
   @Column('integer')
   rating: number;
 
-  @Column()
+  @Column({ type: 'text' })
   comment: string;
 
-  @Column({ name: 'communication_rating', nullable: true })
-  communicationRating?: number;
-
-  @Column({ name: 'quality_rating', nullable: true })
-  qualityRating?: number;
-
-  @Column({ name: 'punctuality_rating', nullable: true })
-  punctualityRating?: number;
+  @Column({ type: 'jsonb', nullable: true })
+  ratings?: {
+    communication?: number;
+    quality?: number;
+    punctuality?: number;
+    [key: string]: number | undefined;
+  };
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => ReviewedService, (rs) => rs.review, { cascade: true })
+  reviewServices: ReviewedService[];
 }

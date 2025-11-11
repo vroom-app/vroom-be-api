@@ -5,11 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import configuration from './config/configurations';
 import { User } from './users/entities/user.entity';
-import { BookingModule } from './booking/booking.module';
 import { BusinessModule } from './business/business.module';
-import { ReviewModule } from './review/review.module';
 import { ServiceOfferingModule } from './service-offering/service-offering.module';
-import { SlotModule } from './slot/slot.module';
 import { Booking } from './booking/entities/booking.entity';
 import { Business } from './business/entities/business.entity';
 import { Review } from './review/entities/review.entity';
@@ -24,6 +21,8 @@ import { CarReminder } from './car/reminders/entities/reminder.entity';
 import { ServiceHistory } from './car/service-history/entities/service-history.entity';
 import { TireHistory } from './car/tire-history/entities/tire-history.entity';
 import { ExpenseHistory } from './car/expense-history/entities/expense-history.entity';
+import { ReviewedService } from './review/entities/review-service.entity';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -48,9 +47,8 @@ import { ExpenseHistory } from './car/expense-history/entities/expense-history.e
         // },
         entities: [
           Booking,
-          BusinessOpeningHours,
-          Business,
-          Review,
+          BusinessOpeningHours, Business,
+          Review, ReviewedService,
           ServiceOffering,
           Slot,
           User,
@@ -68,7 +66,7 @@ import { ExpenseHistory } from './car/expense-history/entities/expense-history.e
     BusinessModule,
     BusinessPhotoModule,
     BusinessManagementModule,
-    // ReviewModule,
+    ReviewModule,
     ServiceOfferingModule,
     // SlotModule,
     UsersModule,

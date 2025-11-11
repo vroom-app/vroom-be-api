@@ -17,7 +17,9 @@ import { assertServiceOwnership } from 'src/common/utils/assertServiceownership'
 export class BusinessService {
   private readonly logger = new Logger(BusinessService.name);
 
-  constructor(private readonly businessRepository: BusinessRepository) {}
+  constructor(
+    private readonly businessRepository: BusinessRepository
+  ) {}
 
   /**
    * Get a business profile by ID
@@ -237,6 +239,17 @@ export class BusinessService {
     );
 
     return business;
+  }
+
+  async updateBusinessRating(businessId: string) {
+    console.log(`Updating rating for business ID: ${businessId}`);
+  }
+
+  async findBusinessAndValidateExistance(businessId: string) {
+    assertEntityPresent(
+      await this.businessRepository.findBusinessById(businessId),
+      `Business with ID ${businessId} not found`,
+    );
   }
 
   // ── PRIVATE HELPER METHODS ──────────────────────────────────────────

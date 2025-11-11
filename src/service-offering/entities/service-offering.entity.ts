@@ -1,6 +1,6 @@
+import { ReviewedService } from 'src/review/entities/review-service.entity';
 import { Booking } from 'src/booking/entities/booking.entity';
 import { Business } from 'src/business/entities/business.entity';
-import { Review } from 'src/review/entities/review.entity';
 import { Slot } from 'src/slot/entities/slot.entity';
 import {
   Column,
@@ -33,9 +33,7 @@ export class ServiceOffering {
   @Column()
   businessId: string;
 
-  @ManyToOne(() => Business, (business) => business.serviceOfferings, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Business, (business) => business.serviceOfferings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'businessId' })
   business: Business;
 
@@ -63,8 +61,8 @@ export class ServiceOffering {
   @OneToMany(() => Slot, (slot) => slot.serviceOffering)
   slots: Slot[];
 
-  @OneToMany(() => Review, (review) => review.serviceOffering)
-  reviews: Review[];
+  @OneToMany(() => ReviewedService, (rs) => rs.serviceOffering)
+  reviewServices: ReviewedService[];
 
   @OneToMany(() => Booking, (booking) => booking.serviceOffering)
   bookings: Booking[];

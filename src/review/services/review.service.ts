@@ -2,218 +2,143 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from '../entities/review.entity';
 import { CreateReviewDto } from '../dto/create-review.dto';
-import { ReviewResponseDto } from '../dto/review-response.dto';
-import { ListReviewsDto } from '../dto/list-reviews.dto';
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
 import { ServiceOfferingService } from 'src/service-offering/services/service-offering.service';
+import { PaginatedBusinessReviewsResponseDto, ReviewedServiceDto, ReviewResponseDto, UserSummaryDto } from '../dto/review-response.dto';
+import { BusinessService } from 'src/business/services/business.service';
+import { ReviewRepository } from '../repositories/review.repository';
+import { ReviewServiceRepository } from '../repositories/review-service.repository';
+import { User } from 'src/users/entities/user.entity';
+import { ReviewedService } from '../entities/review-service.entity';
 
 @Injectable()
 export class ReviewService {
+  private readonly logger = new Logger(ReviewService.name);
+
   constructor(
-    @InjectRepository(Review)
-    private reviewRepository: Repository<Review>,
-    private readonly serviceOfferingService: ServiceOfferingService,
+    private readonly reviewRepository: ReviewRepository,
+    private readonly reviewServiceRepository: ReviewServiceRepository,
+    private readonly businessService: BusinessService,
   ) {}
 
   async createReview(
-    createReviewDto: CreateReviewDto,
-    userId: number,
+    createReviewDto: CreateReviewDto, 
+    userId: number
   ): Promise<ReviewResponseDto> {
-    const { businessId, serviceId, rating, comment } = createReviewDto;
+    let review: Review;
 
-    // Check if service exists (if provided)
-    let serviceOffering: ServiceOffering;
-    if (serviceId) {
-      serviceOffering = await this.serviceOfferingService.findById(serviceId);
+    try {
+      // Validate business exists
+      await this.businessService.findBusinessAndValidateExistance(createReviewDto.businessId);
+
+      // Create review - fix the ratings type issue
+      const reviewData = {
+        businessId: createReviewDto.businessId,
+        userId: userId,
+        rating: createReviewDto.rating,
+        comment: createReviewDto.comment,
+        ratings: createReviewDto.ratings ? this.transformRatings(createReviewDto.ratings) : undefined,
+      };
+
+      review = await this.reviewRepository.create(reviewData);
+
+      // Create review-service relationships
+      const reviewServicesData = createReviewDto.serviceIds.map(serviceId => ({
+        reviewId: review.id,
+        serviceId,
+      }));
+
+      await this.reviewServiceRepository.createMultiple(reviewServicesData);
+
+      // Update business rating async
+      this.businessService.updateBusinessRating(createReviewDto.businessId);
+
+      // Return the complete review with relations
+      const completeReview = await this.reviewRepository.findById(review.id);
+      if (!completeReview) {
+        this.logger.error('Review not found after creation');
+        throw new NotFoundException('Review not found after creation');
+      }
+      return this.mapToReviewResponseDto(completeReview);
+
+    } catch (error) {
+      this.logger.error(`Failed to create review: ${error.message}`, error.stack);
+      throw error;
     }
-
-    // Check if user already reviewed this business/service
-    const existingReview = await this.reviewRepository.findOne({
-      where: {
-        businessId,
-        userId,
-        ...(serviceId && { serviceId }),
-      },
-    });
-
-    if (existingReview) {
-      throw new BadRequestException(
-        serviceId
-          ? 'You have already reviewed this service'
-          : 'You have already reviewed this business',
-      );
-    }
-
-    // Create the review
-    const review = this.reviewRepository.create({
-      businessId,
-      serviceId,
-      userId,
-      rating,
-      comment,
-    });
-
-    const savedReview = await this.reviewRepository.save(review);
-
-    // Return the review with relations
-    return this.getReviewWithRelations(savedReview.id);
   }
 
   async getBusinessReviews(
-    businessId: string,
-    listReviewsDto: ListReviewsDto,
-  ): Promise<{
-    reviews: ReviewResponseDto[];
-    averageCommunication: number;
-    averageQuality: number;
-    averagePunctuality: number;
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const { page = 1, limit = 10, serviceId } = listReviewsDto;
+    businessId: string, 
+    page: number = 1, 
+    limit: number = 5
+  ): Promise<PaginatedBusinessReviewsResponseDto> {
+    try {
+      const [reviews, total] = await this.reviewRepository.findByBusinessIdPaginated(
+        businessId, 
+        page, 
+        limit
+      );
+      const reviewDtos = reviews.map(review => this.mapToReviewResponseDto(review));
 
-    const whereClause = { businessId, ...(serviceId && { serviceId }) };
-    const [reviews, total] = await this.reviewRepository.findAndCount({
-      where: whereClause,
-      relations: ['user', 'business', 'serviceOffering'],
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+      return {
+        reviews: reviewDtos,
+        total,
+        page,
+        limit,
+      };
 
-    const { avgCommunication, avgQuality, avgPunctuality } =
-      await this.reviewRepository
-        .createQueryBuilder('review')
-        .select('AVG(review.communicationRating)', 'avgCommunication')
-        .addSelect('AVG(review.qualityRating)', 'avgQuality')
-        .addSelect('AVG(review.punctualityRating)', 'avgPunctuality')
-        .where('review.businessId = :businessId', { businessId })
-        .andWhere(serviceId ? 'review.serviceId = :serviceId' : '1=1', {
-          serviceId,
-        })
-        .getRawOne();
-
-    return {
-      reviews: reviews.map((r) => this.mapToResponseDto(r)),
-      averageCommunication: parseFloat(avgCommunication) || 0,
-      averageQuality: parseFloat(avgQuality) || 0,
-      averagePunctuality: parseFloat(avgPunctuality) || 0,
-      total,
-      page,
-      limit,
-    };
-  }
-
-  async getUserReviews(
-    userId: number,
-    listReviewsDto: ListReviewsDto,
-  ): Promise<{
-    reviews: ReviewResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const { page = 1, limit = 10 } = listReviewsDto;
-
-    const [reviews, total] = await this.reviewRepository.findAndCount({
-      where: { userId },
-      relations: ['user', 'business', 'serviceOffering'],
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    const reviewResponseDtos = reviews.map((review) =>
-      this.mapToResponseDto(review),
-    );
-
-    return {
-      reviews: reviewResponseDtos,
-      total,
-      page,
-      limit,
-    };
-  }
-
-  async getBusinessAverageRating(
-    businessId: string,
-  ): Promise<{ averageRating: number; totalReviews: number }> {
-    const result = await this.reviewRepository
-      .createQueryBuilder('review')
-      .select('AVG(review.rating)', 'averageRating')
-      .addSelect('COUNT(review.id)', 'totalReviews')
-      .where('review.businessId = :businessId', { businessId })
-      .getRawOne();
-
-    return {
-      averageRating: parseFloat(result.averageRating) || 0,
-      totalReviews: parseInt(result.totalReviews) || 0,
-    };
-  }
-
-  private async getReviewWithRelations(
-    reviewId: number,
-  ): Promise<ReviewResponseDto> {
-    const review = await this.reviewRepository.findOne({
-      where: { id: reviewId },
-      relations: ['user', 'business', 'serviceOffering'],
-    });
-
-    if (!review) {
-      throw new NotFoundException(`Review with ID ${reviewId} not found`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get reviews for business ${businessId}: ${error.message}`,
+        error.stack
+      );
+      throw error;
     }
-
-    return this.mapToResponseDto(review);
   }
 
-  private mapToResponseDto(review: Review): ReviewResponseDto {
+  private mapToReviewResponseDto(review: Review): ReviewResponseDto {
     return {
       id: review.id,
       businessId: review.businessId,
-      serviceId: review.serviceId,
-      userId: review.userId,
       rating: review.rating,
       comment: review.comment,
+      ratings: review.ratings as Record<string, number>,
+      services: review.reviewServices?.map(rs => this.mapToReviewedServiceDto(rs)),
+      user: this.mapToUserSummaryDto(review.user),
       createdAt: review.createdAt,
-      user: {
-        id: review.user.id,
-        firstName: review.user.firstName,
-        lastName: review.user.lastName,
-      },
-      business: {
-        id: review.business.id,
-        name: review.business.name,
-      },
-      serviceOffering: review.serviceOffering
-        ? {
-            id: review.serviceOffering.id,
-            name: review.serviceOffering.name,
-          }
-        : undefined,
     };
   }
-}
 
-function averageOptionalField<T extends keyof Review>(
-  reviews: Review[],
-  field: T,
-): number {
-  let sum = 0;
-  let count = 0;
-
-  for (const review of reviews) {
-    const value = review[field];
-    if (typeof value === 'number') {
-      sum += value;
-      count++;
-    }
+  private mapToReviewedServiceDto(reviewService: ReviewedService): ReviewedServiceDto {
+    return {
+      id: reviewService.serviceOffering.id,
+      name: reviewService.serviceOffering.name
+    };
   }
 
-  return count > 0 ? parseFloat((sum / count).toFixed(2)) : 0;
+  private mapToUserSummaryDto(user: User): UserSummaryDto {
+    return {
+      id: user.id,
+      username: user.firstName + ' ' + user.lastName,
+      avatarUrl: user.avatarUrl,
+    };
+  }
+
+  /**
+   * Transform RatingDetailsDto to the expected ratings format
+   */
+  private transformRatings(ratings: any): { [key: string]: number} | undefined  {
+    if (!ratings) return undefined;
+    
+    return {
+      communication: ratings.communication,
+      quality: ratings.quality,
+      punctuality: ratings.punctuality,
+    };
+  }
 }
