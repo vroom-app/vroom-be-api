@@ -11,6 +11,6 @@ export interface SearchBusinessPayload {
   specializations?: string[];
   city?: string;
   logo_map_url?: string | null;
-  average_reviews?: number;
+  average_reviews?: string;
   review_count?: number;
 }

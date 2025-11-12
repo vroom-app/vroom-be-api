@@ -16,9 +16,7 @@ export class SearchClientService {
    * @param payload
    */
   async upsertBusiness(payload: SearchBusinessPayload): Promise<void> {
-    this.logger.log(
-      `Upserting Business ${payload.id} with ${JSON.stringify(payload)}`,
-    );
+    this.logger.log(`Upserting Business with id ${payload.id}`);
     try {
       await this.http.put('/businesses/sync', payload);
     } catch (error) {

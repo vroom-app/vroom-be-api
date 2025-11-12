@@ -21,7 +21,7 @@ export class BusinessMapper {
       specializations: business.specializations ?? [],
       city: business.city,
       logo_map_url: business.logoMapUrl,
-      average_reviews: business.averageRating,
+      average_reviews: business.averageRating?.toString(),
       review_count: business.reviewCount,
     };
   }
