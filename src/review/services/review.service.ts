@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, HttpStatus } from '@nestjs/common';
 import { Review } from '../entities/review.entity';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import {
@@ -13,6 +13,8 @@ import { ReviewServiceRepository } from '../repositories/review-service.reposito
 import { User } from 'src/users/entities/user.entity';
 import { ReviewedService } from '../entities/review-service.entity';
 import { BusinessReviewService } from 'src/business/services/business-review.service';
+import { AppException } from 'src/common/dto/error.dto';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class ReviewService {
@@ -23,59 +25,27 @@ export class ReviewService {
     private readonly reviewServiceRepository: ReviewServiceRepository,
     private readonly businessService: BusinessService,
     private readonly businessReviewService: BusinessReviewService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createReview(
     createReviewDto: CreateReviewDto,
     userId: number,
   ): Promise<ReviewResponseDto> {
-    let review: Review;
+    await this.businessService.findBusinessAndValidateExistance(createReviewDto.businessId);
 
-    try {
-      // Validate business exists
-      await this.businessService.findBusinessAndValidateExistance(
-        createReviewDto.businessId,
-      );
-
-      const reviewData = {
-        businessId: createReviewDto.businessId,
-        userId: userId,
-        rating: createReviewDto.rating,
-        comment: createReviewDto.comment,
-        ratings: createReviewDto.ratings
-          ? this.transformRatings(createReviewDto.ratings)
-          : undefined,
-      };
-
-      review = await this.reviewRepository.create(reviewData);
-
-      const reviewServicesData = createReviewDto.serviceIds.map(
-        (serviceId) => ({
-          reviewId: review.id,
-          serviceId,
-        }),
-      );
-
-      await this.reviewServiceRepository.createMultiple(reviewServicesData);
-
-      this.businessReviewService.updateBusinessRating(
-        createReviewDto.businessId,
-      );
-
-      // Return the complete review with relations
-      const completeReview = await this.reviewRepository.findById(review.id);
-      if (!completeReview) {
-        this.logger.error('Review not found after creation');
-        throw new NotFoundException('Review not found after creation');
-      }
-      return this.mapToReviewResponseDto(completeReview);
-    } catch (error) {
-      this.logger.error(
-        `Failed to create review: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+    return await this.dataSource.transaction(async (entityManager) => {
+      const review = await this.createReviewEntity(createReviewDto, userId, entityManager);
+      await this.createReviewServices(review.id, createReviewDto.serviceIds, entityManager);
+      return review;
+    })
+    .then(async (review) => {
+      this.updateBusinessRatingAsync(createReviewDto.businessId);
+      return this.mapToReviewResponseDto(review);
+    })
+    .catch((error) => {
+      this.handleReviewCreationError(error, createReviewDto);
+    });
   }
 
   async getBusinessReviews(
@@ -105,7 +75,85 @@ export class ReviewService {
         `Failed to get reviews for business ${businessId}: ${error.message}`,
         error.stack,
       );
-      throw error;
+      throw new AppException(
+        'REVIEW_NOT_FOUND',
+        `Failed to get reviews for business ${businessId}: ${error.message}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  private async createReviewEntity(
+    createReviewDto: CreateReviewDto, 
+    userId: number, 
+    entityManager: any
+  ): Promise<Review> {
+    const reviewData = {
+      businessId: createReviewDto.businessId,
+      userId: userId,
+      rating: createReviewDto.rating,
+      comment: createReviewDto.comment,
+      ratings: createReviewDto.ratings
+        ? this.transformRatings(createReviewDto.ratings)
+        : undefined,
+    };
+
+    return await this.reviewRepository.create(reviewData, entityManager);
+  }
+
+  private async createReviewServices(
+    reviewId: number,
+    serviceIds: number[],
+    entityManager: any
+  ): Promise<void> {
+    if (!serviceIds?.length) return;
+
+    const reviewServicesData = serviceIds.map((serviceId) => ({
+      reviewId: reviewId,
+      serviceId,
+    }));
+
+    await this.reviewServiceRepository.createMultiple(reviewServicesData, entityManager);
+  }
+
+  private handleReviewCreationError(error: any, createReviewDto: CreateReviewDto): never {
+    this.logger.error(`Failed to create review: ${error.message}`);
+    
+    if (error.code === '23503') {
+      throw new AppException(
+        'INVALID_SERVICE_IDS',
+        'One or more service IDs are invalid. Please check the provided services.',
+        HttpStatus.BAD_REQUEST,
+        {
+          invalidServiceIds: createReviewDto.serviceIds,
+          businessId: createReviewDto.businessId
+        }
+      );
+    }
+    
+    if (error.code === '23505') {
+      throw new AppException(
+        'DUPLICATE_REVIEW',
+        'You have already reviewed this business.',
+        HttpStatus.CONFLICT
+      );
+    }
+    
+    throw new AppException(
+      'REVIEW_CREATION_FAILED',
+      `Failed to create review: ${error.message}`,
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      {
+        originalError: error.message
+      }
+    );
+  }
+
+  private async updateBusinessRatingAsync(businessId: string): Promise<void> {
+    try {
+      await this.businessReviewService.updateBusinessRating(businessId);
+    } catch (error) {
+      this.logger.warn(`Failed to update business rating: ${error.message}`);
     }
   }
 

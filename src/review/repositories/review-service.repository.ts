@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReviewedService } from '../entities/review-service.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 @Injectable()
 export class ReviewServiceRepository {
@@ -14,11 +14,15 @@ export class ReviewServiceRepository {
 
   async createMultiple(
     reviewServicesData: Partial<ReviewedService>[],
+    entityManager?: EntityManager,
   ): Promise<ReviewedService[]> {
     try {
-      const reviewServices =
-        this.reviewServiceRepository.create(reviewServicesData);
-      return await this.reviewServiceRepository.save(reviewServices);
+      const repository = entityManager 
+        ? entityManager.getRepository(ReviewedService) 
+        : this.reviewServiceRepository;
+      
+      const reviewServices = repository.create(reviewServicesData);
+      return await repository.save(reviewServices);
     } catch (error) {
       this.logger.error(
         `Failed to create review services: ${error.message}`,
