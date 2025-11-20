@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from '../entities/review.entity';
 
@@ -12,10 +12,14 @@ export class ReviewRepository {
     private reviewRepository: Repository<Review>,
   ) {}
 
-  async create(reviewData: Partial<Review>): Promise<Review> {
+  async create(
+    reviewData: Partial<Review>, 
+    entityManager?: EntityManager
+  ): Promise<Review> {
     try {
-      const review = this.reviewRepository.create(reviewData);
-      return await this.reviewRepository.save(review);
+      const repository = entityManager ? entityManager.getRepository(Review) : this.reviewRepository;
+      const review = repository.create(reviewData);
+      return await repository.save(review);
     } catch (error) {
       this.logger.error(
         `Failed to create review: ${error.message}`,
