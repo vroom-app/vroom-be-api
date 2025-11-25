@@ -2,7 +2,7 @@ name: Deploy NestJS App
 
 on:
   push:
-    branches: [ release ]
+    branches: [ main ]
 
 jobs:
   deploy:
