@@ -1,0 +1,115 @@
+name: Deploy NestJS App
+
+on:
+  push:
+    branches: [ release ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+
+    - name: Install dependencies and build
+      run: |
+        npm ci
+        npm run build
+
+    - name: Create deployment with version info
+      run: |
+        # Create version file with commit info
+        echo "Build Date: $(date)" > dist/build-info.txt
+        echo "Commit: ${{ github.sha }}" >> dist/build-info.txt
+        echo "Branch: ${{ github.ref_name }}" >> dist/build-info.txt
+        echo "Deployed by: GitHub Actions" >> dist/build-info.txt
+
+    - name: Deploy to EC2
+      uses: appleboy/scp-action@v0.1.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "dist/"
+        target: "/home/ec2-user/deploy-temp/"
+        strip_components: 0
+
+    - name: Deploy with Backup on EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          set -e  # Exit on error
+          
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BACKUP_DIR="/opt/apps/backups/vroom-be-api-$TIMESTAMP"
+          CURRENT_APP="/opt/apps/vroom-be-api"
+          
+          echo "Starting deployment with backup..."
+          
+          # Create backup directory
+          sudo mkdir -p /opt/apps/backups
+          sudo mkdir -p "$BACKUP_DIR"
+          
+          # Stop the service
+          echo "Stopping nestjs.service..."
+          sudo systemctl stop nestjs.service
+          
+          # Backup current dist folder and package files
+          echo "Creating backup of current build..."
+          if [ -d "$CURRENT_APP/dist" ]; then
+            sudo cp -r "$CURRENT_APP/dist" "$BACKUP_DIR/"
+          fi
+          if [ -f "$CURRENT_APP/package.json" ]; then
+            sudo cp "$CURRENT_APP/package.json" "$BACKUP_DIR/"
+          fi
+          if [ -f "$CURRENT_APP/package-lock.json" ]; then
+            sudo cp "$CURRENT_APP/package-lock.json" "$BACKUP_DIR/"
+          fi
+          
+          # Copy new build files
+          echo "Deploying new build..."
+          sudo cp -r /home/ec2-user/deploy-temp/* "$CURRENT_APP/"
+          
+          # Set proper ownership
+          sudo chown -R ec2-user:ec2-user "$CURRENT_APP"
+          sudo chown -R ec2-user:ec2-user "/opt/apps/backups"
+          
+          # Start the service
+          echo "Starting nestjs.service..."
+          sudo systemctl start nestjs.service
+          
+          # Wait a moment and check service status
+          sleep 5
+          SERVICE_STATUS=$(sudo systemctl is-active nestjs.service)
+          
+          if [ "$SERVICE_STATUS" = "active" ]; then
+            echo "Service started successfully!"
+            echo "New build deployed successfully!"
+            echo "Backup saved to: $BACKUP_DIR"
+            
+            # Clean up old backups (keep last 5)
+            echo "Cleaning up old backups (keeping last 5)..."
+            cd /opt/apps/backups
+            ls -dt vroom-be-api-* | tail -n +6 | xargs sudo rm -rf
+            
+            # Clean up temp files
+            rm -rf /home/ec2-user/deploy-temp
+          else
+            echo "Service failed to start! Rolling back..."
+            
+            # Rollback to backup
+            sudo cp -r "$BACKUP_DIR/dist" "$CURRENT_APP/" || true
+            sudo systemctl start nestjs.service
+            echo "Rolled back to previous build"
+            exit 1
+          fi
