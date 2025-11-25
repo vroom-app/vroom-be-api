@@ -1,5 +1,5 @@
-import { Business } from 'src/business/entities/business.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Business } from '../../business/entities/business.entity';
+import { User } from '../../users/entities/user.entity';
 import { ReviewedService } from './review-service.entity';
 import {
   Column,

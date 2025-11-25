@@ -7,7 +7,6 @@ import configuration from './config/configurations';
 import { User } from './users/entities/user.entity';
 import { BusinessModule } from './business/business.module';
 import { ServiceOfferingModule } from './service-offering/service-offering.module';
-import { Booking } from './booking/entities/booking.entity';
 import { Business } from './business/entities/business.entity';
 import { Review } from './review/entities/review.entity';
 import { ServiceOffering } from './service-offering/entities/service-offering.entity';
@@ -23,6 +22,9 @@ import { TireHistory } from './car/tire-history/entities/tire-history.entity';
 import { ExpenseHistory } from './car/expense-history/entities/expense-history.entity';
 import { ReviewedService } from './review/entities/review-service.entity';
 import { ReviewModule } from './review/review.module';
+import { SlotModule } from './slot/slot.module';
+import { BookingModule } from './booking/booking.module';
+import { Booking } from './booking/entities/booking.entity';
 
 @Module({
   imports: [
@@ -42,9 +44,9 @@ import { ReviewModule } from './review/review.module';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        // ssl: {
+        //   rejectUnauthorized: false,
+        // },
         entities: [
           Booking,
           BusinessOpeningHours,
@@ -60,17 +62,18 @@ import { ReviewModule } from './review/review.module';
           ExpenseHistory,
           Car,
         ],
-        synchronize: process.env.NODE_ENV !== 'prod',
+        synchronize: false,
+        migrationsRun: true,
       }),
     }),
     AuthModule,
-    // BookingModule,
+    BookingModule,
     BusinessModule,
     BusinessPhotoModule,
     BusinessManagementModule,
     ReviewModule,
     ServiceOfferingModule,
-    // SlotModule,
+    SlotModule,
     UsersModule,
     CarModule,
   ],

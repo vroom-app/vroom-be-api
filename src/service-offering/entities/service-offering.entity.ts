@@ -1,7 +1,7 @@
-import { ReviewedService } from 'src/review/entities/review-service.entity';
-import { Booking } from 'src/booking/entities/booking.entity';
-import { Business } from 'src/business/entities/business.entity';
-import { Slot } from 'src/slot/entities/slot.entity';
+import { ReviewedService } from '../../review/entities/review-service.entity';
+import { Booking } from '../../booking/entities/booking.entity';
+import { Business } from '../../business/entities/business.entity';
+import { Slot } from '../../slot/entities/slot.entity';
 import {
   Column,
   CreateDateColumn,

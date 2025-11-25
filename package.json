@@ -15,6 +15,10 @@
     "start:dev": "cross-env NODE_ENV=dev nest start --watch",
     "start:debug": "cross-env NODE_ENV=dev nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=prod node dist/main",
+    "typeorm": "typeorm-ts-node-commonjs -d typeorm.config.ts",
+    "migration:generate": "npm run typeorm migration:generate --",
+    "migration:run": "npm run typeorm migration:run --",
+    "migration:create": "npm run typeorm migration:create --",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:unit": "jest",
@@ -23,7 +27,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
-  },
+  }, 
   "dependencies": {
     "@aws-sdk/client-s3": "^3.839.0",
     "@nestjs/common": "^11.0.1",
@@ -50,7 +54,6 @@
     "rxjs": "^7.8.1",
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.22",
     "typeorm-naming-strategies": "^4.1.0"
   },
   "devDependencies": {
@@ -89,6 +92,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "typeorm": "^0.3.27",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },

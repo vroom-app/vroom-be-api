@@ -1,6 +1,6 @@
-import { Booking } from 'src/booking/entities/booking.entity';
-import { Business } from 'src/business/entities/business.entity';
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
+import { Booking } from '../../booking/entities/booking.entity';
+import { Business } from '../../business/entities/business.entity';
+import { ServiceOffering } from '../../service-offering/entities/service-offering.entity';
 import {
   Column,
   Entity,

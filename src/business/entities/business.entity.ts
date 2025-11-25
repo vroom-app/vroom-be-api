@@ -1,4 +1,4 @@
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -10,9 +10,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BusinessOpeningHours } from './business-opening-hours.entity';
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
-import { Slot } from 'src/slot/entities/slot.entity';
-import { Review } from 'src/review/entities/review.entity';
+import { ServiceOffering } from '../../service-offering/entities/service-offering.entity';
+import { Slot } from '../../slot/entities/slot.entity';
+import { Review } from '../../review/entities/review.entity';
 
 export enum BusinessCategory {
   CarWash = 'CarWash',

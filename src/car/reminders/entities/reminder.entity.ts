@@ -1,5 +1,5 @@
-import { Car } from 'src/car/entities/car.entity';
-import { ReminderType } from 'src/car/entities/car.enums';
+import { Car } from '../../entities/car.entity';
+import { ReminderType } from '../../entities/car.enums';
 import {
   Column,
   Entity,

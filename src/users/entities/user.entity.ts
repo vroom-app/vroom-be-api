@@ -1,7 +1,7 @@
-import { Booking } from 'src/booking/entities/booking.entity';
-import { Business } from 'src/business/entities/business.entity';
-import { Car } from 'src/car/entities/car.entity';
-import { Review } from 'src/review/entities/review.entity';
+import { Booking } from '../../booking/entities/booking.entity';
+import { Business } from '../../business/entities/business.entity';
+import { Car } from '../../car/entities/car.entity';
+import { Review } from '../../review/entities/review.entity';
 import {
   Entity,
   Column,

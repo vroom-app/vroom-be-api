@@ -1,5 +1,5 @@
 import { Review } from './review.entity';
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
+import { ServiceOffering } from '../../service-offering/entities/service-offering.entity';
 import {
   Column,
   Entity,

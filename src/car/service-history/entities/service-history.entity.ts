@@ -1,4 +1,4 @@
-import { Car } from 'src/car/entities/car.entity';
+import { Car } from '../../entities/car.entity';
 import {
   Column,
   Entity,

@@ -1,6 +1,6 @@
-import { ServiceOffering } from 'src/service-offering/entities/service-offering.entity';
-import { Slot } from 'src/slot/entities/slot.entity';
-import { User } from 'src/users/entities/user.entity';
+import { ServiceOffering } from '../../service-offering/entities/service-offering.entity';
+import { Slot } from '../../slot/entities/slot.entity';
+import { User } from '../../users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
