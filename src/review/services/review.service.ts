@@ -167,7 +167,7 @@ export class ReviewService {
       services:
         review.reviewServices?.map((rs) => this.mapToReviewedServiceDto(rs)) ??
         [],
-      user: this.mapToUserSummaryDto(review.user),
+      user: review.user ? this.mapToUserSummaryDto(review.user) : undefined,
       createdAt: review.createdAt,
     };
   }

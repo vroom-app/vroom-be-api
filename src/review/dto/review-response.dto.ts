@@ -50,9 +50,9 @@ export class ReviewResponseDto {
   @Type(() => ReviewedServiceDto)
   services: ReviewedServiceDto[];
 
-  @ApiProperty({ type: UserSummaryDto })
+  @ApiProperty({ type: UserSummaryDto, required: false, })
   @Type(() => UserSummaryDto)
-  user: UserSummaryDto;
+  user?: UserSummaryDto;
 
   @ApiProperty({ example: '2025-11-10T09:30:00.000Z' })
   createdAt: Date;
