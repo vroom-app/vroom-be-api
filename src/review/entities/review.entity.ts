@@ -10,9 +10,11 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('reviews')
+@Unique(['businessId', 'userId'])
 export class Review {
   @PrimaryGeneratedColumn()
   id: number;

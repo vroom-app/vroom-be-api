@@ -53,7 +53,11 @@ export class Car {
   @Column({ nullable: true })
   color?: string;
 
-  @Column({ nullable: true })
+  @Column({
+    type: 'enum',
+    enum: CarFuel,
+    nullable: true,
+  })
   oilType?: CarFuel;
 
   @Column({ type: 'date', nullable: true })

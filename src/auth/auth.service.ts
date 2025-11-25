@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserService } from 'src/users/user.service';
+import { UserService } from '../users/user.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { AuthProvider, User } from 'src/users/entities/user.entity';
+import { AuthProvider, User } from '../users/entities/user.entity';
 
 interface OAuthUser {
   providerId: string;

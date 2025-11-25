@@ -65,4 +65,10 @@ export class ReviewRepository {
       throw error;
     }
   }
+
+  async findByBusinessAndUser(businessId: string, userId: number): Promise<Review | null> {
+    return this.reviewRepository.findOne({
+      where: { businessId, userId },
+    });
+  }
 }

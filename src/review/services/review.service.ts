@@ -33,6 +33,7 @@ export class ReviewService {
     userId: number,
   ): Promise<ReviewResponseDto> {
     await this.businessService.findBusinessAndValidateExistance(createReviewDto.businessId);
+    await this.userHadReviewed(createReviewDto.businessId, userId);
 
     return await this.dataSource.transaction(async (entityManager) => {
       const review = await this.createReviewEntity(createReviewDto, userId, entityManager);
@@ -200,5 +201,19 @@ export class ReviewService {
       quality: ratings.quality,
       punctuality: ratings.punctuality,
     };
+  }
+
+  private async userHadReviewed(businessId: string, userId: number) {
+    const existingReview = await this.reviewRepository.findByBusinessAndUser(
+      businessId,
+      userId,
+    );
+    if (existingReview) {
+      throw new AppException(
+        'DUPLICATE_REVIEW',
+        'You have already reviewed this business.',
+        HttpStatus.CONFLICT,
+      );
+    }
   }
 }
