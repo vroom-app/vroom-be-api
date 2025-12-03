@@ -14,6 +14,7 @@ export class BusinessMapper {
       id: business.id,
       name: business.name,
       name_en: business.name,
+      slug: business.slug,
       address: business.address,
       latitude: business.latitude,
       longitude: business.longitude,
@@ -38,6 +39,7 @@ export class BusinessMapper {
     return {
       id: business.id,
       name: business.name,
+      slug: business.slug,
       description: business.description,
       categories: business.categories,
       isSponsored: business.isSponsored,

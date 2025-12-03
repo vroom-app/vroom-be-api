@@ -52,6 +52,24 @@ export class BusinessManagementController {
     return this.businessManagementService.getBusinessProfile(businessId);
   }
 
+  @Get('slug/:slug')
+  @ApiOperation({ summary: 'Get a business profile by slug' })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the business',
+    example: 'eb9a85b0-ae52-4b4a-9d72-9cfc80b3138c',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Business profile returned',
+    type: [BusinessProfileDto],
+  })
+  async getBusinessDetailsBySlug(
+    @Param('slug') slug: string,
+  ): Promise<BusinessProfileDto> {
+    return this.businessManagementService.getBusinessProfileBySlug(slug);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiBearerAuth()

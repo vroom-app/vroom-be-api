@@ -13,4 +13,5 @@ export interface SearchBusinessPayload {
   logo_map_url?: string | null;
   average_reviews?: string;
   review_count?: number;
+  slug?: string;
 }

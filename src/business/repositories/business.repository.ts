@@ -44,6 +44,22 @@ export class BusinessRepository {
   }
 
   /**
+   * Find a business by its slug, including its opening hours and service offerings.
+   * @param id The ID of the business to find
+   * @returns The business entity, or null if not found.
+   */
+  async findBusinessWithOpeningHoursAndServiceOfferingsBySlug(
+    slug: string,
+  ): Promise<Business | null> {
+    return this.businessRepository.findOne({
+      where: {
+        slug: slug,
+      },
+      relations: ['openingHours', 'serviceOfferings'],
+    });
+  }
+
+  /**
    * Find a business by its ID.
    * @param businessId The ID of the business to find
    * @returns The business entity, or null if not found.

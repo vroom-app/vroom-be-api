@@ -53,6 +53,7 @@
     "rxjs": "^7.8.1",
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.1",
+    "transliteration": "^2.3.5",
     "typeorm-naming-strategies": "^4.1.0"
   },
   "devDependencies": {

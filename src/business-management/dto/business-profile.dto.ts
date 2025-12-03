@@ -9,6 +9,9 @@ export class BusinessProfileDto {
   @ApiProperty({ example: 'Service Name' })
   name: string;
 
+  @ApiProperty({ example: 'avtoserviz-sofiya'})
+  slug?: string;
+
   @ApiProperty({
     example: 'We offer top-notch residential cleaning.',
     required: false,

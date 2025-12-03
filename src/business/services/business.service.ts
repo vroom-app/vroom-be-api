@@ -12,6 +12,7 @@ import { assertOwnership } from 'src/common/utils/assertOwnership';
 import { assertAffected } from 'src/common/utils/assertAffected';
 import { assertServiceOwnership } from 'src/common/utils/assertServiceownership';
 import { BusinessMapper } from 'src/common/utils/business-mapper.util';
+import { SlugGenerator } from 'src/common/utils/slug-generator.util';
 
 @Injectable()
 export class BusinessService {
@@ -41,6 +42,20 @@ export class BusinessService {
     return BusinessMapper.toBusinessProfileDto(business);
   }
 
+  async getBusinessDetailsBySlug(slug: string): Promise<BusinessProfileDto> {
+    this.logger.log(
+      `Attempting to fetch Business with slug ${slug} from database.`,
+    );
+    const business = assertEntityPresent(
+      await this.businessRepository.findBusinessWithOpeningHoursAndServiceOfferingsBySlug(
+        slug,
+      ),
+      `Business with slug ${slug} not found.`,
+    );
+
+    return BusinessMapper.toBusinessProfileDto(business);
+  }
+
   /**
    * Create a new business for a user
    * Only set the id if searchEngineId is provided, otherwise it should be automatically generated
@@ -53,10 +68,13 @@ export class BusinessService {
     dto: CreateBusinessDto,
   ): Promise<Business> {
     this.logger.log(`Creating business for user ID: ${ownerId}`);
+    const slug = SlugGenerator.generateSlug(dto.name, dto.city);
+
     const businessData: Partial<Business> = {
       // BASIC INFO
       name: dto.name,
       description: dto.description,
+      slug: slug,
       // CATEGORIES & SPECIALISATIONS
       categories: dto.categories as BusinessCategory[],
       specializations: dto.specializations,

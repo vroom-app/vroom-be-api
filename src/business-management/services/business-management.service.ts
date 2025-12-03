@@ -35,6 +35,17 @@ export class BusinessManagementService {
   }
 
   /**
+   * Get a business details {@link BusinessProfileDto} by its slug.
+   *
+   * @param slug The slug of the business
+   * @returns The business profile including services
+   * @throws NotFoundException if business doesn't exist
+   */
+  async getBusinessProfileBySlug(slug: string): Promise<BusinessProfileDto> {
+    return await this.businessService.getBusinessDetailsBySlug(slug);
+  }
+
+  /**
    * Create a {@link Business} and its associated {@link BusinessServiceOffering} and {@link BusinessOpeningHours}.
    * TODO the function does not provide consistency between the business and the search engine.
    * - It should be refactored to ensure that if the business is created, it is also created in the search engine.
