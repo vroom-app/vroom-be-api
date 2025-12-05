@@ -21,9 +21,12 @@ jobs:
     - name: Set npm registry
       run: npm config set registry https://registry.npmjs.org/
 
-    - name: Install dependencies and build
+    - name: Install ALL dependencies
       run: |
-        npm ci
+        npm ci --no-audit --prefer-offline
+
+    - name: Build application
+      run: |
         npm run build
 
     - name: Create deployment metadata
@@ -33,13 +36,33 @@ jobs:
         echo "Branch: ${{ github.ref_name }}" >> dist/build-info.txt
         echo "Deployed by: GitHub Actions" >> dist/build-info.txt
 
+    - name: Create package.json for production
+      run: |
+        # Create a production package.json with only dependencies
+        node -e "
+        const pkg = require('./package.json');
+        const prodPkg = {
+          name: pkg.name,
+          version: pkg.version,
+          description: pkg.description,
+          author: pkg.author,
+          license: pkg.license,
+          engines: pkg.engines,
+          dependencies: pkg.dependencies,
+          scripts: {
+            start: 'node dist/main.js'
+          }
+        };
+        require('fs').writeFileSync('dist/package.json', JSON.stringify(prodPkg, null, 2));
+        "
+
     - name: Upload build to EC2
       uses: appleboy/scp-action@v0.1.5
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "dist/**,package.json,package-lock.json"
+        source: "dist/*"
         target: "/home/ec2-user/deploy-temp/"
         strip_components: 0
 
@@ -71,10 +94,11 @@ jobs:
           fi
 
           echo "Deploying new version..."
-          sudo rm -rf "$CURRENT_APP/dist"
-          sudo cp -r "$TEMP_DIR/dist" "$CURRENT_APP/"
-          sudo cp "$TEMP_DIR/package.json" "$CURRENT_APP/"
-          sudo cp "$TEMP_DIR/package-lock.json" "$CURRENT_APP/"
+          sudo rm -rf "$CURRENT_APP"
+          sudo mkdir -p "$CURRENT_APP"
+          
+          # Copy only the built files and production package.json
+          sudo cp -r "$TEMP_DIR/"* "$CURRENT_APP/"
 
           echo "Fixing permissions..."
           sudo chown -R ec2-user:ec2-user "$CURRENT_APP"
@@ -82,23 +106,30 @@ jobs:
           echo "Installing production dependencies..."
           cd "$CURRENT_APP"
           rm -rf node_modules
-          npm ci --omit=dev
+          npm ci --omit=dev --no-audit --prefer-offline
 
           echo "Starting service..."
           sudo systemctl start nestjs.service
 
-          sleep 5
-          if ! sudo systemctl is-active --quiet nestjs.service; then
-            echo ">>> Service failed. Rolling back..."
-
+          echo "Checking service status..."
+          sleep 10
+          
+          if sudo systemctl is-active --quiet nestjs.service; then
+            echo "Service is running successfully!"
+            sudo systemctl status nestjs.service --no-pager
+          else
+            echo ">>> Service failed to start. Checking logs..."
+            sudo journalctl -u nestjs.service -n 50 --no-pager
+            
+            echo ">>> Rolling back..."
             sudo rm -rf "$CURRENT_APP"
             sudo cp -r "$BACKUP_DIR" "$CURRENT_APP"
             sudo chown -R ec2-user:ec2-user "$CURRENT_APP"
-
+            
             cd "$CURRENT_APP"
             rm -rf node_modules
-            npm ci --omit=dev
-
+            npm ci --omit=dev --no-audit --prefer-offline
+            
             sudo systemctl start nestjs.service
             echo "Rollback complete."
             exit 1
