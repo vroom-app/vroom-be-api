@@ -18,6 +18,9 @@ jobs:
         node-version: "20"
         cache: "npm"
 
+    - name: Set npm registry
+      run: npm config set registry https://registry.npmjs.org/
+
     - name: Install dependencies and build
       run: |
         npm ci
