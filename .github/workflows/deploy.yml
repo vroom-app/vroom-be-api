@@ -78,6 +78,7 @@ jobs:
 
           echo "Installing production dependencies..."
           cd "$CURRENT_APP"
+          rm -rf node_modules
           npm ci --omit=dev
 
           echo "Starting service..."
@@ -92,6 +93,7 @@ jobs:
             sudo chown -R ec2-user:ec2-user "$CURRENT_APP"
 
             cd "$CURRENT_APP"
+            rm -rf node_modules
             npm ci --omit=dev
 
             sudo systemctl start nestjs.service
