@@ -7,23 +7,26 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js 22
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
-        cache: 'npm'
+        node-version: "20"
+        cache: "npm"
+
+    - name: Set npm registry
+      run: npm config set registry https://registry.npmjs.org/
 
     - name: Install dependencies and build
       run: |
         npm ci
         npm run build
 
-    - name: Create deployment with version info
+    - name: Create deployment metadata
       run: |
         echo "Build Date: $(date)" > dist/build-info.txt
         echo "Commit: ${{ github.sha }}" >> dist/build-info.txt
@@ -31,16 +34,16 @@ jobs:
         echo "Deployed by: GitHub Actions" >> dist/build-info.txt
 
     - name: Upload build to EC2
-      uses: appleboy/scp-action@v0.1.3
+      uses: appleboy/scp-action@v0.1.5
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "{dist/,package.json,package-lock.json}"
+        source: "dist/**,package.json,package-lock.json"
         target: "/home/ec2-user/deploy-temp/"
         strip_components: 0
 
-    - name: Deploy on EC2 with backup + dependency install
+    - name: Deploy on EC2
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -48,12 +51,13 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           set -e
-          
+
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           BACKUP_DIR="/opt/apps/backups/vroom-be-api-$TIMESTAMP"
           CURRENT_APP="/opt/apps/vroom-be-api"
-          
-          echo "Starting deployment..."
+          TEMP_DIR="/home/ec2-user/deploy-temp"
+
+          echo "=== Starting Deployment ==="
 
           sudo mkdir -p /opt/apps/backups
           sudo mkdir -p "$BACKUP_DIR"
@@ -61,34 +65,46 @@ jobs:
           echo "Stopping service..."
           sudo systemctl stop nestjs.service || true
 
-          echo "Backing up current build..."
-          sudo cp -r "$CURRENT_APP"/* "$BACKUP_DIR/" || true
+          echo "Backing up current version..."
+          if [ -d "$CURRENT_APP" ]; then
+            sudo cp -r "$CURRENT_APP"/* "$BACKUP_DIR/" || true
+          fi
 
-          echo "Deploying new build..."
+          echo "Deploying new version..."
           sudo rm -rf "$CURRENT_APP/dist"
-          sudo cp -r /home/ec2-user/deploy-temp/dist "$CURRENT_APP/"
-          sudo cp /home/ec2-user/deploy-temp/package.json "$CURRENT_APP/"
-          sudo cp /home/ec2-user/deploy-temp/package-lock.json "$CURRENT_APP/"
+          sudo cp -r "$TEMP_DIR/dist" "$CURRENT_APP/"
+          sudo cp "$TEMP_DIR/package.json" "$CURRENT_APP/"
+          sudo cp "$TEMP_DIR/package-lock.json" "$CURRENT_APP/"
 
-          echo "Installing production node_modules..."
+          echo "Fixing permissions..."
+          sudo chown -R ec2-user:ec2-user "$CURRENT_APP"
+
+          echo "Installing production dependencies..."
           cd "$CURRENT_APP"
+          rm -rf node_modules
           npm ci --omit=dev
 
           echo "Starting service..."
           sudo systemctl start nestjs.service
-          
+
           sleep 5
           if ! sudo systemctl is-active --quiet nestjs.service; then
-            echo "Service failed. Rolling back..."
+            echo ">>> Service failed. Rolling back..."
+
             sudo rm -rf "$CURRENT_APP"
             sudo cp -r "$BACKUP_DIR" "$CURRENT_APP"
+            sudo chown -R ec2-user:ec2-user "$CURRENT_APP"
+
             cd "$CURRENT_APP"
+            rm -rf node_modules
             npm ci --omit=dev
+
             sudo systemctl start nestjs.service
+            echo "Rollback complete."
             exit 1
           fi
 
           echo "Cleanup..."
-          rm -rf /home/ec2-user/deploy-temp
+          rm -rf "$TEMP_DIR"
 
-          echo "Deployment complete."
+          echo "=== Deployment Successful ==="
