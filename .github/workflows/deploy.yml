@@ -31,7 +31,7 @@ jobs:
         echo "Deployed by: GitHub Actions" >> dist/build-info.txt
 
     - name: Upload build to EC2
-      uses: appleboy/scp-action@v0.1.3
+      uses: appleboy/scp-action@v0.1.5
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
@@ -41,7 +41,7 @@ jobs:
         strip_components: 0
 
     - name: Deploy on EC2
-      uses: appleboy/ssh-action@v0.1.10
+      uses: appleboy/ssh-action@v0.1.11
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
