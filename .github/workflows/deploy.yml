@@ -36,7 +36,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "{dist/,package.json,package-lock.json}"
+        source: "dist/**,package.json,package-lock.json"
         target: "/home/ec2-user/deploy-temp/"
         strip_components: 0
 
