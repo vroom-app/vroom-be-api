@@ -2,6 +2,7 @@ import {
   BusinessOpeningHourDto,
   BusinessProfileDto,
 } from 'src/business-management/dto/business-profile.dto';
+import { BusinessSummaryDto } from 'src/business/dto/business-summary.dto';
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 import { Business } from 'src/business/entities/business.entity';
 import { SearchBusinessPayload } from 'src/search-client/search-client.interface';
@@ -71,6 +72,15 @@ export class BusinessMapper {
       },
       openingHours: business.openingHours?.map(this.toOpeningHourDto),
       services: business.serviceOfferings?.map(this.toServiceOfferingDto),
+    };
+  }
+
+  static toBusinessSummaryDto(business: Business): BusinessSummaryDto {
+    return {
+      id: business.id,
+      name: business.name,
+      categories: business.categories,
+      city: business.city,
     };
   }
 

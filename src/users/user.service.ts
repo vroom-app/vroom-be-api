@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthProvider, User, UserRole } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { UserMapper } from 'src/common/utils/user-mapper.util';
+import { UserSummaryDto } from './dto/user-summary.dto';
 
 interface CreateOAuthUserData {
   email: string;
@@ -44,6 +46,18 @@ export class UserService {
         providerId,
       },
     });
+  }
+
+  async getUsersPaginated(
+    page: number,
+    limit: number,
+  ): Promise<UserSummaryDto[]> {
+    const users = await this.usersRepository.find({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+    return UserMapper.toUserSummaryDtos(users);
   }
 
   async create(
