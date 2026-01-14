@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -22,10 +23,12 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { BusinessManagementService } from '../services/business-management.service';
+import { BusinessSummaryDto } from '../../business/dto/business-summary.dto';
 
 @ApiTags('Business Management')
 @Controller('businesses')
@@ -68,6 +71,28 @@ export class BusinessManagementController {
     @Param('slug') slug: string,
   ): Promise<BusinessProfileDto> {
     return this.businessManagementService.getBusinessProfileBySlug(slug);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get paginated list of businesses. Hard cap at 50 items per page' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of businesses',
+    type: [BusinessSummaryDto],
+  })
+  async getBusinesses(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ): Promise<BusinessSummaryDto[]> {
+    const pageNum = Math.max(1, Number(page));
+    const limitNum = Math.min(50, Math.max(1, Number(limit)));
+
+    return await this.businessManagementService.getBusinessesPaginated(
+      pageNum,
+      limitNum,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

@@ -10,8 +10,8 @@ import { BusinessOpeningHoursService } from 'src/business/services/business-open
 import { BusinessOpeningHours } from 'src/business/entities/business-opening-hours.entity';
 import { SearchClientService } from 'src/search-client/search-client.service';
 import { BusinessProfileDto } from '../dto/business-profile.dto';
-import { SearchBusinessPayload } from 'src/search-client/search-client.interface';
 import { BusinessMapper } from 'src/common/utils/business-mapper.util';
+import { BusinessSummaryDto } from '../../business/dto/business-summary.dto';
 
 @Injectable()
 export class BusinessManagementService {
@@ -43,6 +43,19 @@ export class BusinessManagementService {
    */
   async getBusinessProfileBySlug(slug: string): Promise<BusinessProfileDto> {
     return await this.businessService.getBusinessDetailsBySlug(slug);
+  }
+
+  /**
+   * Get paginated list of business summaries
+   * @param page The page number
+   * @param limit The number of businesses per page
+   * @returns A list of business summaries
+   */
+  async getBusinessesPaginated(
+    page: number,
+    limit: number,
+  ): Promise<BusinessSummaryDto[]> {
+    return await this.businessService.getBusinessesPaginated(page, limit);
   }
 
   /**

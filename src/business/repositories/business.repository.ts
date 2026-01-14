@@ -59,6 +59,19 @@ export class BusinessRepository {
     });
   }
 
+  async findBusinessesPaginated(
+    page: number,
+    limit: number,
+  ): Promise<Business[]> {
+    return await this.businessRepository.find({
+      order: {
+        createdAt: "DESC"
+      },
+      skip: (page - 1) * limit,
+      take: limit
+    });
+  }
+
   /**
    * Find a business by its ID.
    * @param businessId The ID of the business to find

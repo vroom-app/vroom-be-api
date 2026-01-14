@@ -13,6 +13,7 @@ import { assertAffected } from 'src/common/utils/assertAffected';
 import { assertServiceOwnership } from 'src/common/utils/assertServiceownership';
 import { BusinessMapper } from 'src/common/utils/business-mapper.util';
 import { SlugGenerator } from 'src/common/utils/slug-generator.util';
+import { BusinessSummaryDto } from '../dto/business-summary.dto';
 
 @Injectable()
 export class BusinessService {
@@ -54,6 +55,17 @@ export class BusinessService {
     );
 
     return BusinessMapper.toBusinessProfileDto(business);
+  }
+
+  async getBusinessesPaginated(
+    page: number,
+    limit: number,
+  ): Promise<BusinessSummaryDto[]> {
+    this.logger.log(
+      `Fetching paginated businesses: page ${page}, limit ${limit}`,
+    );
+    const businesses = await this.businessRepository.findBusinessesPaginated(page, limit);
+    return businesses.map(BusinessMapper.toBusinessSummaryDto);
   }
 
   /**
